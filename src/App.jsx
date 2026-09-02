@@ -4,6 +4,8 @@ import Inscription from './pages/Inscription.jsx'
 import Connexion from './pages/Connexion.jsx'
 import DemandeReinitialisation from './pages/DemandeReinitialisation.jsx'
 import NouveauMotDePasse from './pages/NouveauMotDePasse.jsx'
+import Connecte from './pages/Connecte.jsx'
+import Identite from './pages/onboarding/Identite.jsx'
 
 function LienExpire({ onRefaireDemande }) {
   return (
@@ -56,10 +58,16 @@ export default function App() {
   if (ecran === 'lien-expire') {
     return <LienExpire onRefaireDemande={() => setEcran('demande-reinitialisation')} />
   }
+  if (ecran === 'onboarding-identite') {
+    return <Identite onEtapeSuivante={() => setEcran('connecte')} />
+  }
+  if (ecran === 'connecte') {
+    return <Connecte onDeconnexionReussie={() => setEcran('connexion')} />
+  }
   return (
     <Inscription
       onAllerConnexion={() => setEcran('connexion')}
-      onDeconnexionReussie={() => setEcran('connexion')}
+      onInscriptionReussie={() => setEcran('onboarding-identite')}
     />
   )
 }

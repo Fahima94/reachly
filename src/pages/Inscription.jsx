@@ -1,15 +1,14 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { PASSWORD_RULES, passwordRespecteLesRegles } from '../lib/passwordRules.js'
-import BoutonDeconnexion from '../components/BoutonDeconnexion.jsx'
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function Inscription({ onAllerConnexion, onDeconnexionReussie }) {
+export default function Inscription({ onAllerConnexion, onInscriptionReussie }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordTouched, setPasswordTouched] = useState(false)
-  const [statut, setStatut] = useState('idle') // idle | chargement | succes | attente-confirmation
+  const [statut, setStatut] = useState('idle') // idle | chargement | attente-confirmation
   const [erreurGlobale, setErreurGlobale] = useState('')
   const [erreurEmail, setErreurEmail] = useState('')
   const [erreurMotDePasse, setErreurMotDePasse] = useState('')
@@ -83,7 +82,7 @@ export default function Inscription({ onAllerConnexion, onDeconnexionReussie }) 
       // Selon la configuration Supabase, la session peut être immédiate
       // ou nécessiter une confirmation par email avant connexion.
       if (data.session) {
-        setStatut('succes')
+        onInscriptionReussie()
       } else {
         setStatut('attente-confirmation')
       }
@@ -93,15 +92,6 @@ export default function Inscription({ onAllerConnexion, onDeconnexionReussie }) 
       )
       setStatut('idle')
     }
-  }
-
-  if (statut === 'succes') {
-    return (
-      <main>
-        <p role="status">Votre compte est créé, vous êtes connecté·e.</p>
-        <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} />
-      </main>
-    )
   }
 
   if (statut === 'attente-confirmation') {

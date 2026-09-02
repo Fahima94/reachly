@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-09-02 — Ticket 05 : Onboarding — Identité
+
+**Fait**
+- Découpage de l'onboarding en 5 étapes (identité, métiers/secteurs, catégories/sources, tonalité, LinkedIn/posts), conçu comme un tunnel séquentiel avec navigation et possibilité d'ignorer chaque étape.
+- Deux colonnes ajoutées à `profiles` par l'humain (`nom`, `prenom`, suppression de `full_name`), plus trois colonnes plus tôt (`linkedin`, `posts_exemples`, `préférences` en jsonb).
+- Ticket 05 implémenté : `src/pages/onboarding/Identite.jsx` (formulaire + tunnel), `src/pages/Connecte.jsx` (écran partagé, destination temporaire du tunnel). `Inscription.jsx` redirige maintenant vers l'onboarding au lieu d'afficher son propre écran "connecté".
+- Écriture dans `profiles` en `upsert` (aucune ligne n'existe encore pour un nouvel inscrit) ; l'email, déjà connu via la session, y est copié au même moment — décision prise avec l'humain pour ne pas laisser `profiles.email` vide indéfiniment.
+
+**Appris**
+- `profiles` n'a pas de trigger de création automatique : la première écriture est toujours un cas "insert", d'où le choix d'`upsert` plutôt qu'`update`.
+- Le typage strict des tickets autonomes (product-manager) a nécessité de traiter "l'étape suivante" comme une notion relative : c'est la prochaine étape déjà construite, pas une référence à un écran figé — permet de livrer étape par étape sans tout coder d'un coup.
+
+**Reste à faire**
+- Vérifier le vrai chemin nominal (upsert réel après une vraie inscription) — bloqué par le quota email Supabase pour créer un compte de test.
+- Accessibilité non testée au clavier ni au lecteur d'écran.
+- Étapes 06 à 09 de l'onboarding restent à découper et implémenter (métiers/secteurs, catégories/sources actives, tonalité, LinkedIn/posts).
+
 ## 2026-09-02 — Ticket 04 : Déconnexion
 
 **Fait**
