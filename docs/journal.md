@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-09-02 — Ticket 03 : Récupération de mot de passe
+
+**Fait**
+- `src/lib/passwordRules.js` : règles de mot de passe extraites de `Inscription.jsx` pour être partagées avec le nouvel écran (refactor signalé, pas fait en douce).
+- `src/pages/DemandeReinitialisation.jsx` : écran 1 (email → `resetPasswordForEmail`, confirmation générique).
+- `src/pages/NouveauMotDePasse.jsx` : écran 2 (nouveau mot de passe + checklist, `updateUser`).
+- `src/App.jsx` : détecte le retour du lien de récupération (`onAuthStateChange` sur `PASSWORD_RECOVERY`) et un lien expiré/déjà utilisé (paramètres d'erreur dans l'URL) pour afficher automatiquement le bon écran.
+
+**Appris**
+- Un lien de réinitialisation expiré ou déjà utilisé revient dans l'URL avec `error=access_denied&error_code=otp_expired` plutôt que d'ouvrir une session — permet de détecter ce cas avant même d'afficher le formulaire.
+- La confirmation de demande de réinitialisation n'a rien de spécifique à masquer côté code : l'API Supabase ne distingue déjà pas les deux cas (compte existant ou non), le message générique du ticket correspond donc directement à son comportement par défaut.
+
+**Reste à faire**
+- La limite d'envoi d'email Supabase était toujours active (cf. ticket 01/02) : je n'ai pas testé la vraie demande ni le vrai lien reçu par email, pour ne pas la prolonger. À refaire une fois la limite repartie (ou un SMTP personnalisé configuré).
+- Accessibilité non testée au clavier ni au lecteur d'écran.
+- Ticket 04 (Déconnexion) reste à implémenter.
+
 ## 2026-09-02 — Ticket 02 : Connexion
 
 **Fait**

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 
-export default function Connexion({ onAllerInscription }) {
+export default function Connexion({ onAllerInscription, onMotDePasseOublie }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [statut, setStatut] = useState('idle') // idle | chargement | succes
@@ -119,9 +119,9 @@ export default function Connexion({ onAllerInscription }) {
         </button>
 
         <p>
-          <span aria-disabled="true" title="Bientôt disponible">
+          <button type="button" onClick={onMotDePasseOublie}>
             Mot de passe oublié ?
-          </span>
+          </button>
         </p>
         <p>
           <button type="button" onClick={onAllerInscription}>
