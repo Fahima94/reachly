@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-09-02 — Ticket 10 : Relancer l'onboarding depuis un compte existant
+
+**Fait**
+- `Connecte.jsx` : nouveau bouton "Relancer l'onboarding".
+- `Connexion.jsx` : utilise maintenant le composant `Connecte` partagé au lieu de son propre bloc dupliqué depuis le ticket 04 — nettoyage explicitement signalé, pas fait en douce.
+- `App.jsx` : câblage vers l'écran `onboarding-identite`.
+- Objectif : permettre à l'humain de tester le tunnel complet avec un vrai compte (connexion, pas inscription — contourne le quota email).
+
+**Vérifié en réel** (structurellement, écran forcé, pas de vraie session) : bouton présent, navigation correcte.
+
+**Reste à faire**
+- Test complet par l'humain avec son compte réel (`francoisba@gmail.com`) : connexion → "Relancer l'onboarding" → parcourir les 5 étapes avec de vraies écritures.
+
 ## 2026-09-02 — Ticket 09 : Onboarding — LinkedIn et posts existants
 
 **Fait**

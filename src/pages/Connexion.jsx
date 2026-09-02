@@ -1,8 +1,13 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
-import BoutonDeconnexion from '../components/BoutonDeconnexion.jsx'
+import Connecte from './Connecte.jsx'
 
-export default function Connexion({ onAllerInscription, onMotDePasseOublie, onDeconnexionReussie }) {
+export default function Connexion({
+  onAllerInscription,
+  onMotDePasseOublie,
+  onDeconnexionReussie,
+  onRelancerOnboarding,
+}) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [statut, setStatut] = useState('idle') // idle | chargement | succes
@@ -61,10 +66,10 @@ export default function Connexion({ onAllerInscription, onMotDePasseOublie, onDe
 
   if (statut === 'succes') {
     return (
-      <main>
-        <p role="status">Vous êtes connecté·e.</p>
-        <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} />
-      </main>
+      <Connecte
+        onDeconnexionReussie={onDeconnexionReussie}
+        onRelancerOnboarding={onRelancerOnboarding}
+      />
     )
   }
 

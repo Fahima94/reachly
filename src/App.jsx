@@ -63,6 +63,7 @@ export default function App() {
         onAllerInscription={() => setEcran('inscription')}
         onMotDePasseOublie={() => setEcran('demande-reinitialisation')}
         onDeconnexionReussie={() => setEcran('connexion')}
+        onRelancerOnboarding={() => setEcran('onboarding-identite')}
       />
     )
   }
@@ -91,7 +92,12 @@ export default function App() {
     return <LinkedinPosts onEtapeSuivante={() => setEcran('connecte')} />
   }
   if (ecran === 'connecte') {
-    return <Connecte onDeconnexionReussie={() => setEcran('connexion')} />
+    return (
+      <Connecte
+        onDeconnexionReussie={() => setEcran('connexion')}
+        onRelancerOnboarding={() => setEcran('onboarding-identite')}
+      />
+    )
   }
   return (
     <Inscription
