@@ -59,10 +59,6 @@ export default function Identite({ onEtapeSuivante }) {
     }
   }
 
-  function gererIgnorer() {
-    onEtapeSuivante()
-  }
-
   return (
     <main>
       <p>Étape 1 sur 5</p>
@@ -116,12 +112,6 @@ export default function Identite({ onEtapeSuivante }) {
         <button type="submit" disabled={enCours} aria-busy={enCours}>
           {enCours ? 'Enregistrement en cours…' : 'Suivant'}
         </button>
-
-        <p>
-          <button type="button" onClick={gererIgnorer} disabled={enCours}>
-            Ignorer cette étape
-          </button>
-        </p>
       </form>
     </main>
   )

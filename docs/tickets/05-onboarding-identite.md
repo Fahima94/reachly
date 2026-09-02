@@ -14,14 +14,6 @@ Scénario: Identité complétée
 
   Alors son profil affiche son nom et son prénom, et elle passe à l'étape suivante du tunnel
 
-Scénario: Étape ignorée
-
-  Étant donné une personne récemment inscrite, sur la première étape de l'onboarding
-
-  Quand elle choisit d'ignorer cette étape
-
-  Alors son profil n'est pas modifié et elle passe à l'étape suivante du tunnel
-
 Scénario: Nom ou prénom manquant
 
   Étant donné une personne sur l'étape d'identité
@@ -47,25 +39,28 @@ Tant qu'aucune autre étape n'existe, c'est l'écran "connecté" actuel.
 - La modification du nom depuis les réglages, une fois l'onboarding terminé — pas ce ticket.
 - Le nom d'utilisateur (`profiles.username`) — non mentionné dans le cadrage, pas dans ce ticket.
 
+**Cette étape n'est pas ignorable**, contrairement aux suivantes du tunnel : nom et prénom sont
+obligatoires avant de continuer.
+
 ## Direction d'écran
 
 **Ce qu'on voit en premier :** les deux champs — prénom, nom (ordre naturel en français, contrairement à l'ordre du cadrage).
-**Ce qui vient ensuite :** le bouton "Suivant" (valide et avance), puis "Ignorer cette étape" en retrait.
+**Ce qui vient ensuite :** le bouton "Suivant" (valide et avance) — pas de bouton "Ignorer" sur cette étape, seule du tunnel dans ce cas.
 **Ce qui est relégué :** un indicateur de progression du tunnel (étape 1 sur N) — discret, pas le premier élément vu.
 
-**Structure :** une phrase d'intro explique pourquoi ces informations sont demandées ("Ces informations nous aident à mieux orienter votre veille et vos posts.") — à répéter au début de chaque étape du tunnel, pas seulement celle-ci. Puis formulaire centré, deux champs empilés avec label visible, cohérent avec les écrans d'inscription et de connexion. Bouton principal "Suivant" en dessous, lien "Ignorer cette étape" sous le bouton. Indicateur d'étape en tête d'écran, discret.
+**Structure :** une phrase d'intro explique pourquoi ces informations sont demandées ("Ces informations nous aident à mieux orienter votre veille et vos posts.") — à répéter au début de chaque étape du tunnel. Puis formulaire centré, deux champs empilés avec label visible, cohérent avec les écrans d'inscription et de connexion. Bouton principal "Suivant" en dessous, seul — pas de possibilité d'ignorer cette étape précise. Indicateur d'étape en tête d'écran, discret.
 
 **Les états**
 - Vide : sans objet — formulaire vide par nature au démarrage.
-- Chargement : le bouton "Suivant" change de libellé ("Enregistrement en cours…") et se désactive ; "Ignorer" se désactive aussi pour éviter une action concurrente.
-- Erreur : champ vide → message sous le champ concerné (prénom ou nom), uniquement sur "Suivant" (jamais sur "Ignorer"). Échec technique → message au-dessus du formulaire, avec action "réessayer".
+- Chargement : le bouton "Suivant" change de libellé ("Enregistrement en cours…") et se désactive.
+- Erreur : champ vide → message sous le champ concerné (prénom ou nom). Échec technique → message au-dessus du formulaire, avec action "réessayer".
 - Partiel : sans objet.
 
 **Accessibilité :** labels associés à chaque champ, contraste des messages à 4,5:1, focus clavier visible, cible des boutons ≥ 24×24 px, l'indicateur de progression n'est jamais porté par la couleur seule (texte "Étape 1 sur N").
 
 ## Fini quand
 
-- [ ] Les quatre scénarios passent
+- [ ] Les trois scénarios passent
 - [ ] État vide traité
 - [ ] État de chargement traité
 - [ ] État d'erreur traité

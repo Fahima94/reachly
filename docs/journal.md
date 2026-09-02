@@ -1,5 +1,17 @@
 # Journal
 
+## 2026-09-02 — Correctif : identité non ignorable
+
+**Fait**
+- Ticket 05 revu : l'étape Identité n'est plus ignorable (nom et prénom obligatoires avant de continuer), contrairement aux autres étapes du tunnel. Décision explicite de l'humain après relecture.
+- `src/pages/onboarding/Identite.jsx` : bouton "Ignorer cette étape" retiré.
+
+**Appris**
+- Le tunnel peut avoir des règles différentes par étape (ignorable ou non) — pas une règle uniforme sur l'ensemble.
+
+**Reste à faire**
+- Étapes 08 (tonalité) et 09 (LinkedIn/posts) restent à faire.
+
 ## 2026-09-02 — Ticket 06 : Onboarding — Métiers et secteurs d'activité
 
 **Fait**
