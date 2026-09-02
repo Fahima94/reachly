@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-09-02 — Ticket 06 : Onboarding — Métiers et secteurs d'activité
+
+**Fait**
+- `src/pages/onboarding/MetiersSecteurs.jsx` : charge les `Catégories` de type `métier`/`secteur` (12 + 16 valeurs réelles), deux groupes de cases à cocher, choix multiple, facultatif.
+- Écriture dans `profils_categories` en purge ciblée (uniquement les catégories métier/secteur de la personne) puis insertion des choix — pour ne pas affecter de futures sélections "thème" (ticket 07).
+- `App.jsx` : nouvel écran, chaîné après l'étape Identité.
+
+**Appris**
+- Les valeurs exactes de `Catégories.type` sont `'métier'`, `'secteur'`, `'thème'` (confirmées par l'humain via une requête directe, pas devinées).
+
+**Reste à faire**
+- Vérifié uniquement sans session (RLS bloque proprement, structure correcte) — le rendu avec les vraies catégories et le chemin d'écriture restent à vérifier avec un compte authentifié.
+- Accessibilité non testée au clavier ni au lecteur d'écran.
+- Étapes 07 à 09 restent à faire (catégories/sources actives, tonalité, LinkedIn/posts).
+
 ## 2026-09-02 — Correctif : retour de lien de confirmation d'inscription
 
 **Fait**

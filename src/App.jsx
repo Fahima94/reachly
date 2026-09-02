@@ -6,6 +6,7 @@ import DemandeReinitialisation from './pages/DemandeReinitialisation.jsx'
 import NouveauMotDePasse from './pages/NouveauMotDePasse.jsx'
 import Connecte from './pages/Connecte.jsx'
 import Identite from './pages/onboarding/Identite.jsx'
+import MetiersSecteurs from './pages/onboarding/MetiersSecteurs.jsx'
 
 function LienExpire({ onRefaireDemande }) {
   return (
@@ -72,7 +73,10 @@ export default function App() {
     return <LienExpire onRefaireDemande={() => setEcran('demande-reinitialisation')} />
   }
   if (ecran === 'onboarding-identite') {
-    return <Identite onEtapeSuivante={() => setEcran('connecte')} />
+    return <Identite onEtapeSuivante={() => setEcran('onboarding-metiers-secteurs')} />
+  }
+  if (ecran === 'onboarding-metiers-secteurs') {
+    return <MetiersSecteurs onEtapeSuivante={() => setEcran('connecte')} />
   }
   if (ecran === 'connecte') {
     return <Connecte onDeconnexionReussie={() => setEcran('connexion')} />
