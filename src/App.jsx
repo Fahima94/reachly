@@ -10,7 +10,7 @@ import Identite from './pages/onboarding/Identite.jsx'
 function LienExpire({ onRefaireDemande }) {
   return (
     <main>
-      <p role="alert">Ce lien de réinitialisation a expiré ou a déjà été utilisé.</p>
+      <p role="alert">Ce lien a expiré ou a déjà été utilisé.</p>
       <p>
         <button type="button" onClick={onRefaireDemande}>
           Refaire une demande
@@ -24,9 +24,16 @@ export default function App() {
   const [ecran, setEcran] = useState('inscription')
 
   useEffect(() => {
-    // Un lien de récupération expiré ou déjà utilisé revient avec une erreur
-    // dans le fragment d'URL plutôt que d'établir une session.
-    if (window.location.hash.includes('error=')) {
+    // Un lien (récupération ou confirmation d'inscription) expiré ou déjà
+    // utilisé revient avec une erreur dans le fragment d'URL plutôt que
+    // d'établir une session.
+    const hash = window.location.hash
+    // Un clic sur le lien de confirmation d'inscription revient avec
+    // "type=signup" dans le fragment ; on le note avant que l'URL soit
+    // nettoyée, pour savoir comment réagir au SIGNED_IN qui va suivre.
+    const estConfirmationInscription = hash.includes('type=signup')
+
+    if (hash.includes('error=')) {
       setEcran('lien-expire')
       window.history.replaceState(null, '', window.location.pathname)
     }
@@ -34,6 +41,12 @@ export default function App() {
     const { data: abonnement } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setEcran('nouveau-mot-de-passe')
+      }
+      // Ne redirige vers l'onboarding que pour un retour de lien de
+      // confirmation — une connexion classique (Connexion.jsx) déclenche
+      // aussi SIGNED_IN et gère déjà son propre écran.
+      if (event === 'SIGNED_IN' && estConfirmationInscription) {
+        setEcran('onboarding-identite')
       }
     })
 

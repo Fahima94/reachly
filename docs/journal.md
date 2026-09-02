@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-09-02 — Correctif : retour de lien de confirmation d'inscription
+
+**Fait**
+- `src/App.jsx` : ajout de la gestion de l'événement `SIGNED_IN` pour rediriger vers l'onboarding quand la page est chargée depuis un lien de confirmation d'inscription (détecté via `type=signup` dans l'URL) — jusque-là, rien ne gérait ce retour, la personne restait bloquée sur l'écran d'inscription malgré une session active.
+- Message de l'écran "lien expiré" généralisé (n'est plus spécifique à la récupération de mot de passe, sert aussi aux liens de confirmation invalides).
+
+**Appris**
+- Un lien de confirmation cliqué dans un navigateur différent de celui ayant fait l'inscription échoue (flux PKCE de Supabase, qui exige le même stockage local) — pas un bug de l'app, mais ça limite comment on peut tester ce parcours depuis un agent.
+- Le quota d'envoi d'email Supabase est très bas (repart puis se ré-épuise en un seul test de plus) — difficile à vérifier de bout en bout sans un fournisseur SMTP personnalisé.
+
+**Reste à faire**
+- Vérifier le vrai clic sur un lien de confirmation valide, de bout en bout, une fois le quota disponible durablement (ou un SMTP personnalisé configuré).
+
 ## 2026-09-02 — Ticket 05 : Onboarding — Identité
 
 **Fait**
