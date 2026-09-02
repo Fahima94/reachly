@@ -43,6 +43,7 @@ export default function App() {
       <Connexion
         onAllerInscription={() => setEcran('inscription')}
         onMotDePasseOublie={() => setEcran('demande-reinitialisation')}
+        onDeconnexionReussie={() => setEcran('connexion')}
       />
     )
   }
@@ -55,5 +56,10 @@ export default function App() {
   if (ecran === 'lien-expire') {
     return <LienExpire onRefaireDemande={() => setEcran('demande-reinitialisation')} />
   }
-  return <Inscription onAllerConnexion={() => setEcran('connexion')} />
+  return (
+    <Inscription
+      onAllerConnexion={() => setEcran('connexion')}
+      onDeconnexionReussie={() => setEcran('connexion')}
+    />
+  )
 }

@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-09-02 — Ticket 04 : Déconnexion
+
+**Fait**
+- `src/components/BoutonDeconnexion.jsx` : bouton partagé, `supabase.auth.signOut()`, états chargement/erreur.
+- Ajouté sur les écrans "connecté" d'Inscription et de Connexion (ticket 04 n'a pas d'écran propre, juste une action — accroché là où on est déjà authentifié).
+- Après déconnexion réussie : retour à l'écran Connexion.
+
+**Appris**
+- Rien de nouveau côté API — `signOut()` ne distingue pas une session valide d'une session déjà expirée, ce qui correspond directement au comportement attendu du ticket (déconnectée dans les deux cas).
+
+**Reste à faire**
+- Non vérifié en réel : je n'ai pas de mot de passe pour me connecter moi-même et atteindre l'écran où se trouve le bouton. À tester par l'humain.
+- Accessibilité non testée au clavier ni au lecteur d'écran.
+- Les quatre tickets d'authentification sont maintenant écrits et implémentés. Reste : vérifier le nominal d'inscription et le flux complet de récupération de mot de passe une fois la limite d'email Supabase repartie ; puis l'onboarding, prochaine étape hors de ce lot.
+
 ## 2026-09-02 — Ticket 03 : Récupération de mot de passe
 
 **Fait**

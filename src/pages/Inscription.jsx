@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { PASSWORD_RULES, passwordRespecteLesRegles } from '../lib/passwordRules.js'
+import BoutonDeconnexion from '../components/BoutonDeconnexion.jsx'
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function Inscription({ onAllerConnexion }) {
+export default function Inscription({ onAllerConnexion, onDeconnexionReussie }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordTouched, setPasswordTouched] = useState(false)
@@ -98,6 +99,7 @@ export default function Inscription({ onAllerConnexion }) {
     return (
       <main>
         <p role="status">Votre compte est créé, vous êtes connecté·e.</p>
+        <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} />
       </main>
     )
   }
