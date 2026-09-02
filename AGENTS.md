@@ -2,21 +2,34 @@
 
 ## Projet
 
-
+- Reachly aide un solopreneur Tech/IA à publier régulièrement sur LinkedIn : moins de temps de veille (jusqu'à 4h/jour), le bon sujet choisi à temps, un contenu qui garde sa personnalité.
+- Pour Léa (freelance), Maxime (créateur de contenu), Bastien (salarié tech) — une interface unique, calibrée par la sous-segmentation, pas par le design.
+- Doit marcher parfaitement : onboarding, dashboard avec top 5 sujets scorés (24h, sans action utilisateur), premier jet de post généré en quelques secondes dans la tonalité choisie, aucune publication sans validation humaine, score compréhensible et défendable.
 
 ## Stack
 
-
+- Front : React + Vite (SPA).
+- Auth : Supabase.
+- Génération de post : webhook n8n.
+- Données : Supabase (7 tables, `profiles` en pivot).
+- LLM : à compléter (utilisé via n8n selon le cadrage, fournisseur non précisé).
 
 ## Commandes
 
 ## Hors périmètre
 
-
+- Pas de monétisation dans ce MVP.
+- Pas de concurrence frontale avec les outils de growth LinkedIn généralistes (Taplio, Buffer, Hootsuite).
+- Pas de publication automatique.
+- Pas de style de rédaction générique.
+- Pas de monitoring d'engagement post-publication (V2).
+- Pas de complexité technique exposée à l'utilisateur (n8n/Supabase invisibles côté back-office).
+- Pas de programmation différée de publication (contrainte API LinkedIn).
+- Pas de canal de notification lourd type SMS/WhatsApp — email suffit en V1.
+- Pas d'écran différent par persona.
+- Ticket 01 : à compléter (mis de côté pour l'instant).
 
 # Méthode
-
-**Tout ce qui suit est verrouillé. Ne pas modifier pendant le projet.**
 
 ## La chaîne
 
@@ -99,10 +112,14 @@ Signaler explicitement lequel de ces points n'est pas traité.
 
 ## Mémoire du projet
 
-| Fichier           | Contenu                                                    | Qui écrit                |
-| ----------------- | ---------------------------------------------------------- | ------------------------ |
-| `docs/cadrage.md` | Le problème, pour qui, ce qu'on ne fait pas, les décisions | L'humain                 |
-| `docs/journal.md` | Une entrée par tour : fait, appris, reste à faire          | L'agent, l'humain valide |
+| Fichier / emplacement                                      | Contenu                                                          | Qui écrit                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------------ | ----------------------------------------- |
+| `docs/cadrage.md`                                           | Le problème, pour qui, ce qu'on ne fait pas, les décisions        | L'humain                                 |
+| `docs/ticket.md`                                             | Canvas — jamais rempli directement, sert de gabarit                | —                                         |
+| `docs/tickets/`                                              | Un fichier par ticket (copié depuis le canvas), critères Gherkin  | L'agent `product-manager`, l'humain valide |
+| `docs/journal.md`                                            | Une entrée par tour : fait, appris, reste à faire                | L'agent, l'humain valide                 |
+| Notion — page « Reachly — Développement »                  | Vue de suivi Epic / User Story / Ticket, dérivée du local          | L'agent, à partir de `docs/tickets/`     |
 
 Lire `docs/cadrage.md` au début de chaque session avant toute proposition.
 Ne jamais contredire une décision qui y est inscrite sans le signaler.
+La source de vérité d'un ticket reste son fichier dans `docs/tickets/` ; Notion n'est qu'une vue, jamais l'inverse.
