@@ -1,5 +1,21 @@
 # Journal
 
+## 2026-09-02 — Ticket 09 : Onboarding — LinkedIn et posts existants
+
+**Fait**
+- `src/pages/onboarding/LinkedinPosts.jsx` : champ LinkedIn, liste de posts ajoutables/retirables un par un, tout facultatif. Dernier bouton nommé "Terminer" plutôt que "Suivant". Écrit dans `profiles.linkedin` et `profiles.posts_exemples` via `upsert`, uniquement s'il y a quelque chose à enregistrer (sinon aucun appel réseau).
+- `App.jsx` : dernier écran du tunnel, chaîné après Tonalité.
+- **Le tunnel d'onboarding est maintenant complet** : Identité (obligatoire) → Métiers/secteurs → Catégories/sources → Tonalité → LinkedIn/posts (les quatre derniers ignorables) → écran "Connecté".
+
+**Vérifié en réel**
+- Ajout/retrait d'un post, "Terminer" sans rien renseigner ne déclenche aucun appel réseau (conforme au scénario "rien enregistré").
+
+**Reste à faire**
+- Rendu et écriture réelle des champs LinkedIn/posts avec une session authentifiée non vérifiés.
+- Accessibilité non testée au clavier ni au lecteur d'écran, sur l'ensemble des 9 tickets.
+- Les chemins nominaux bloqués par le quota email (01, 03) restent à vérifier.
+- Pas de dashboard réel : le tunnel termine sur l'écran "Connecté" provisoire.
+
 ## 2026-09-02 — Ticket 08 : Onboarding — Tonalité par défaut
 
 **Fait**

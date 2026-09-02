@@ -9,6 +9,7 @@ import Identite from './pages/onboarding/Identite.jsx'
 import MetiersSecteurs from './pages/onboarding/MetiersSecteurs.jsx'
 import CategoriesSources from './pages/onboarding/CategoriesSources.jsx'
 import Tonalite from './pages/onboarding/Tonalite.jsx'
+import LinkedinPosts from './pages/onboarding/LinkedinPosts.jsx'
 
 function LienExpire({ onRefaireDemande }) {
   return (
@@ -84,7 +85,10 @@ export default function App() {
     return <CategoriesSources onEtapeSuivante={() => setEcran('onboarding-tonalite')} />
   }
   if (ecran === 'onboarding-tonalite') {
-    return <Tonalite onEtapeSuivante={() => setEcran('connecte')} />
+    return <Tonalite onEtapeSuivante={() => setEcran('onboarding-linkedin-posts')} />
+  }
+  if (ecran === 'onboarding-linkedin-posts') {
+    return <LinkedinPosts onEtapeSuivante={() => setEcran('connecte')} />
   }
   if (ecran === 'connecte') {
     return <Connecte onDeconnexionReussie={() => setEcran('connexion')} />
