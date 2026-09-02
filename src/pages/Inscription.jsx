@@ -14,7 +14,7 @@ function passwordRespecteLesRegles(password) {
   return PASSWORD_RULES.every((rule) => rule.test(password))
 }
 
-export default function Inscription() {
+export default function Inscription({ onAllerConnexion }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordTouched, setPasswordTouched] = useState(false)
@@ -192,9 +192,9 @@ export default function Inscription() {
         </button>
 
         <p>
-          <span aria-disabled="true" title="Bientôt disponible">
+          <button type="button" onClick={onAllerConnexion}>
             J'ai déjà un compte
-          </span>
+          </button>
         </p>
       </form>
     </main>
