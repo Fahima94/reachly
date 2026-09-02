@@ -1,5 +1,15 @@
 # Journal
 
+## 2026-09-02 — Ticket 08 : Onboarding — Tonalité par défaut
+
+**Fait**
+- `src/pages/onboarding/Tonalite.jsx` : charge `Tonalités`, choix unique (boutons radio), obligatoire pour valider (étape elle-même reste ignorable). Écrit dans `profiles.Tonalité_défaut` via `upsert`.
+- `App.jsx` : nouvel écran, chaîné après Catégories/sources.
+
+**Reste à faire**
+- Vérifié uniquement sans session (RLS bloque proprement, validation et navigation correctes) — rendu avec vraies tonalités et chemin d'écriture non vérifiés.
+- Ticket 09 (LinkedIn / posts ou documents existants), dernière étape de l'onboarding, reste à faire.
+
 ## 2026-09-02 — Ticket 07 : Onboarding — Catégories et sources actives
 
 **Fait**
