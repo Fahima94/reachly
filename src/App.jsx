@@ -7,6 +7,7 @@ import NouveauMotDePasse from './pages/NouveauMotDePasse.jsx'
 import Connecte from './pages/Connecte.jsx'
 import Identite from './pages/onboarding/Identite.jsx'
 import MetiersSecteurs from './pages/onboarding/MetiersSecteurs.jsx'
+import CategoriesSources from './pages/onboarding/CategoriesSources.jsx'
 
 function LienExpire({ onRefaireDemande }) {
   return (
@@ -76,7 +77,10 @@ export default function App() {
     return <Identite onEtapeSuivante={() => setEcran('onboarding-metiers-secteurs')} />
   }
   if (ecran === 'onboarding-metiers-secteurs') {
-    return <MetiersSecteurs onEtapeSuivante={() => setEcran('connecte')} />
+    return <MetiersSecteurs onEtapeSuivante={() => setEcran('onboarding-categories-sources')} />
+  }
+  if (ecran === 'onboarding-categories-sources') {
+    return <CategoriesSources onEtapeSuivante={() => setEcran('connecte')} />
   }
   if (ecran === 'connecte') {
     return <Connecte onDeconnexionReussie={() => setEcran('connexion')} />

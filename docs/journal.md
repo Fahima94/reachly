@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-09-02 — Ticket 07 : Onboarding — Catégories et sources actives
+
+**Fait**
+- `src/pages/onboarding/CategoriesSources.jsx` : charge les `Catégories` de type `thème` et les `Sources` actives (`actif = true`), deux groupes de cases à cocher.
+- Catégories : au moins une obligatoire pour valider (mais l'étape reste ignorable dans son ensemble). Sources : facultatives.
+- Écriture catégories → `profils_categories` (purge ciblée sur les catégories thème, même logique qu'au ticket 06).
+- Écriture sources → fusionnées dans `profiles.préférences` (lecture puis `upsert`, pour ne pas écraser d'autres clés qu'un futur ticket y ajouterait).
+- `App.jsx` : nouvel écran, chaîné après Métiers/secteurs.
+
+**Reste à faire**
+- Vérifié uniquement sans session (RLS bloque proprement, validation et navigation correctes) — rendu avec vraies données et chemin d'écriture non vérifiés.
+- Étapes 08 (tonalité) et 09 (LinkedIn/posts) restent à faire.
+
 ## 2026-09-02 — Correctif : identité non ignorable
 
 **Fait**
