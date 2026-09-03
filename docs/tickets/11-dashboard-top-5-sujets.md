@@ -62,7 +62,7 @@ Scénario: Aucun sujet scoré du tout
 
   Étant donné une personne connectée dont l'onboarding est complet
 
-  Quand elle ouvre son tableau de bord alors qu'aucun sujet n'a été publié et scoré dans les dernières 24 heures
+  Quand elle ouvre son tableau de bord alors qu'aucun sujet n'a été scoré dans les dernières 24 heures
 
   Alors elle voit un message indiquant qu'aucun sujet n'est disponible pour le moment, sans classement vide ni erreur
 
@@ -116,11 +116,11 @@ Le cadrage exige un score « compréhensible et défendable, pas une boîte noir
 
 ## Éléments techniques (pour le développeur — hors critères d'acceptation)
 
-- Sujets candidats : table `Infos`, `publier = true`, `date_publication` dans les dernières 24 h glissantes, triés par `score` décroissant.
+- Sujets candidats : table `Infos`, `score` non nul, `created_at` dans les dernières 24 h glissantes, triés par `score` décroissant. La colonne `Infos.publier` **n'est pas utilisée** (aucune donnée ne la renseigne) — la lecture n'en tient pas compte.
 - Sélection en deux passes : (1) les sujets dont `infos_categories` ∩ `profils_categories` de la personne, les mieux scorés d'abord ; (2) si moins de 5, compléter avec les mieux scorés hors de cet ensemble, toutes catégories confondues. Toujours 5 au total si au moins 5 candidats existent. Le développeur doit exposer, par sujet, s'il vient de la passe (1) ou (2) pour l'affichage distinct.
-- Contexte par sujet : `titre_recomposé`, résumé (`contenu` ou `article`), `lien`, catégories via `infos_categories` → `Catégories.nom` ; source via `Infos.sujet_veille_id` → `Sujets_veille.source_id` → `Sources.nom`.
+- Contexte par sujet : `titre_recomposé`, résumé pris dans `contenu` (ou `article`) — c'est le contenu recomposé complet, à tronquer à l'affichage —, `lien`, catégories via `infos_categories` → `Catégories.nom` ; source via `Infos.sujet_veille_id` → `Sujets_veille.source_id` → `Sources.nom`.
 - Score : `Infos.score` est sur 1–10 ; afficher `round(score × 10)` sur 100.
-- **RLS** : policies SELECT `authenticated` ajoutées côté Supabase le 2026-09-03 — `Authenticated can read infos` (`Infos`, `using (publier = true)`) et `Authenticated can read infos_categories` (`infos_categories`, `using (true)`).
+- **RLS** : policies SELECT `authenticated` côté Supabase (2026-09-03) — `Authenticated can read infos` (`Infos`, `using (true)`) et `Authenticated can read infos_categories` (`infos_categories`, `using (true)`).
 - « Onboarding complet » : à préciser avec le développeur — au minimum `profiles.nom` et `profiles.prenom` renseignés (ticket 05, non ignorable) et au moins une catégorie choisie (ticket 07, obligatoire).
 
 ## Fini quand
