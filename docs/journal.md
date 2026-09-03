@@ -17,9 +17,12 @@
 - `App.jsx` : retiré les écrans `demande-reinitialisation`, `nouveau-mot-de-passe`, `lien-expire`, le composant `LienExpire`, le `useEffect` d'écoute `onAuthStateChange` (handler `PASSWORD_RECOVERY` + détection `error=` / `type=signup` du hash) devenu sans objet, et les imports correspondants (`useEffect`, `supabase`).
 - `npm run build` : OK (84 modules).
 
+**Vérifié en réel**
+- *Confirm email* désactivé dans la console Supabase (côté François, propriétaire du projet).
+- Parcours complet rejoué dans le navigateur : inscription → session immédiate → onboarding, puis déconnexion. OK.
+- Page blanche rencontrée au premier lancement : `.env` absent en local (gitignoré, ne suit pas le `git pull`) — résolu en créant `.env` à partir de `.env.example` avec les valeurs du projet.
+
 **Reste à faire / non vérifié**
-- **Action console requise** : décocher *Confirm email* dans Supabase → Auth → Providers. Tant que ce n'est pas fait, `signUp` peut ne pas renvoyer de session et l'inscription affichera l'échec technique.
-- Parcours d'inscription non rejoué en réel (dépend du réglage console ci-dessus).
 - Accessibilité non retestée au clavier / lecteur d'écran.
 - Aucun test automatisé.
 
