@@ -12,8 +12,10 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
 
   const enCours = statut === 'chargement'
 
-  useEffect(() => {
-    async function chargerCategories() {
+  async function charger() {
+    setErreurListe('')
+    setChargementListe(true)
+    try {
       const { data, error } = await supabase
         .from('Catégories')
         .select('id, nom, type')
@@ -26,11 +28,43 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
         return
       }
 
-      setMetiers(data.filter((c) => c.type === 'métier'))
-      setSecteurs(data.filter((c) => c.type === 'secteur'))
+      const listeMetiers = data.filter((c) => c.type === 'métier')
+      const listeSecteurs = data.filter((c) => c.type === 'secteur')
+      setMetiers(listeMetiers)
+      setSecteurs(listeSecteurs)
+
+      // Pré-cochage : lit les choix métier/secteur déjà en base (relance de
+      // l'onboarding). Un premier onboarding n'a aucune ligne → Set vide.
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (user) {
+        const idsMetiersSecteurs = [...listeMetiers, ...listeSecteurs].map((c) => c.id)
+        const { data: liens, error: erreurLiens } = await supabase
+          .from('profils_categories')
+          .select('category_id')
+          .eq('user_id', user.id)
+          .in('category_id', idsMetiersSecteurs)
+
+        if (erreurLiens) {
+          setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
+          setChargementListe(false)
+          return
+        }
+
+        setSelection(new Set(liens.map((l) => l.category_id)))
+      }
+
+      setChargementListe(false)
+    } catch {
+      setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
       setChargementListe(false)
     }
-    chargerCategories()
+  }
+
+  useEffect(() => {
+    charger()
   }, [])
 
   function basculer(id) {
@@ -110,10 +144,17 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Vos métiers et secteurs d'activité</h1>
 
-      {erreurListe && (
-        <p role="alert" className="erreur-globale">
-          {erreurListe}
-        </p>
+      {chargementListe && <p role="status">Chargement de vos réponses…</p>}
+
+      {!chargementListe && erreurListe && (
+        <div>
+          <p role="alert" className="erreur-globale">
+            {erreurListe}
+          </p>
+          <button type="button" onClick={charger}>
+            Réessayer
+          </button>
+        </div>
       )}
 
       {!chargementListe && !erreurListe && (

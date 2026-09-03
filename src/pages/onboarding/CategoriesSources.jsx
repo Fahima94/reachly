@@ -14,8 +14,10 @@ export default function CategoriesSources({ onEtapeSuivante }) {
 
   const enCours = statut === 'chargement'
 
-  useEffect(() => {
-    async function chargerListes() {
+  async function charger() {
+    setErreurListe('')
+    setChargementListe(true)
+    try {
       const [categoriesReponse, sourcesReponse] = await Promise.all([
         supabase.from('Catégories').select('id, nom').eq('type', 'thème').order('nom'),
         supabase.from('Sources').select('id, nom').eq('actif', true).order('nom'),
@@ -29,9 +31,44 @@ export default function CategoriesSources({ onEtapeSuivante }) {
 
       setCategories(categoriesReponse.data)
       setSources(sourcesReponse.data)
+
+      // Pré-cochage : lit les catégories "thème" et les sources actives déjà
+      // en base (relance de l'onboarding). Premier onboarding → rien à cocher.
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (user) {
+        const idsCategories = categoriesReponse.data.map((c) => c.id)
+        const [liensReponse, profilReponse] = await Promise.all([
+          supabase
+            .from('profils_categories')
+            .select('category_id')
+            .eq('user_id', user.id)
+            .in('category_id', idsCategories),
+          supabase.from('profiles').select('préférences').eq('id', user.id).maybeSingle(),
+        ])
+
+        if (liensReponse.error || profilReponse.error) {
+          setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
+          setChargementListe(false)
+          return
+        }
+
+        setCategoriesSelectionnees(new Set(liensReponse.data.map((l) => l.category_id)))
+        const sourcesActives = profilReponse.data?.préférences?.sources_actives ?? []
+        setSourcesSelectionnees(new Set(sourcesActives))
+      }
+
+      setChargementListe(false)
+    } catch {
+      setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
       setChargementListe(false)
     }
-    chargerListes()
+  }
+
+  useEffect(() => {
+    charger()
   }, [])
 
   function basculer(ensemble, setEnsemble, id) {
@@ -145,10 +182,17 @@ export default function CategoriesSources({ onEtapeSuivante }) {
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Vos catégories et sources actives</h1>
 
-      {erreurListe && (
-        <p role="alert" className="erreur-globale">
-          {erreurListe}
-        </p>
+      {chargementListe && <p role="status">Chargement de vos réponses…</p>}
+
+      {!chargementListe && erreurListe && (
+        <div>
+          <p role="alert" className="erreur-globale">
+            {erreurListe}
+          </p>
+          <button type="button" onClick={charger}>
+            Réessayer
+          </button>
+        </div>
       )}
 
       {!chargementListe && !erreurListe && (

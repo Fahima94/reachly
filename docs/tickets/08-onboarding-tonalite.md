@@ -47,6 +47,8 @@ Scénario: Échec technique
 
 ## Direction d'écran
 
+**Relance de l'onboarding :** au chargement, cette étape lit la tonalité déjà enregistrée et présélectionne le bouton radio correspondant. L'état de chargement et l'erreur de chargement associés sont décrits dans le [ticket 10](10-relancer-onboarding.md).
+
 **Ce qu'on voit en premier :** les choix de tonalité — un bouton radio par tonalité, avec son nom et sa courte description.
 **Ce qui vient ensuite :** le bouton "Suivant".
 **Ce qui est relégué :** "Ignorer cette étape" et l'indicateur de progression (étape 4 sur 5).

@@ -1,5 +1,26 @@
 # Journal
 
+## 2026-09-03 — Relance de l'onboarding : préselection des réponses en base + exemples de posts retirables
+
+**Ticket (product-manager)**
+- Ticket 10 amendé : une relance sert à *mettre à jour*, la personne doit retrouver ses réponses. Ajout de 4 scénarios (relance pré-remplie, retrait d'un exemple de post, premier onboarding sans données, échec du chargement). Retrait de la ligne hors-périmètre « chaque étape écrase déjà ses champs, rien de plus à faire ». Direction d'écran : nouvel état de chargement + erreur de chargement sur chaque étape.
+- Tickets 05→09 : une ligne de renvoi vers le 10 ajoutée dans chaque « Direction d'écran ».
+
+**Fait (code)** — chaque étape lit désormais l'état en base au montage (`useEffect`), avant d'afficher le formulaire :
+- `Identite.jsx` : lit `profiles.prenom, nom` ; nouveaux états `chargementInitial` / `erreurChargement` + bouton « Réessayer ».
+- `MetiersSecteurs.jsx` : après les listes, lit `profils_categories` (∩ ids métier/secteur) → `selection` pré-cochée ; bouton « Réessayer » ajouté au bloc d'erreur de chargement.
+- `CategoriesSources.jsx` : lit `profils_categories` (∩ ids thème) + `profiles.préférences.sources_actives` → deux ensembles pré-cochés ; « Réessayer » ajouté.
+- `Tonalite.jsx` : lit `profiles.Tonalité_défaut` → radio présélectionné ; « Réessayer » ajouté.
+- `LinkedinPosts.jsx` : lit `profiles.linkedin` + `posts_exemples` → champ pré-rempli et une zone de texte par exemple existant (le « Retirer ce post » existait déjà ; l'upsert au submit persiste le retrait) ; états `chargementInitial` / `erreurChargement` + « Réessayer ».
+- Aucun flag « mode relance » : un premier onboarding lit des tables vides, sans effet.
+- `npm run build` : OK (84 modules).
+
+**Reste à faire / non vérifié**
+- Parcours non rejoué en réel (relance avec un compte déjà rempli, retrait d'un post, premier onboarding).
+- Accessibilité non retestée au clavier / lecteur d'écran (zones `role="status"` ajoutées mais non vérifiées avec un lecteur).
+- Comportement si `posts_exemples` contient d'anciennes valeurs non-tableau (migration) : on retombe sur `['']`, non testé sur données réelles.
+- Aucun test automatisé.
+
 ## 2026-09-03 — Auth V1 sans e-mail : suppression de la confirmation d'inscription et du « mot de passe oublié »
 
 **Décision (cadrage)**

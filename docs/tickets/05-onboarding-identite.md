@@ -44,6 +44,8 @@ obligatoires avant de continuer.
 
 ## Direction d'écran
 
+**Relance de l'onboarding :** au chargement, cette étape lit les réponses déjà enregistrées et pré-remplit le formulaire. L'état de chargement et l'erreur de chargement associés sont décrits dans le [ticket 10](10-relancer-onboarding.md).
+
 **Ce qu'on voit en premier :** les deux champs — prénom, nom (ordre naturel en français, contrairement à l'ordre du cadrage).
 **Ce qui vient ensuite :** le bouton "Suivant" (valide et avance) — pas de bouton "Ignorer" sur cette étape, seule du tunnel dans ce cas.
 **Ce qui est relégué :** un indicateur de progression du tunnel (étape 1 sur N) — discret, pas le premier élément vu.

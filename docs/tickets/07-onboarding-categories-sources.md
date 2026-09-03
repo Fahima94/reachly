@@ -50,6 +50,8 @@ un minimum, contrairement aux catégories) — à confirmer.
 
 ## Direction d'écran
 
+**Relance de l'onboarding :** au chargement, cette étape lit les réponses déjà enregistrées (catégories thème + sources actives) et pré-coche les choix. L'état de chargement et l'erreur de chargement associés sont décrits dans le [ticket 10](10-relancer-onboarding.md).
+
 **Ce qu'on voit en premier :** le groupe Catégories — c'est le seul choix obligatoire de l'étape, il doit être vu en priorité.
 **Ce qui vient ensuite :** le groupe Sources actives (facultatif), puis le bouton "Suivant".
 **Ce qui est relégué :** "Ignorer cette étape" et l'indicateur de progression (étape 3 sur 5).

@@ -12,8 +12,10 @@ export default function Tonalite({ onEtapeSuivante }) {
 
   const enCours = statut === 'chargement'
 
-  useEffect(() => {
-    async function chargerTonalites() {
+  async function charger() {
+    setErreurListe('')
+    setChargementListe(true)
+    try {
       const { data, error } = await supabase
         .from('Tonalités')
         .select('id, "Visée de la publication", descriptif')
@@ -26,9 +28,40 @@ export default function Tonalite({ onEtapeSuivante }) {
       }
 
       setTonalites(data)
+
+      // Pré-sélection : lit la tonalité par défaut déjà en base (relance de
+      // l'onboarding). Premier onboarding → aucune, rien de coché.
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (user) {
+        const { data: profil, error: erreurProfil } = await supabase
+          .from('profiles')
+          .select('Tonalité_défaut')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        if (erreurProfil) {
+          setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
+          setChargementListe(false)
+          return
+        }
+
+        if (profil?.Tonalité_défaut) {
+          setTonaliteChoisie(profil.Tonalité_défaut)
+        }
+      }
+
+      setChargementListe(false)
+    } catch {
+      setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
       setChargementListe(false)
     }
-    chargerTonalites()
+  }
+
+  useEffect(() => {
+    charger()
   }, [])
 
   async function gererValidation(evenement) {
@@ -81,10 +114,17 @@ export default function Tonalite({ onEtapeSuivante }) {
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Votre tonalité par défaut</h1>
 
-      {erreurListe && (
-        <p role="alert" className="erreur-globale">
-          {erreurListe}
-        </p>
+      {chargementListe && <p role="status">Chargement de vos réponses…</p>}
+
+      {!chargementListe && erreurListe && (
+        <div>
+          <p role="alert" className="erreur-globale">
+            {erreurListe}
+          </p>
+          <button type="button" onClick={charger}>
+            Réessayer
+          </button>
+        </div>
       )}
 
       {!chargementListe && !erreurListe && (

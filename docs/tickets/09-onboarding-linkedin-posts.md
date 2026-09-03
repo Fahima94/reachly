@@ -49,6 +49,8 @@ cadrage ne le demande. À confirmer si tu veux une vérification de format.
 
 ## Direction d'écran
 
+**Relance de l'onboarding :** au chargement, cette étape lit le profil LinkedIn et les exemples de posts déjà enregistrés, pré-remplit le champ LinkedIn et affiche une zone de texte par exemple de post existant (chacune retirable via "Retirer ce post"). L'état de chargement et l'erreur de chargement associés sont décrits dans le [ticket 10](10-relancer-onboarding.md).
+
 **Ce qu'on voit en premier :** le champ LinkedIn.
 **Ce qui vient ensuite :** la zone pour coller des posts existants (un ou plusieurs, ajoutables un par un), puis le bouton "Terminer" — pas "Suivant", c'est la dernière étape.
 **Ce qui est relégué :** "Ignorer cette étape" et l'indicateur de progression (étape 5 sur 5).
