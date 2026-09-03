@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
-import Connecte from './Connecte.jsx'
+import Dashboard from './Dashboard.jsx'
 
 export default function Connexion({
   onAllerInscription,
@@ -65,7 +65,7 @@ export default function Connexion({
 
   if (statut === 'succes') {
     return (
-      <Connecte
+      <Dashboard
         onDeconnexionReussie={onDeconnexionReussie}
         onRelancerOnboarding={onRelancerOnboarding}
       />

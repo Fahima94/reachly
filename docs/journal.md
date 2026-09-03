@@ -1,5 +1,27 @@
 # Journal
 
+## 2026-09-03 — Ticket 11 : tableau de bord, top 5 des sujets scorés
+
+**Ticket + direction (product-manager, product-designer)**
+- Ticket 11 rédigé depuis le cadrage, puis révisé (top 5 toujours complet, repli hors préférences avec affichage distinct). Direction d'écran écrite : hiérarchie en cartes classées, états vide / hors-préférences / partiel / chargement / erreur, accessibilité.
+- Décisions tranchées : score stocké 1–10 → affiché sur 100 ; fenêtre 24 h glissante sur `Infos.created_at` ; onboarding complet = nom + prénom + ≥ 1 catégorie ; déconnexion et relance onboarding conservés sur l'écran.
+- RLS `SELECT authenticated` ajoutées côté Supabase sur `Infos` (`publier = true`) et `infos_categories`.
+
+**Fait (code)**
+- `src/pages/Dashboard.jsx` (nouveau) : au montage, vérifie la complétude de l'onboarding (sinon renvoi au tunnel), puis sélectionne les sujets en deux passes — d'abord ceux dont une catégorie ∈ préférences (`infos_categories` ∩ `profils_categories`), puis complément par score jusqu'à 5. Charge catégories (`Catégories`) et source (`Sujets_veille` → `Sources`) en requêtes séparées (pas d'embed). Rend la liste `<ol>` de cartes (rang, titre, score /100, marqueur texte « Hors de vos préférences », résumé, ligne catégories · source · ancienneté, lien). États : chargement, erreur (+ « Réessayer »), vide (+ « Actualiser »), repli hors préférences (+ « Ajuster mes préférences »).
+- `src/App.jsx`, `src/pages/Connexion.jsx` : `Connecte` remplacé par `Dashboard` (mêmes props).
+- `src/pages/Connecte.jsx` : supprimé (placeholder remplacé, prévu par le ticket 10).
+- Lien externe : affiché seulement s'il commence par `http(s)://` (contenu `Infos` = sortie n8n/LLM, entrée non fiable).
+- `npm run build` : OK (84 modules).
+
+**Non vérifié**
+- Aucun parcours réel : pas de données `Infos` de test observées, pas de session parcourue jusqu'au dashboard.
+- Les six scénarios sont couverts par construction mais non exécutés contre la vraie base (notamment le repli hors préférences et le complément jusqu'à 5).
+- Nuance « indicateur > 1 s / texte > 5 s » de la direction non implémentée : le texte « Chargement des sujets… » s'affiche immédiatement (simplification).
+- Noms de tables/colonnes accentués (`Infos.titre_recomposé`, `Catégories`) : la requête `.select()` part telle quelle, non testée contre l'API réelle.
+- Accessibilité clavier / lecteur d'écran non retestée.
+- Aucun test automatisé.
+
 ## 2026-09-03 — Relance de l'onboarding : préselection des réponses en base + exemples de posts retirables
 
 **Ticket (product-manager)**

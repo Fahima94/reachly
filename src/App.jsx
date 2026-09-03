@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Inscription from './pages/Inscription.jsx'
 import Connexion from './pages/Connexion.jsx'
-import Connecte from './pages/Connecte.jsx'
+import Dashboard from './pages/Dashboard.jsx'
 import Identite from './pages/onboarding/Identite.jsx'
 import MetiersSecteurs from './pages/onboarding/MetiersSecteurs.jsx'
 import CategoriesSources from './pages/onboarding/CategoriesSources.jsx'
@@ -37,7 +37,7 @@ export default function App() {
   }
   if (ecran === 'connecte') {
     return (
-      <Connecte
+      <Dashboard
         onDeconnexionReussie={() => setEcran('connexion')}
         onRelancerOnboarding={() => setEcran('onboarding-identite')}
       />
