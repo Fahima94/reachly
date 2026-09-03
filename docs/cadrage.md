@@ -52,4 +52,5 @@ Une seule interface pour les trois — la sous-segmentation calibre les réglage
 
 - Canal d'alerte prioritaire pour Maxime (FOMO) : l'email suffit-il, ou faut-il prévoir un canal plus immédiat en V1.x ?
 - Grille tarifaire freemium/premium : encore en placeholder, à arbitrer.
+- Score détaillé sur le tableau de bord : le MVP affiche un score global par sujet (les données n8n n'exposent pas la décomposition). Un affichage critère par critère (Fraîcheur, Fiabilité, Pertinence, Discussion, Clarté) est envisagé en V1.x — suppose que le workflow n8n fournisse le détail.
 
