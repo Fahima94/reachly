@@ -5,21 +5,26 @@
 **Ticket + direction (product-manager, product-designer)**
 - Ticket 11 rédigé depuis le cadrage, puis révisé (top 5 toujours complet, repli hors préférences avec affichage distinct). Direction d'écran écrite : hiérarchie en cartes classées, états vide / hors-préférences / partiel / chargement / erreur, accessibilité.
 - Décisions tranchées : score stocké 1–10 → affiché sur 100 ; fenêtre 24 h glissante sur `Infos.created_at` ; onboarding complet = nom + prénom + ≥ 1 catégorie ; déconnexion et relance onboarding conservés sur l'écran.
-- RLS `SELECT authenticated` ajoutées côté Supabase sur `Infos` (`publier = true`) et `infos_categories`.
+- RLS `SELECT authenticated` ajoutées côté Supabase sur `Infos` et `infos_categories`. La condition `publier = true` d'abord posée sur `Infos` masquait tout (aucune ligne `publier = true`) : décision de **ne pas tenir compte de la colonne `publier`** → policy repassée en `using (true)` et filtre `.eq('publier', true)` retiré du code.
 
 **Fait (code)**
 - `src/pages/Dashboard.jsx` (nouveau) : au montage, vérifie la complétude de l'onboarding (sinon renvoi au tunnel), puis sélectionne les sujets en deux passes — d'abord ceux dont une catégorie ∈ préférences (`infos_categories` ∩ `profils_categories`), puis complément par score jusqu'à 5. Charge catégories (`Catégories`) et source (`Sujets_veille` → `Sources`) en requêtes séparées (pas d'embed). Rend la liste `<ol>` de cartes (rang, titre, score /100, marqueur texte « Hors de vos préférences », résumé, ligne catégories · source · ancienneté, lien). États : chargement, erreur (+ « Réessayer »), vide (+ « Actualiser »), repli hors préférences (+ « Ajuster mes préférences »).
 - `src/App.jsx`, `src/pages/Connexion.jsx` : `Connecte` remplacé par `Dashboard` (mêmes props).
 - `src/pages/Connecte.jsx` : supprimé (placeholder remplacé, prévu par le ticket 10).
 - Lien externe : affiché seulement s'il commence par `http(s)://` (contenu `Infos` = sortie n8n/LLM, entrée non fiable).
+- `Infos.contenu` est le contenu recomposé complet (parfois ~1500 caractères), pas un résumé : tronqué à 220 caractères pour la carte.
 - `npm run build` : OK (84 modules).
 
+**Vérifié (sonde avec un compte authentifié jetable, vraie base)**
+- Le chaînage `Infos` → `infos_categories` → `Catégories` et `Infos.sujet_veille_id` → `Sujets_veille.source_id` → `Sources` résout correctement, noms de tables/colonnes accentués compris.
+- Scénario 1 : 12 candidats sur 24 h, 5 correspondant aux préférences → 5 cartes « dans les préférences », scores convertis (8.5 → 85/100), catégories multiples et source affichées.
+- Scénario 2 : un compte sans catégorie tombe bien sur le renvoi vers l'onboarding.
+
 **Non vérifié**
-- Aucun parcours réel : pas de données `Infos` de test observées, pas de session parcourue jusqu'au dashboard.
-- Les six scénarios sont couverts par construction mais non exécutés contre la vraie base (notamment le repli hors préférences et le complément jusqu'à 5).
+- Scénarios 3 (aucune correspondance → repli) et 4 (complément jusqu'à 5) : même code que la passe testée, mais pas exécutés tels quels faute de jeu de données adéquat.
+- Rendu réel dans le navigateur (mise en page, focus clavier, lecteur d'écran) : non ouvert.
 - Nuance « indicateur > 1 s / texte > 5 s » de la direction non implémentée : le texte « Chargement des sujets… » s'affiche immédiatement (simplification).
-- Noms de tables/colonnes accentués (`Infos.titre_recomposé`, `Catégories`) : la requête `.select()` part telle quelle, non testée contre l'API réelle.
-- Accessibilité clavier / lecteur d'écran non retestée.
+- Le résumé affiche le markdown brut (`##`, liens image) tel quel — lisible mais pas net ; nettoyage éventuel à voir plus tard.
 - Aucun test automatisé.
 
 ## 2026-09-03 — Relance de l'onboarding : préselection des réponses en base + exemples de posts retirables

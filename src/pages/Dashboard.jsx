@@ -4,12 +4,20 @@ import BoutonDeconnexion from '../components/BoutonDeconnexion.jsx'
 
 const FENETRE_MS = 24 * 60 * 60 * 1000
 const LIEN_VALIDE = /^https?:\/\//i
+const RESUME_MAX = 220
 
 function anciennete(dateIso) {
   const ecoule = Date.now() - new Date(dateIso).getTime()
   const minutes = Math.floor(ecoule / 60000)
   if (minutes < 60) return `il y a ${Math.max(minutes, 1)} min`
   return `il y a ${Math.floor(minutes / 60)} h`
+}
+
+// `Infos.contenu` est le contenu recomposé complet, pas un résumé : on le
+// tronque pour la carte.
+function resumer(texte) {
+  const t = (texte ?? '').replace(/\s+/g, ' ').trim()
+  return t.length > RESUME_MAX ? `${t.slice(0, RESUME_MAX).trimEnd()}…` : t
 }
 
 export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding }) {
@@ -47,13 +55,12 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding }
         return
       }
 
-      // Candidats : publiés, scorés, créés dans les dernières 24 h glissantes,
-      // du meilleur score au moins bon.
+      // Candidats : scorés, créés dans les dernières 24 h glissantes,
+      // du meilleur score au moins bon. (La colonne `publier` n'est pas utilisée.)
       const seuil = new Date(Date.now() - FENETRE_MS).toISOString()
       const { data: candidats, error: erreurInfos } = await supabase
         .from('Infos')
         .select('id, titre_recomposé, contenu, article, lien, score, created_at, sujet_veille_id')
-        .eq('publier', true)
         .not('score', 'is', null)
         .gte('created_at', seuil)
         .order('score', { ascending: false })
@@ -135,7 +142,7 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding }
       const enrichis = retenus.map((c) => ({
         id: c.id,
         titre: c.titre_recomposé || '(Sans titre)',
-        resume: c.contenu || c.article || '',
+        resume: resumer(c.contenu || c.article),
         lien: LIEN_VALIDE.test(c.lien ?? '') ? c.lien : null,
         score: Math.round(c.score * 10),
         anciennete: anciennete(c.created_at),
