@@ -13,6 +13,8 @@ Cet écran remplace l'écran « Connecté » provisoire utilisé jusqu'ici comme
 - **Onboarding incomplet** (champs obligatoires non renseignés) → la personne est renvoyée vers l'onboarding.
 - Fenêtre « dernières 24 heures » **glissante** depuis l'instant présent.
 - Le score affiché est un **score global** par sujet — les données n'exposent pas la décomposition par critère.
+- Le score est stocké **de 1 à 10** en base (`Infos.score`) ; il est **converti et affiché sur 100** (× 10).
+- Les accès « se déconnecter » et « relancer l'onboarding » de l'écran « Connecté » remplacé sont **conservés** sur le tableau de bord (relégués).
 
 ## Critères d'acceptation
 
@@ -83,6 +85,31 @@ Scénario: Échec du chargement des sujets
 - La publication LinkedIn.
 - Toute vue au-delà des dernières 24 heures.
 
+## Direction d'écran
+
+**Ce qu'on voit en premier :** la liste classée des sujets (1 à 5), le premier visuellement dominant. C'est ce que la personne vient chercher : quoi traiter maintenant.
+**Ce qui vient ensuite :** pour chaque sujet, dans l'ordre — titre, score, résumé, puis une ligne de contexte (catégories · source · ancienneté) et un lien « voir la source ».
+**Ce qui est relégué :** la phrase d'explication quand le classement sort des préférences ; les accès « se déconnecter » et « relancer l'onboarding » repris de l'écran « Connecté » que cet écran remplace (discrets, en tête ou en pied).
+
+**Structure :** en-tête léger (titre de l'écran + accès discrets déconnexion / relance onboarding) ; sous l'en-tête, si le classement est hors préférences, une phrase d'explication ; corps = liste ordonnée de 1 à 5 cartes, la première dominante, chaque carte portant titre, score, résumé, ligne de contexte, lien source. Les sujets « dans les préférences » viennent toujours avant les sujets « hors préférences », quel que soit le score brut.
+
+**Les états**
+- Vide (aucun sujet scoré du tout) : « Aucun sujet disponible pour le moment. La veille tourne en continu — revenez d'ici quelques heures. » avec une action « Actualiser ».
+- Hors préférences (aucune correspondance) : ce n'est pas un état vide. Phrase en tête : « Aucun sujet ne correspond à vos préférences dans les dernières 24 heures. Voici les sujets les plus marquants, toutes catégories confondues. » + lien discret « Ajuster mes préférences » (renvoi vers l'onboarding). Les cinq cartes sont affichées, chacune marquée « hors de vos préférences ».
+- Partiel (moins de 5 correspondances, complété jusqu'à 5) : les cartes « dans les préférences » en tête, puis les cartes de complément, chacune marquée « hors de vos préférences ». Jamais d'emplacement vide pour « compléter » visuellement ; s'il existe moins de 5 candidats au total, on affiche ce qu'il y a.
+- Chargement : au-delà d'une seconde, un indicateur ; au-delà de cinq secondes, le texte « Chargement des sujets… ». Pas d'animation en boucle sans fin.
+- Erreur : « Impossible de récupérer les sujets. Vérifiez votre connexion et réessayez. » + bouton « Réessayer ». Aucun classement partiel affiché.
+
+**Accessibilité :**
+- Le marqueur « hors de vos préférences » est un mot sur la carte, jamais porté par la seule couleur de fond ou de bordure.
+- Liste sémantique ordonnée ; le rang est annoncé (« 1 sur 5 ») et pas porté uniquement par la taille de la première carte.
+- Le score est écrit en toutes lettres sur 100 (ex. « Score 82/100 »), pas seulement une barre ou une pastille.
+- Ancienneté en texte lisible (« il y a 3 h »), pas une nuance de couleur seule.
+- Contraste 4,5:1 sur le texte courant, 3:1 sur le grand texte et sur l'indicateur de focus (≥ 2 px, non masqué).
+- Cibles cliquables (« voir la source », « Réessayer », « Actualiser », « Ajuster mes préférences », déconnexion, relance onboarding) ≥ 24 × 24 px, focus clavier visible.
+- Messages « aucun sujet », « hors préférences » et erreur annoncés aux lecteurs d'écran (zone live).
+- Indicateur de chargement : respecter `prefers-reduced-motion`.
+
 ## À signaler (cadrage)
 
 Le cadrage exige un score « compréhensible et défendable, pas une boîte noire ». Les données disponibles ne portent qu'un **score global** par sujet, sans la contribution des cinq critères. **Décision : on ne change pas pour ce ticket** — affichage du score global + contexte du sujet (titre, résumé, source, ancienneté, lien). Un affichage détaillé critère par critère est **envisagé en V1.x** (suppose que le workflow n8n fournisse le détail) — noté dans `docs/cadrage.md`, Questions ouvertes.
@@ -92,6 +119,7 @@ Le cadrage exige un score « compréhensible et défendable, pas une boîte noir
 - Sujets candidats : table `Infos`, `publier = true`, `date_publication` dans les dernières 24 h glissantes, triés par `score` décroissant.
 - Sélection en deux passes : (1) les sujets dont `infos_categories` ∩ `profils_categories` de la personne, les mieux scorés d'abord ; (2) si moins de 5, compléter avec les mieux scorés hors de cet ensemble, toutes catégories confondues. Toujours 5 au total si au moins 5 candidats existent. Le développeur doit exposer, par sujet, s'il vient de la passe (1) ou (2) pour l'affichage distinct.
 - Contexte par sujet : `titre_recomposé`, résumé (`contenu` ou `article`), `lien`, catégories via `infos_categories` → `Catégories.nom` ; source via `Infos.sujet_veille_id` → `Sujets_veille.source_id` → `Sources.nom`.
+- Score : `Infos.score` est sur 1–10 ; afficher `round(score × 10)` sur 100.
 - **RLS** : policies SELECT `authenticated` ajoutées côté Supabase le 2026-09-03 — `Authenticated can read infos` (`Infos`, `using (publier = true)`) et `Authenticated can read infos_categories` (`infos_categories`, `using (true)`).
 - « Onboarding complet » : à préciser avec le développeur — au minimum `profiles.nom` et `profiles.prenom` renseignés (ticket 05, non ignorable) et au moins une catégorie choisie (ticket 07, obligatoire).
 
