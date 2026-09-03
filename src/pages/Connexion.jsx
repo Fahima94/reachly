@@ -4,7 +4,6 @@ import Connecte from './Connecte.jsx'
 
 export default function Connexion({
   onAllerInscription,
-  onMotDePasseOublie,
   onDeconnexionReussie,
   onRelancerOnboarding,
 }) {
@@ -125,11 +124,6 @@ export default function Connexion({
           {enCours ? 'Connexion en cours…' : 'Se connecter'}
         </button>
 
-        <p>
-          <button type="button" onClick={onMotDePasseOublie}>
-            Mot de passe oublié ?
-          </button>
-        </p>
         <p>
           <button type="button" onClick={onAllerInscription}>
             Créer un compte

@@ -32,6 +32,7 @@ Une seule interface pour les trois — la sous-segmentation calibre les réglage
 - Pas de programmation différée de publication (contrainte de l'API LinkedIn).
 - Pas de canal de notification lourd à mettre en place (API X payante, WhatsApp Business à vérifier) — l'email suffit en V1.
 - Pas d'écran différent par persona.
+- Pas de confirmation d'adresse par e-mail à l'inscription, ni de récupération de mot de passe par e-mail, en V1 — l'envoi d'e-mails transactionnels est plafonné côté Supabase.
 
 ## Décisions
 
@@ -44,6 +45,7 @@ Une seule interface pour les trois — la sous-segmentation calibre les réglage
 - Validation humaine obligatoire avant toute publication.
 - Métier ajouté à l'inscription (12 valeurs) ; secteurs d'activité (16) et catégories d'articles (12) fixés en listes fermées pour l'onboarding.
 - Email retenu comme canal de notification pragmatique pour le MVP (pas de SMS/WhatsApp).
+- Authentification V1 sans e-mail : inscription immédiatement connectée (confirmation d'adresse désactivée dans Supabase), pas de parcours « mot de passe oublié ». Raison : quota d'envoi d'e-mails Supabase. Le ticket 03 est annulé ; à revoir en V1.x avec un fournisseur d'e-mail dédié.
 - Conformité RGPD, accessibilité, sécurité
 
 ## Questions ouvertes

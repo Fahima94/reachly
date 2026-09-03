@@ -1,5 +1,11 @@
 # 03 — Récupération de mot de passe
 
+> **ANNULÉ EN V1.** L'envoi d'e-mails transactionnels est plafonné côté Supabase — voir
+> `docs/cadrage.md`, section Décisions. Aucun parcours « mot de passe oublié » n'est
+> livré : ni écran de demande, ni écran de nouveau mot de passe, ni lien dans la connexion.
+> À reprendre en V1.x une fois un fournisseur d'e-mail dédié en place. Le contenu ci-dessous
+> est conservé comme référence pour cette reprise.
+
 ## Pourquoi
 
 Retrouver l'accès à son compte après avoir oublié son mot de passe.

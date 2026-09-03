@@ -8,7 +8,7 @@ export default function Inscription({ onAllerConnexion, onInscriptionReussie }) 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordTouched, setPasswordTouched] = useState(false)
-  const [statut, setStatut] = useState('idle') // idle | chargement | attente-confirmation
+  const [statut, setStatut] = useState('idle') // idle | chargement
   const [erreurGlobale, setErreurGlobale] = useState('')
   const [erreurEmail, setErreurEmail] = useState('')
   const [erreurMotDePasse, setErreurMotDePasse] = useState('')
@@ -55,7 +55,7 @@ export default function Inscription({ onAllerConnexion, onInscriptionReussie }) 
           /already registered|already exists/i.test(error.message ?? '')
         ) {
           setErreurEmail(
-            'Un compte existe déjà pour cette adresse — connectez-vous ou récupérez votre mot de passe.',
+            'Un compte existe déjà pour cette adresse — connectez-vous.',
           )
           setStatut('idle')
           return
@@ -79,12 +79,16 @@ export default function Inscription({ onAllerConnexion, onInscriptionReussie }) 
         return
       }
 
-      // Selon la configuration Supabase, la session peut être immédiate
-      // ou nécessiter une confirmation par email avant connexion.
+      // La confirmation d'adresse par email est désactivée (voir cadrage) :
+      // une inscription réussie ouvre directement une session. Sans session,
+      // on traite le cas comme un échec technique.
       if (data.session) {
         onInscriptionReussie()
       } else {
-        setStatut('attente-confirmation')
+        setErreurGlobale(
+          "La création du compte a échoué. Vérifiez votre connexion et réessayez.",
+        )
+        setStatut('idle')
       }
     } catch {
       setErreurGlobale(
@@ -92,17 +96,6 @@ export default function Inscription({ onAllerConnexion, onInscriptionReussie }) 
       )
       setStatut('idle')
     }
-  }
-
-  if (statut === 'attente-confirmation') {
-    return (
-      <main>
-        <p role="status">
-          Votre compte est créé. Consultez votre boîte email pour confirmer votre
-          adresse avant de vous connecter.
-        </p>
-      </main>
-    )
   }
 
   return (

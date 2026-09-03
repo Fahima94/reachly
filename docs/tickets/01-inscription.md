@@ -4,6 +4,8 @@
 
 Créer un compte pour accéder à Reachly avec ses propres réglages.
 
+En V1, aucune confirmation d'adresse par e-mail : le compte est utilisable dès sa création (voir `docs/cadrage.md` — quota d'envoi d'e-mails Supabase).
+
 ## Critères d'acceptation
 
 Scénario: Inscription réussie
@@ -36,7 +38,7 @@ Scénario: Adresse déjà utilisée
 
   Quand une personne tente de s'inscrire avec cette adresse
 
-  Alors son compte n'est pas créé et elle voit un message l'informant qu'un compte existe déjà pour cette adresse
+  Alors son compte n'est pas créé et elle voit un message l'informant qu'un compte existe déjà pour cette adresse, l'invitant à se connecter
 
 Scénario: Champ vide
 
@@ -58,7 +60,8 @@ Scénario: Échec technique
 
 - L'onboarding (nom, prénom, profil LinkedIn, préférences) — prochaine étape, pas ce ticket.
 - La connexion à un compte existant — ticket séparé.
-- La récupération de mot de passe — ticket séparé.
+- La récupération de mot de passe — annulée en V1 (ticket 03).
+- La confirmation d'adresse par e-mail — supprimée en V1 (voir cadrage).
 - Toute personnalisation de l'écran au-delà d'un formulaire email / mot de passe.
 
 ## Direction d'écran
@@ -72,7 +75,7 @@ Scénario: Échec technique
 **Les états**
 - Vide : sans objet — le formulaire est vide par nature au démarrage, les labels suffisent à orienter.
 - Chargement : le bouton change de libellé ("Création en cours…") et se désactive, pour éviter une double soumission.
-- Erreur : un message par champ concerné, sous ce champ — email invalide, mot de passe refusé, adresse déjà utilisée (avec un lien vers connexion ou récupération). Le champ vide et l'échec technique affichent un message au-dessus du formulaire. Le mot de passe refusé s'accompagne d'une checklist dynamique des règles (longueur, types de caractères), qui se met à jour au fur et à mesure de la saisie.
+- Erreur : un message par champ concerné, sous ce champ — email invalide, mot de passe refusé, adresse déjà utilisée (avec un lien vers la connexion). Le champ vide et l'échec technique affichent un message au-dessus du formulaire. Le mot de passe refusé s'accompagne d'une checklist dynamique des règles (longueur, types de caractères), qui se met à jour au fur et à mesure de la saisie.
 - Partiel : sans objet.
 
 **Accessibilité :** labels associés à chaque champ (pas seulement des placeholders), contraste des messages d'erreur à 4,5:1, la checklist ne repose jamais sur la couleur seule (icône + texte pour chaque règle), focus clavier visible sur champs et bouton, cible du bouton ≥ 24×24 px, message d'erreur annoncé aux lecteurs d'écran.

@@ -41,17 +41,17 @@ Scénario: Échec technique
 ## Hors périmètre
 
 - L'inscription — ticket 01.
-- La récupération de mot de passe — ticket séparé.
+- La récupération de mot de passe — annulée en V1 (ticket 03, voir cadrage).
 - La déconnexion — ticket séparé.
 - Toute personnalisation de l'écran au-delà d'un formulaire email / mot de passe.
 
 ## Direction d'écran
 
 **Ce qu'on voit en premier :** le formulaire — champ email, champ mot de passe.
-**Ce qui vient ensuite :** le bouton "Se connecter", puis les liens "Mot de passe oublié ?" et "Créer un compte".
+**Ce qui vient ensuite :** le bouton "Se connecter", puis le lien "Créer un compte".
 **Ce qui est relégué :** rien de plus — écran volontairement minimal.
 
-**Structure :** formulaire centré, deux champs empilés avec label visible, bouton principal en dessous, deux liens secondaires sous le bouton.
+**Structure :** formulaire centré, deux champs empilés avec label visible, bouton principal en dessous, un lien secondaire sous le bouton.
 
 **Les états**
 - Vide : sans objet — formulaire vide par nature au démarrage.

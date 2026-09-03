@@ -1,5 +1,28 @@
 # Journal
 
+## 2026-09-03 — Auth V1 sans e-mail : suppression de la confirmation d'inscription et du « mot de passe oublié »
+
+**Décision (cadrage)**
+- `docs/cadrage.md` : l'envoi d'e-mails transactionnels étant plafonné côté Supabase, l'auth V1 se fait sans e-mail — inscription immédiatement connectée, aucun parcours de récupération de mot de passe. Ticket 03 annulé, à reprendre en V1.x avec un fournisseur d'e-mail dédié.
+
+**Tickets (product-manager)**
+- 01 : note « aucune confirmation e-mail », scénario *Adresse déjà utilisée* renvoie vers la connexion, hors-périmètre et direction d'écran nettoyés.
+- 02 : lien « Mot de passe oublié ? » retiré de la direction d'écran et de la structure.
+- 03 : bandeau **ANNULÉ EN V1** en tête, contenu conservé comme référence.
+
+**Fait (code)**
+- Supprimé `src/pages/DemandeReinitialisation.jsx` et `src/pages/NouveauMotDePasse.jsx`.
+- `Inscription.jsx` : retiré l'état/écran `attente-confirmation` ; sans session après `signUp`, on tombe sur l'échec technique ; message « adresse déjà utilisée » → « connectez-vous ».
+- `Connexion.jsx` : retiré le bouton « Mot de passe oublié ? » et la prop `onMotDePasseOublie`.
+- `App.jsx` : retiré les écrans `demande-reinitialisation`, `nouveau-mot-de-passe`, `lien-expire`, le composant `LienExpire`, le `useEffect` d'écoute `onAuthStateChange` (handler `PASSWORD_RECOVERY` + détection `error=` / `type=signup` du hash) devenu sans objet, et les imports correspondants (`useEffect`, `supabase`).
+- `npm run build` : OK (84 modules).
+
+**Reste à faire / non vérifié**
+- **Action console requise** : décocher *Confirm email* dans Supabase → Auth → Providers. Tant que ce n'est pas fait, `signUp` peut ne pas renvoyer de session et l'inscription affichera l'échec technique.
+- Parcours d'inscription non rejoué en réel (dépend du réglage console ci-dessus).
+- Accessibilité non retestée au clavier / lecteur d'écran.
+- Aucun test automatisé.
+
 ## 2026-09-02 — Ticket 10 : Relancer l'onboarding depuis un compte existant
 
 **Fait**
