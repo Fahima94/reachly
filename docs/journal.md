@@ -1,5 +1,33 @@
 # Journal
 
+## 2026-09-04 — Raffinements CSS inspirés du template Next-Elite
+
+**Contexte** : l'humain a fait cloner et tourner en local le template `salmanshahriar/Next-Elite` (Next.js/Tailwind/Radix, hors du dépôt Reachly, dans `c:\Users\PC\Documents\Next-Elite`) pour inspiration visuelle uniquement — pas de changement de stack.
+
+**Fait**
+- `src/index.css` : lissage de police, défilement doux (`scroll-behavior: smooth`), barre de défilement fine personnalisée, couleur de sélection de texte teintée en primaire, échelle de rayons enrichie (`--radius-sm/--radius/--radius-lg`) — les cartes du top 5 passent au rayon large, plus cohérent visuellement.
+- Palette et structure existantes conservées telles quelles (pas de refonte, juste des finitions).
+- `npm run build` : OK.
+
+**Non repris volontairement** : le mode sombre, la police custom et l'accent violet du template — hors périmètre de la demande (inspiration, pas migration).
+
+## 2026-09-04 — Charte graphique minimale, appliquée globalement
+
+**Constat** : aucun CSS n'existait dans le projet depuis le début (signalé aux tours ticket 11 et 13) — tous les écrans rendaient en styles par défaut du navigateur. Le cadrage impose une accessibilité WCAG 2 AA et une palette à définir.
+
+**Fait**
+- `src/index.css` (nouveau) : tokens de couleur (contraste ≥ 4,5:1 vérifié — texte `#14171f`/`#4b5563` sur fond clair, primaire `#1d4ed8`), typographie système, espacements. Style appliqué globalement en ciblant les éléments HTML sémantiques déjà en place (`button[type=submit]` vs `button`, `fieldset`/`legend`, `[role=alert]`/`[role=status]`, `main > ol > li` pour les cartes du tableau de bord) — aucun JSX modifié, un seul fichier CSS + un import dans `main.jsx`.
+- Reprend explicitement des points déjà spécifiés dans les directions d'écran mais jamais rendus visibles : première carte du top 5 visuellement dominante (bordure bleue plus épaisse, ticket 11), cases à cocher/radios ≥ 20×20 px, focus visible (`:focus-visible`), messages d'erreur/statut distingués par fond + bordure (pas seulement la couleur du texte).
+- `npm run build` : OK (87 modules, CSS généré ~4 Ko).
+
+**Vérifié (Playwright, captures d'écran)**
+- Inscription, connexion, tableau de bord (avec cartes réelles), écran de préférences : rendu cohérent, lisible, hiérarchie visible sans changement de contenu ni de comportement.
+
+**Reste à faire / non vérifié**
+- Contraste vérifié par calcul, pas par un outil d'audit automatisé (ex. axe, Lighthouse).
+- Navigation clavier et lecteur d'écran toujours non testés avec un style réel appliqué (c'était impossible à évaluer avant, faute de style).
+- `docs/cadrage.md` mis à jour pour refléter que la palette est désormais définie (elle était notée « à définir »).
+
 ## 2026-09-04 — Ticket 13 : contrat webhook confirmé en réel, code écrit
 
 **Cadrage (product-manager)**

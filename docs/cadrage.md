@@ -40,7 +40,7 @@ Une seule interface pour les trois — la sous-segmentation calibre les réglage
 - 7 tables Supabase, `profiles` en pivot central.
 - Interface utilisateur unique et personnalisable (Landing, Inscription, Onboarding, Connexion, Dashboard, Publication).
 - Interface administration
-- Palette imposée : charte graphique à définir — accessibilité WCAG 2 AA.
+- Palette et charte graphique minimale définies le 2026-09-04 (`src/index.css`) : contrastes vérifiés ≥ 4,5:1 sur le texte courant (WCAG 2 AA), pas de couleur seule pour porter une information. Un seul jeu de tokens pour tout l'écran (pas de thème par persona).
 - Scoring cible sur 5 critères pondérés : Fraîcheur 30%, Fiabilité 25%, Pertinence 20%, Discussion 15%, Clarté 10%, moins pénalité anti-répétition (géré par le workflow n8n).
 - Validation humaine obligatoire avant toute publication.
 - Métier ajouté à l'inscription (12 valeurs) ; secteurs d'activité (16) et catégories d'articles (12) fixés en listes fermées pour l'onboarding.
