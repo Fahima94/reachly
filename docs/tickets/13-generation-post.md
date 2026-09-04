@@ -11,6 +11,25 @@ C'est le cœur de la promesse du produit après le tri : une fois le sujet chois
 - Le premier jet s'affiche dans une zone de texte modifiable. Pas de publication depuis l'app, pas d'appel à l'API LinkedIn — la personne copie le texte pour le publier elle-même. C'est une décision explicite, alignée avec le cadrage actuel (« pas de publication automatique »).
 - Tonalité et voix narrative sont facultatives dans l'ensemble de l'onboarding (ticket 08) : si la tonalité manque, la génération produirait un prompt cassé côté n8n (« undefined ») — l'app bloque donc et renvoie vers l'écran de préférences (ticket 12) avant d'appeler le webhook plutôt que de laisser partir un appel voué à mal tourner.
 
+### Amendement (2026-09-04) : Enregistrer / Publier
+
+Le workflow n8n crée déjà une ligne `Publications` (statut « Brouillon ») dès la génération et
+renvoie son `publication_id` — jamais de doublon à gérer, cette ligne existe toujours avant même
+qu'on y touche. Trois statuts au total :
+
+- **Brouillon** — créé automatiquement par n8n à la génération, texte non retouché par la personne.
+- **Enregistré** — la personne a explicitement sauvegardé ses modifications, sans publier.
+- **Publié** — statut final après clic sur « Publier ».
+
+Deux boutons ajoutés à côté de « Copier » : **Enregistrer** (sauvegarde le texte affiché, statut →
+Enregistré) et **Publier** (sauvegarde le texte affiché, statut → Publié, ouvre une fenêtre de
+confirmation avec un accès à LinkedIn). Dans les deux cas, **c'est le contenu actuel de la zone de
+texte qui est écrit — jamais le texte original renvoyé par le webhook** : une personne qui modifie
+puis enregistre ou publie ne doit jamais perdre sa modification.
+
+Publier n'exige pas d'avoir cliqué Enregistrer avant : il sauvegarde et change le statut en une
+seule action.
+
 ## Critères d'acceptation
 
 Scénario: Génération réussie
@@ -53,9 +72,52 @@ Scénario: Échec de la génération
 
   Alors elle voit un message l'invitant à réessayer, et aucun texte partiel ou erroné n'est affiché comme s'il s'agissait d'un post valide
 
+Scénario: Enregistrer le brouillon modifié
+
+  Étant donné un premier jet généré, que la personne a modifié dans la zone de texte
+
+  Quand elle clique sur « Enregistrer »
+
+  Alors le texte tel qu'affiché à l'écran (avec ses modifications) est sauvegardé, et le statut passe à « Enregistré »
+
+Scénario: Publier avec un profil LinkedIn renseigné
+
+  Étant donné un premier jet affiché (modifié ou non), et un profil avec une adresse LinkedIn renseignée
+
+  Quand elle clique sur « Publier »
+
+  Alors le texte affiché est sauvegardé, le statut passe à « Publié », le texte est copié dans le presse-papiers, et une fenêtre de confirmation s'ouvre avec un bouton pour ouvrir LinkedIn
+
+Scénario: Publier sans profil LinkedIn renseigné
+
+  Étant donné un premier jet affiché, et un profil sans adresse LinkedIn renseignée
+
+  Quand elle clique sur « Publier »
+
+  Alors le texte est sauvegardé et le statut passe à « Publié » comme ci-dessus, mais la fenêtre de confirmation invite à renseigner LinkedIn dans les préférences à la place du bouton « Ouvrir LinkedIn »
+
+Scénario: Ouvrir LinkedIn depuis la fenêtre de confirmation
+
+  Étant donné la fenêtre de confirmation affichée après publication, avec un profil LinkedIn renseigné
+
+  Quand elle clique sur « Ouvrir LinkedIn »
+
+  Alors la page de profil LinkedIn de la personne s'ouvre dans un nouvel onglet
+
+Scénario: Échec de l'enregistrement ou de la publication
+
+  Étant donné un premier jet affiché
+
+  Quand l'enregistrement (via « Enregistrer » ou « Publier ») échoue
+
+  Alors le statut affiché ne change pas, et elle voit un message l'invitant à réessayer
+
 ## Hors périmètre
 
-- Toute publication depuis l'app, tout appel à l'API LinkedIn — pas dans ce ticket, contraire au cadrage actuel.
+- Toute publication depuis l'app, tout appel à l'API LinkedIn — pas dans ce ticket, contraire au cadrage actuel. « Publier » ne fait qu'ouvrir la page de profil LinkedIn dans un nouvel onglet ; la personne colle et publie elle-même.
+- Un lien qui ouvrirait directement la zone de rédaction d'un post sur LinkedIn — n'existe pas publiquement (LinkedIn l'a retiré), vérifié avant d'écrire ce ticket.
+- Une liste "mes publications" pour consulter brouillons/enregistrés/publiés — pas ce ticket.
+- Revenir en arrière sur un statut (« dépublier ») — pas ce ticket.
 - Programmation différée de publication — exclue par le cadrage (contrainte API LinkedIn).
 - Régénérer un nouveau jet après une première génération réussie (bouton « Régénérer ») — non demandé, à cadrer séparément si besoin.
 - Historique des posts générés ou modifiés — non demandé.
@@ -96,6 +158,21 @@ Workflow n8n **« Reachly Publication CC »** (`WnLJIyaYmy9QYmso`), export JSON 
 - Copie réussie : confirmation textuelle brève à côté du bouton « Copier » (pas seulement un changement d'icône).
 
 **Accessibilité :** bouton « Générer un post » ≥ 24×24 px, focus visible ; le `<textarea>` a un `label` associé (« Texte du post généré, modifiable ») ; la confirmation de copie et les messages d'erreur sont annoncés (`role="status"` / `role="alert"`).
+
+### Amendement (2026-09-04) : Enregistrer / Publier
+
+**Ce qu'on voit en premier :** inchangé — le `<textarea>` modifiable reste l'élément principal une fois généré.
+**Ce qui vient ensuite :** trois boutons alignés sous la zone de texte — « Copier », « Enregistrer », « Publier ». « Publier » est visuellement le plus engageant des trois (c'est l'action qui clôt le geste).
+**Ce qui est relégué :** dans la fenêtre de confirmation après publication, le lien "renseigner LinkedIn" quand l'adresse manque — accessible, mais pas ce qu'on voit en premier (le message de confirmation passe avant).
+
+**Structure :** les trois boutons restent sous la carte concernée, pas de nouvel écran. « Publier » ouvre une fenêtre de confirmation (modale) : un message de confirmation, puis un bouton principal (« Ouvrir LinkedIn » ou l'invitation à renseigner LinkedIn selon le cas), et un moyen de la fermer.
+
+**Les états**
+- Chargement (Enregistrer / Publier) : le bouton cliqué change de libellé (« Enregistrement… » / « Publication… ») et se désactive ; l'autre bouton se désactive aussi, pour éviter une action concurrente sur la même ligne.
+- Erreur : message inline sous les boutons, avec « Réessayer » — même emplacement que l'erreur de génération existante.
+- Confirmation (nouvel état, après Publier) : la modale décrite ci-dessus.
+
+**Accessibilité :** la modale piège le focus tant qu'elle est ouverte, se ferme au clavier (Échap), le bouton « Ouvrir LinkedIn » est un vrai bouton/lien (jamais du texte cliquable), son ouverture est annoncée aux lecteurs d'écran (`role="dialog"`, `aria-modal="true"`, titre associé). Boutons « Enregistrer »/« Publier » ≥ 24×24 px, focus visible.
 
 ## Fini quand
 

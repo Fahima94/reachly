@@ -1,5 +1,28 @@
 # Journal
 
+## 2026-09-04 — Ticket 13 (amendement) : Enregistrer / Publier
+
+**Cadrage (product-manager, product-designer)**
+- Trois statuts `Publications.statut` : Brouillon (auto, créé par n8n à la génération), Enregistré (sauvegarde explicite), Publié (statut final). Jamais de doublon : `publication_id` connu dès la génération, toujours une mise à jour, jamais une création côté app.
+- « Publier » ne publie pas réellement sur LinkedIn (exclu par le cadrage, aucun lien officiel n'ouvre leur zone de rédaction — vérifié avant d'écrire le ticket) : ouvre la page de profil personnelle dans un nouvel onglet, le texte étant déjà copié dans le presse-papiers.
+- Règle explicite de l'humain : toujours enregistrer le texte tel qu'affiché à l'écran (avec modifications), jamais le texte original de la génération.
+- Ticket 13 amendé : 5 nouveaux scénarios, direction d'écran étendue (modale de confirmation accessible).
+
+**Fait (code)**
+- `src/components/GenerationPost.jsx` : capture `publication_id` à la génération ; boutons "Enregistrer" (update statut → Enregistré) et "Publier" (update statut → Publié, copie presse-papiers, ouvre la modale) ; modale de confirmation avec piège du focus, fermeture Échap, lien LinkedIn ou invitation à le renseigner selon le profil.
+- `npm run build` : OK (87 modules, CSS inclus).
+
+**Vérifié en réel (Playwright, comptes jetables, vraie base)**
+- Génération → modification du texte → Enregistrer → confirmation visible.
+- Publier (LinkedIn renseigné) → modale ouverte, focus initial sur "Ouvrir LinkedIn", Échap ferme la modale, contenu conforme.
+- Publier (sans LinkedIn) → modale bascule sur "Renseigner mon LinkedIn".
+- Aucune erreur console sur les deux parcours.
+
+**Reste à faire / non vérifié**
+- Cycle de tabulation complet dans la modale (Tab/Shift+Tab) et lecteur d'écran réel — seuls le focus initial et Échap ont été vérifiés.
+- Scénario d'échec technique (enregistrement/publication) non provoqué en réel.
+- Contrainte éventuelle sur `Publications.statut` (CHECK) non vérifiée — le schéma connu ne semble pas en avoir, hypothèse non confirmée activement.
+
 ## 2026-09-04 — Bug ticket 13 : webhook de test au lieu de production + CORS
 
 **Symptôme (rapporté par l'humain)** : clic sur "Générer un post" dans l'app → "Impossible de générer le post."
