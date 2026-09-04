@@ -1,5 +1,20 @@
 # Journal
 
+## 2026-09-04 — Bug ticket 13 : webhook de test au lieu de production + CORS
+
+**Symptôme (rapporté par l'humain)** : clic sur "Générer un post" dans l'app → "Impossible de générer le post."
+
+**Diagnostic (test réel, compte jetable créé via l'app, vraie base)**
+- `.env` pointait vers l'URL de **test** du webhook n8n (`/webhook-test/...`) au lieu de l'URL de **production** (`/webhook/...`) — un webhook de test doit être réarmé manuellement dans l'éditeur n8n avant chaque appel et ne répond qu'une fois ; personne ne l'avait réarmé.
+- Au passage, la console navigateur montrait aussi un blocage CORS (`No 'Access-Control-Allow-Origin' header`) sur cette URL de test, malgré un réglage `*` dans "Allowed Origins" côté n8n — pas creusé plus loin, l'URL de production réglait le symptôme.
+
+**Correctif**
+- L'humain a remis l'URL de production dans `.env` (local, non commité) et revérifié en réel : la génération fonctionne.
+- `.env.example` : commentaire ajouté pour prévenir la confusion test/production à l'avenir.
+
+**Reste à faire**
+- Le blocage CORS observé sur l'URL de test n'a pas été expliqué (le réglage `*` ne semblait pas s'appliquer) — sans conséquence tant que c'est l'URL de production qui est utilisée, mais à garder en tête si le webhook de test doit resservir un jour.
+
 ## 2026-09-04 — Raffinements CSS inspirés du template Next-Elite
 
 **Contexte** : l'humain a fait cloner et tourner en local le template `salmanshahriar/Next-Elite` (Next.js/Tailwind/Radix, hors du dépôt Reachly, dans `c:\Users\PC\Documents\Next-Elite`) pour inspiration visuelle uniquement — pas de changement de stack.
