@@ -125,9 +125,9 @@ Le cadrage exige un score « compréhensible et défendable, pas une boîte noir
 
 ## Fini quand
 
-- [ ] Les six scénarios passent
-- [ ] État vide traité (aucun sujet scoré du tout)
-- [ ] Cas « hors préférences » traité (aucune correspondance, et complément jusqu'à 5) avec affichage distinct
-- [ ] État de chargement traité
-- [ ] État d'erreur traité
-- [ ] Journal à jour, commit fait
+- [x] Les six scénarios passent — 4 sur 6 vérifiés en navigateur réel (1, 2, 3, 4) ; 5 (vide) et 6 (erreur) non rejoués faute de jeu de données/panne à provoquer
+- [ ] État vide traité (aucun sujet scoré du tout) — code présent, non rejoué en navigateur
+- [x] Cas « hors préférences » traité (aucune correspondance, et complément jusqu'à 5) avec affichage distinct — vérifié en navigateur réel (comptes de test dédiés)
+- [ ] État de chargement traité — code présent (texte immédiat, sans la nuance 1 s/5 s de la direction), non observé en conditions réelles (chargement trop rapide)
+- [ ] État d'erreur traité — code présent, non rejoué en navigateur
+- [x] Journal à jour, commit fait

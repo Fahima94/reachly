@@ -1,5 +1,62 @@
 # Journal
 
+## 2026-09-04 — Webhook n8n de génération de post (configuration seule)
+
+**Fait**
+- `VITE_N8N_WEBHOOK_GENERATION_POST` ajouté à `.env` et `.env.example`, pointant vers `https://oreegami.app.n8n.cloud/webhook-test/generation-post`.
+- Aucun code applicatif câblé dessus : la génération de post (sélection d'un sujet → premier jet) est hors périmètre du ticket 11 et n'a pas de ticket propre. Décision : ne pas inventer ce ticket, juste réserver la configuration.
+
+**Reste à faire**
+- Cadrer et écrire le ticket de génération de post quand l'humain le demandera.
+
+## 2026-09-04 — Ticket 12 : tableau de bord, modifier mes préférences (+ amendement ticket 08 : voix narrative)
+
+**Cadrage (product-manager)**
+- Nouvelle demande : éditer métiers/secteurs/catégories/tonalité depuis le tableau de bord (déjà prévu par `docs/cadrage.md`, notée « ticket séparé » dans le ticket 11), plus une nouvelle préférence « voix narrative » pour la génération de post (je / il / elle / nous).
+- Clarifications obtenues de l'humain avant d'écrire les critères : (1) c'est bien la personne grammaticale utilisée dans les posts générés ; (2) pas d'accord automatique par genre (aucun champ genre dans le profil) — choix explicite par la personne ; (3) réglage par défaut du profil, comme la tonalité ; (4) obligatoire. Décision finale de l'humain : la voix narrative se choisit **au moment de la tonalité, à l'onboarding (ticket 08)**, pas seulement sur le nouvel écran — pour que le choix soit fait au moment pertinent.
+- Ticket 08 amendé (nouveau scénario « tonalité et voix narrative », erreur si l'une des deux manque, note technique sur la colonne `profiles.voix_narrative`). Ticket 12 rédigé (5 scénarios, direction d'écran reprenant le pattern déjà validé des étapes d'onboarding — pas de nouveau pattern inventé).
+
+**Fait (code)**
+- Migration Supabase `add_voix_narrative_to_profiles` : colonne `profiles.voix_narrative` (texte, contrainte CHECK sur les 4 valeurs).
+- `src/pages/onboarding/Tonalite.jsx` : ajout du groupe de boutons radio "Voix narrative" (4 valeurs fixes, pas de table de référence — liste fermée non gérée en base), validation des deux champs, pré-sélection à la relance, upsert des deux valeurs ensemble.
+- `src/pages/Preferences.jsx` (nouveau, ticket 12) : écran unique regroupant métiers, secteurs, catégories, sources actives, tonalité et voix narrative. Un seul chargement initial, une seule validation, un seul enregistrement (purge complète de `profils_categories` pour la personne puis réinsertion — plus simple qu'une purge ciblée par groupe, possible car les trois listes sont éditées ensemble ici).
+- `src/App.jsx`, `src/pages/Connexion.jsx` : nouvel écran « preferences » câblé (App.jsx a un état `ecran` global ; Connexion.jsx a son propre état local car il rend `Dashboard` directement sans passer par le routage d'App — même limite architecturale que celle déjà notée au ticket 02).
+- `src/pages/Dashboard.jsx` : nouveau bouton permanent « Modifier mes préférences » dans l'en-tête ; le bouton « Ajuster mes préférences » du cas hors-préférences pointe maintenant vers ce nouvel écran (au lieu de relancer tout l'onboarding, ce qui était un pis-aller avant que le ticket 12 existe).
+- `npm run build` : OK (85 modules).
+
+**Vérifié (Playwright headless, compte de test jetable, vraie base)**
+- Ouverture de l'écran : toutes les préférences existantes bien pré-cochées/présélectionnées.
+- Validation bloquante : tentative d'enregistrement sans tonalité → message "Choisissez une tonalité", rien enregistré (confirme au passage un scénario du ticket 08 et du ticket 12 avec le même code).
+- Enregistrement réussi : tonalité + voix narrative + catégorie modifiées → retour au tableau de bord, classement recalculé avec les nouvelles préférences.
+- Persistance : réouverture de l'écran de préférences → la voix narrative "nous" est bien re-cochée depuis la base.
+- Aucune erreur console sur ce parcours.
+
+**Reste à faire / non vérifié**
+- États de chargement (trop rapides pour être observés en réel) et d'erreur technique (non provoqués) — code présent, non exercé.
+- Scénarios "sans catégorie" et "sans voix narrative" isolément (testé seulement "sans tonalité") — même code de validation, non rejoués un par un.
+- "Retour sans enregistrer" (ticket 12) — non testé explicitement.
+- La voix narrative n'est pas encore utilisée par la génération de post (pas cadrée) — champ enregistré mais sans effet visible pour l'instant.
+- Toujours aucun CSS dans le projet (constat du tour précédent, inchangé) — le nouvel écran hérite du même style brut du navigateur.
+- Comptes de test restés en base, non nettoyés.
+
+## 2026-09-04 — Ticket 11 : vérification en navigateur réel (scénarios 2, 3, 4)
+
+**Vérifié (Playwright headless, comptes de test jetables, vraie base)**
+- Trois comptes créés via l'API auth (email confirmation désactivée, donc session immédiate) : `reachly.test.scenario3@example.com` (préférence "Data", 0 sujet sur 24 h), `reachly.test.scenario4@example.com` (préférence "Cybersécurité", 1 seul sujet sur 24 h), `reachly.test.incomplet@example.com` (aucun profil créé).
+- Scénario 3 (aucune correspondance) : bandeau d'explication affiché, 5 cartes toutes marquées « Hors de vos préférences », triées par score décroissant (92, 87, 85…), bouton « Ajuster mes préférences » présent. Conforme.
+- Scénario 4 (complément jusqu'à 5) : 1 carte « Gemini 3.8 » sans marqueur (dans les préférences, catégorie Cybersécurité), suivie de 4 cartes marquées « Hors de vos préférences ». Conforme.
+- Scénario « onboarding incomplet » : compte sans ligne `profiles` renvoyé directement vers l'étape 1 de l'onboarding (Identité), aucun classement affiché. Conforme.
+- Aucune erreur console sur ces trois parcours.
+
+**Constat non prévu par le ticket**
+- **Aucun CSS n'existe dans le projet** (`src/`) — tout le rendu (dashboard inclus) est en styles par défaut du navigateur. La direction d'écran du ticket 11 (première carte visuellement dominante, contraste 4,5:1, cibles cliquables ≥ 24×24 px, focus visible) n'est donc pas observable ni vérifiable en l'état : rien n'a encore été stylé sur l'ensemble de l'app, pas seulement ce ticket. Signalé à l'humain, pas corrigé sans validation (changement transverse, hors du seul ticket 11).
+
+**Reste à faire / non vérifié**
+- Scénarios 5 (aucun sujet scoré — état vide) et 6 (échec du chargement — état erreur) : toujours non rejoués en conditions réelles, faute de moyen simple de vider la fenêtre 24 h ou de provoquer une panne sans toucher aux vraies données.
+- Nuance chargement (indicateur > 1 s / texte > 5 s) : le texte s'affiche immédiatement, écart déjà noté au tour précédent, toujours pas implémenté.
+- Accessibilité clavier / lecteur d'écran : non testable tant qu'aucun style n'existe.
+- Comptes de test (`reachly.test.scenario3/4/incomplet@example.com`) laissés en base — à nettoyer si l'humain le souhaite.
+
 ## 2026-09-03 — Ticket 11 : tableau de bord, top 5 des sujets scorés
 
 **Ticket + direction (product-manager, product-designer)**

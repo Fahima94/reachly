@@ -1,14 +1,22 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 
+const VOIX_NARRATIVES = [
+  { valeur: 'je_masculin', libelle: 'Je (masculin)' },
+  { valeur: 'je_feminin', libelle: 'Je (féminin)' },
+  { valeur: 'nous', libelle: 'Nous (1ʳᵉ personne du pluriel)' },
+]
+
 export default function Tonalite({ onEtapeSuivante }) {
   const [tonalites, setTonalites] = useState([])
   const [tonaliteChoisie, setTonaliteChoisie] = useState('')
+  const [voixChoisie, setVoixChoisie] = useState('')
   const [chargementListe, setChargementListe] = useState(true)
   const [erreurListe, setErreurListe] = useState('')
   const [statut, setStatut] = useState('idle') // idle | chargement
   const [erreurGlobale, setErreurGlobale] = useState('')
   const [erreurTonalite, setErreurTonalite] = useState('')
+  const [erreurVoix, setErreurVoix] = useState('')
 
   const enCours = statut === 'chargement'
 
@@ -29,8 +37,8 @@ export default function Tonalite({ onEtapeSuivante }) {
 
       setTonalites(data)
 
-      // Pré-sélection : lit la tonalité par défaut déjà en base (relance de
-      // l'onboarding). Premier onboarding → aucune, rien de coché.
+      // Pré-sélection : lit la tonalité et la voix narrative déjà en base
+      // (relance de l'onboarding). Premier onboarding → aucune, rien de coché.
       const {
         data: { user },
       } = await supabase.auth.getUser()
@@ -38,7 +46,7 @@ export default function Tonalite({ onEtapeSuivante }) {
       if (user) {
         const { data: profil, error: erreurProfil } = await supabase
           .from('profiles')
-          .select('Tonalité_défaut')
+          .select('Tonalité_défaut, voix_narrative')
           .eq('id', user.id)
           .maybeSingle()
 
@@ -50,6 +58,9 @@ export default function Tonalite({ onEtapeSuivante }) {
 
         if (profil?.Tonalité_défaut) {
           setTonaliteChoisie(profil.Tonalité_défaut)
+        }
+        if (profil?.voix_narrative) {
+          setVoixChoisie(profil.voix_narrative)
         }
       }
 
@@ -68,11 +79,18 @@ export default function Tonalite({ onEtapeSuivante }) {
     evenement.preventDefault()
     setErreurGlobale('')
     setErreurTonalite('')
+    setErreurVoix('')
 
+    let bloque = false
     if (!tonaliteChoisie) {
       setErreurTonalite('Choisissez une tonalité.')
-      return
+      bloque = true
     }
+    if (!voixChoisie) {
+      setErreurVoix('Choisissez une voix narrative.')
+      bloque = true
+    }
+    if (bloque) return
 
     setStatut('chargement')
     try {
@@ -89,7 +107,7 @@ export default function Tonalite({ onEtapeSuivante }) {
 
       const { error } = await supabase
         .from('profiles')
-        .upsert({ id: user.id, Tonalité_défaut: tonaliteChoisie })
+        .upsert({ id: user.id, Tonalité_défaut: tonaliteChoisie, voix_narrative: voixChoisie })
 
       if (error) {
         setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
@@ -153,6 +171,27 @@ export default function Tonalite({ onEtapeSuivante }) {
                 />
                 {tonalite['Visée de la publication']}
                 {tonalite.descriptif && <span> — {tonalite.descriptif}</span>}
+              </label>
+            ))}
+          </fieldset>
+
+          <fieldset aria-describedby={erreurVoix ? 'voix-erreur' : undefined}>
+            <legend>Voix narrative</legend>
+            {erreurVoix && (
+              <p id="voix-erreur" role="alert">
+                {erreurVoix}
+              </p>
+            )}
+            {VOIX_NARRATIVES.map((voix) => (
+              <label key={voix.valeur}>
+                <input
+                  type="radio"
+                  name="voix-narrative"
+                  value={voix.valeur}
+                  checked={voixChoisie === voix.valeur}
+                  onChange={() => setVoixChoisie(voix.valeur)}
+                />
+                {voix.libelle}
               </label>
             ))}
           </fieldset>

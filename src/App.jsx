@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Inscription from './pages/Inscription.jsx'
 import Connexion from './pages/Connexion.jsx'
 import Dashboard from './pages/Dashboard.jsx'
+import Preferences from './pages/Preferences.jsx'
 import Identite from './pages/onboarding/Identite.jsx'
 import MetiersSecteurs from './pages/onboarding/MetiersSecteurs.jsx'
 import CategoriesSources from './pages/onboarding/CategoriesSources.jsx'
@@ -35,11 +36,15 @@ export default function App() {
   if (ecran === 'onboarding-linkedin-posts') {
     return <LinkedinPosts onEtapeSuivante={() => setEcran('connecte')} />
   }
+  if (ecran === 'preferences') {
+    return <Preferences onRetour={() => setEcran('connecte')} />
+  }
   if (ecran === 'connecte') {
     return (
       <Dashboard
         onDeconnexionReussie={() => setEcran('connexion')}
         onRelancerOnboarding={() => setEcran('onboarding-identite')}
+        onModifierPreferences={() => setEcran('preferences')}
       />
     )
   }

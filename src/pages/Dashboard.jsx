@@ -20,7 +20,7 @@ function resumer(texte) {
   return t.length > RESUME_MAX ? `${t.slice(0, RESUME_MAX).trimEnd()}…` : t
 }
 
-export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding }) {
+export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding, onModifierPreferences }) {
   // chargement | incomplet | pret | vide | erreur
   const [etat, setEtat] = useState('chargement')
   const [sujets, setSujets] = useState([])
@@ -183,6 +183,11 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding }
         <h1>Vos sujets du jour</h1>
         <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} />
         <p>
+          <button type="button" onClick={onModifierPreferences}>
+            Modifier mes préférences
+          </button>
+        </p>
+        <p>
           <button type="button" onClick={onRelancerOnboarding}>
             Relancer l'onboarding
           </button>
@@ -222,7 +227,7 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding }
                 Aucun sujet ne correspond à vos préférences dans les dernières 24 heures. Voici les
                 sujets les plus marquants, toutes catégories confondues.
               </p>
-              <button type="button" onClick={onRelancerOnboarding}>
+              <button type="button" onClick={onModifierPreferences}>
                 Ajuster mes préférences
               </button>
             </div>

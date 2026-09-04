@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import Dashboard from './Dashboard.jsx'
+import Preferences from './Preferences.jsx'
 
 export default function Connexion({
   onAllerInscription,
@@ -9,6 +10,7 @@ export default function Connexion({
 }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [preferencesOuvertes, setPreferencesOuvertes] = useState(false)
   const [statut, setStatut] = useState('idle') // idle | chargement | succes
   const [erreurGlobale, setErreurGlobale] = useState('')
   const [erreurEmail, setErreurEmail] = useState('')
@@ -63,11 +65,16 @@ export default function Connexion({
     }
   }
 
+  if (statut === 'succes' && preferencesOuvertes) {
+    return <Preferences onRetour={() => setPreferencesOuvertes(false)} />
+  }
+
   if (statut === 'succes') {
     return (
       <Dashboard
         onDeconnexionReussie={onDeconnexionReussie}
         onRelancerOnboarding={onRelancerOnboarding}
+        onModifierPreferences={() => setPreferencesOuvertes(true)}
       />
     )
   }
