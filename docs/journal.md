@@ -1,5 +1,48 @@
 # Journal
 
+## 2026-09-04 — Ticket 13 : contrat webhook confirmé en réel, code écrit
+
+**Cadrage (product-manager)**
+- Contrat confirmé grâce à l'export JSON du workflow n8n "Reachly Publication CC" (`WnLJIyaYmy9QYmso`) fourni par l'humain : requête `{ user_id, info_id }`, réponse `{ success, publication_id, post }`. Le workflow gère lui-même la lecture de la tonalité — l'app n'a pas à l'envoyer.
+- Deux problèmes identifiés dans le workflow et signalés à l'humain (pas corrigés depuis l'app, hors de portée) : `Get Profile` référence une colonne `full_name` qui n'existe plus sur `profiles` (remplacée par `nom`/`prenom` au ticket 05) ; le prompt n'utilise pas `voix_narrative`.
+- Ticket 13 mis à jour avec ce contrat, direction d'écran ajoutée (bouton par carte → zone modifiable inline, pas de nouvel écran).
+
+**Fait (code)**
+- `src/components/GenerationPost.jsx` (nouveau) : bouton "Générer un post" par carte, appelle le webhook (`VITE_N8N_WEBHOOK_GENERATION_POST`) avec `user_id`/`info_id`, affiche le texte reçu dans un `<textarea>` modifiable avec bouton "Copier" (`navigator.clipboard`). États : génération en cours, erreur avec "Réessayer", tonalité manquante (bloque l'appel, renvoie vers les préférences).
+- `src/pages/Dashboard.jsx` : lit désormais `Tonalité_défaut` en plus de nom/prénom, mémorise `userId`, intègre `GenerationPost` sur chaque carte.
+- `.env` : URL mise à jour vers la vraie URL de production du webhook `Reachly Publication CC` (l'URL précédente, `.../generation-post`, appartenait à un autre workflow n8n, plus ancien et incomplet).
+- `npm run build` : OK (86 modules).
+
+**Vérifié (appel `curl` réel, vraies données)**
+- Webhook réarmé en mode test par l'humain à plusieurs reprises (webhook de test n8n = un seul appel par armement).
+- CORS confirmé : `Access-Control-Allow-Origin` reflète l'origine `http://localhost:5173` → un `fetch` depuis l'app fonctionnera.
+- Appel avec un vrai sujet (`Infos.id`) et un vrai profil (après avoir dû lui fixer une tonalité, absente au départ) → réponse `200` conforme exactement au contrat attendu par `GenerationPost.jsx`, texte de post complet et cohérent avec les règles du prompt (accroche, corps, question finale, un hashtag).
+- Effet du bug `full_name` : invisible dans le texte produit (n'apparaît pas comme "undefined") — moins critique que redouté à la lecture du workflow, mais reste un vrai bug à corriger côté n8n.
+
+**Reste à faire / non vérifié**
+- Parcours complet rejoué dans le navigateur (clic réel sur le bouton dans l'app) : pas fait — nécessite soit le mot de passe d'un compte réel, soit un nouvel armement du webhook de test pour un compte de test jetable. Le contrat étant confirmé à l'identique de ce que le code attend, risque jugé faible.
+- Scénarios "post modifié conservé à l'écran" et "copier le post" : logique simple (état React contrôlé, `navigator.clipboard`), non exercés en réel.
+- Correctifs côté n8n (`full_name`, `voix_narrative`) : à faire par l'humain, hors de portée depuis l'app.
+- Activation du workflow n8n (actuellement `active: false`) : à faire avant un usage réel, l'URL de prod dans `.env` ne répondra pas tant que ce n'est pas fait.
+- Un compte de test réel (`0529ba62...`, `francoisba+test@gmail.com`) a eu sa tonalité fixée à "Storytelling" pour les besoins du test (elle était vide) — laissé tel quel, à vérifier avec l'humain si ça doit être remis à zéro.
+- Plusieurs lignes réelles ont été créées dans `Publications` (statut "Brouillon") suite aux tests.
+
+**Suite (même jour) : activation du workflow en production**
+- Premiers appels contre l'URL de production après activation annoncée par l'humain : échecs (500 "Internal Server Error" puis 404 "not registered", reproductibles sur plusieurs tentatives). Diagnostic : le bouton "Execute workflow" dans l'éditeur n8n valide une exécution manuelle, pas l'URL de production — l'activation réelle du toggle "Active" est la seule source de vérité.
+- Une fois le toggle vérifié directement par l'humain, l'appel `curl` en production a réussi (200, réponse conforme). L'humain a ensuite confirmé que le bouton fonctionne aussi en conditions réelles dans l'app (pas seulement en test automatisé).
+- Ticket 13 considéré fonctionnellement terminé pour son périmètre applicatif. Restent, côté n8n, les deux corrections déjà signalées (`full_name`, `voix_narrative` non utilisée) — hors de portée depuis l'app.
+
+## 2026-09-04 — Ticket 13 : génération de post, rédigé puis mis en attente (workflow n8n incomplet)
+
+**Cadrage (product-manager)**
+- Ticket 13 rédigé : bouton "Générer un post" par carte du top 5, appel webhook n8n avec sujet + tonalité + voix narrative, résultat modifiable + copiable, aucune publication ni API LinkedIn (conforme au cadrage). Clarifications obtenues de l'humain avant rédaction : bouton par carte, payload = sujet + préférences profil, pas de bouton "Publier" (choix explicite de rester dans les limites du cadrage actuel).
+
+**Vérifié (appel réel)**
+- `POST https://oreegami.app.n8n.cloud/webhook-test/generation-post` avec un payload d'exemple (sujet_id, titre, tonalité, voix narrative) → d'abord 404 "not registered" (webhook de test non armé), puis 200 OK avec **réponse vide** une fois le workflow armé côté n8n ("Execute workflow").
+- Confirmé avec l'humain : le workflow n8n n'a pas encore de nœud de réponse renvoyant le texte généré — pas terminé côté n8n, pas un problème côté app.
+
+**Décision : ticket 13 en attente.** Pas de code écrit — coder contre un contrat de réponse inconnu reviendrait à l'inventer. Reprendre dès que le workflow n8n répond réellement, avec un nouvel appel de test pour confirmer le format avant d'écrire quoi que ce soit.
+
 ## 2026-09-04 — Webhook n8n de génération de post (configuration seule)
 
 **Fait**

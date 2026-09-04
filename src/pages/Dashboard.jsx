@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import BoutonDeconnexion from '../components/BoutonDeconnexion.jsx'
+import GenerationPost from '../components/GenerationPost.jsx'
 
 const FENETRE_MS = 24 * 60 * 60 * 1000
 const LIEN_VALIDE = /^https?:\/\//i
@@ -25,6 +26,8 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding, 
   const [etat, setEtat] = useState('chargement')
   const [sujets, setSujets] = useState([])
   const [aucuneCorrespondance, setAucuneCorrespondance] = useState(false)
+  const [userId, setUserId] = useState(null)
+  const [tonaliteDefinie, setTonaliteDefinie] = useState(false)
 
   const charger = useCallback(async () => {
     setEtat('chargement')
@@ -41,7 +44,11 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding, 
       // Onboarding complet = nom + prénom renseignés et au moins une catégorie.
       const [{ data: profil, error: erreurProfil }, { data: cats, error: erreurCats }] =
         await Promise.all([
-          supabase.from('profiles').select('nom, prenom').eq('id', user.id).maybeSingle(),
+          supabase
+            .from('profiles')
+            .select('nom, prenom, "Tonalité_défaut"')
+            .eq('id', user.id)
+            .maybeSingle(),
           supabase.from('profils_categories').select('category_id').eq('user_id', user.id),
         ])
       if (erreurProfil || erreurCats) {
@@ -54,6 +61,9 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding, 
         setEtat('incomplet')
         return
       }
+
+      setUserId(user.id)
+      setTonaliteDefinie(Boolean(profil['Tonalité_défaut']))
 
       // Candidats : scorés, créés dans les dernières 24 h glissantes,
       // du meilleur score au moins bon. (La colonne `publier` n'est pas utilisée.)
@@ -265,6 +275,12 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding, 
                         </a>
                       </p>
                     )}
+                    <GenerationPost
+                      sujetId={sujet.id}
+                      userId={userId}
+                      tonaliteDefinie={tonaliteDefinie}
+                      onModifierPreferences={onModifierPreferences}
+                    />
                   </article>
                 </li>
               )
