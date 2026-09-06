@@ -11,6 +11,14 @@ réglages par défaut, pas le design) :
 - **Maxime**, créateur de contenu — veut alimenter sa newsletter sans rater d'info stratégique.
 - **Bastien**, salarié tech — veut gagner en visibilité avec un contenu "safe" pour l'entreprise.
 
+## Statut
+
+🚧 **MVP en développement actif** — pas encore déployé publiquement.
+Fonctionnel en local : inscription, onboarding, tableau de bord, génération et publication de post.
+Prochain jalon : stabilisation (accessibilité, tests) avant un premier déploiement.
+
+![Tableau de bord Reachly : top 5 des sujets du jour, scorés et classés](docs/apercu-dashboard.png)
+
 ## Ce que ça fait aujourd'hui
 
 - Inscription / connexion (sans confirmation par e-mail en V1, quota Supabase oblige).
@@ -21,8 +29,8 @@ réglages par défaut, pas le design) :
   préférences.
 - Écran de préférences pour ajuster métiers/secteurs/catégories/tonalité/voix narrative
   sans repasser par tout l'onboarding.
-- Génération d'un premier jet de post par sujet (webhook n8n), modifiable et copiable —
-  aucune publication automatique, aucun appel à l'API LinkedIn.
+- Génération d'un premier jet de post par sujet, modifiable, à enregistrer ou "publier" —
+  aucun appel à l'API LinkedIn : la personne colle et publie elle-même sur LinkedIn.
 
 ## Ce qu'on ne fait pas (MVP)
 
@@ -34,10 +42,7 @@ dans [`docs/cadrage.md`](docs/cadrage.md).
 
 ## Stack
 
-- **Front** : React + Vite (SPA, pas de framework de routage — l'échelle ne le justifie pas).
-- **Auth & données** : Supabase (Postgres + Auth), `profiles` en table pivot.
-- **Génération de post** : webhook n8n (workflow "Reachly Publication CC"), LLM appelé côté n8n.
-- **Style** : CSS maison (`src/index.css`), pas de framework UI.
+React + Vite, Supabase (auth et données), n8n pour la génération de post assistée par IA.
 
 ## Démarrer en local
 
@@ -53,7 +58,7 @@ Variables d'environnement (voir [`.env.example`](.env.example)) :
 | --- | --- |
 | `VITE_SUPABASE_URL` | URL du projet Supabase |
 | `VITE_SUPABASE_ANON_KEY` | Clé anonyme Supabase (publique côté client) |
-| `VITE_N8N_WEBHOOK_GENERATION_POST` | URL du webhook n8n de génération de post (ticket 13) |
+| `VITE_N8N_WEBHOOK_GENERATION_POST` | URL du webhook n8n de génération de post |
 
 Autres commandes :
 
