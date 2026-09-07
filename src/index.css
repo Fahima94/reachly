@@ -158,6 +158,78 @@ header p {
   box-shadow: var(--shadow-primary);
 }
 
+/* Contenu réservé aux lecteurs d'écran (jamais display:none, qui les en
+   priverait aussi). */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Pastille de profil (en-tête du tableau de bord) : photo si renseignée
+   (`profiles.avatar_url`), sinon initiales — même gabarit dans les deux cas. */
+.profil-entete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: auto;
+}
+
+.pastille-profil {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  object-fit: cover;
+  box-shadow: var(--shadow-sm);
+}
+
+.conteneur-avatar {
+  position: relative;
+}
+
+/* Bouton "+" superposé sur la pastille pour changer la photo — un <label>
+   qui déclenche un <input type="file"> cause visuellement caché, plutôt
+   qu'un <div> cliquable. */
+.bouton-ajout-avatar {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 24px;
+  height: 24px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 999px;
+  border: 2px solid var(--color-bg);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.bouton-ajout-avatar:hover {
+  background: var(--color-primary-hover);
+}
+
 /* Boutons */
 button {
   font-family: inherit;
@@ -484,6 +556,40 @@ fieldset.choix-icones input[type='radio'] {
 .badge-score--bas {
   background: #f1f5f9;
   color: #475569;
+}
+
+/* Source · ancienneté (carte du tableau de bord) : plus discret que le
+   titre/résumé de l'article, qui doit rester ce qu'on lit en premier. */
+.meta-discrete {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+/* Sujet très frais (< 6 h) : flammes à côté du score. */
+.indicateur-chaud {
+  margin-left: var(--space-2);
+  font-size: 0.9rem;
+}
+
+/* Catégories correspondantes (carte du tableau de bord) : étiquettes à
+   l'apparence de bouton, mais de vrais <span> — purement visuel, jamais
+   interactives (pas de curseur pointeur, pas d'effet au survol). */
+.etiquettes-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.etiquette-categorie {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 /* Liste ordonnée du top 5 (tableau de bord) */

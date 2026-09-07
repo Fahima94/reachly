@@ -9,6 +9,49 @@ const FENETRE_MS = 24 * 60 * 60 * 1000
 const LIEN_VALIDE = /^https?:\/\//i
 const RESUME_MAX = 220
 
+// Une couleur par catégorie, sur le tableau de bord uniquement — pour
+// distinguer les catégories d'un coup d'œil sur une carte qui en affiche
+// plusieurs. Assignation fixe pour les 12 catégories "thème" connues du
+// cadrage ; repli déterministe (hash du nom) pour toute catégorie ajoutée
+// depuis l'interface admin (ticket 14), afin qu'elle ait toujours une
+// couleur cohérente avec la palette plutôt que rien.
+const PALETTE_CATEGORIES = [
+  { fond: '#f3e8ff', texte: '#6b21a8' }, // mauve
+  { fond: '#e0f2fe', texte: '#075985' }, // bleu ciel
+  { fond: '#ecfccb', texte: '#3f6212' }, // vert clair
+  { fond: '#fee2e2', texte: '#991b1b' }, // rouge
+  { fond: '#e0e7ff', texte: '#3730a3' }, // indigo
+  { fond: '#ccfbf1', texte: '#115e59' }, // turquoise
+  { fond: '#fef3c7', texte: '#92400e' }, // ambre
+  { fond: '#fae8ff', texte: '#86198f' }, // fuchsia
+  { fond: '#cffafe', texte: '#155e75' }, // cyan
+  { fond: '#fce7f3', texte: '#9d174d' }, // rose
+  { fond: '#ffedd5', texte: '#9a3412' }, // orange
+  { fond: '#e2e8f0', texte: '#334155' }, // ardoise
+]
+
+const COULEUR_PAR_CATEGORIE = {
+  'Agents IA': PALETTE_CATEGORIES[0], // mauve
+  Automatisation: PALETTE_CATEGORIES[10], // orange
+  'Cas d’usage': PALETTE_CATEGORIES[9], // rose
+  Cloud: PALETTE_CATEGORIES[1], // bleu ciel
+  Cybersécurité: PALETTE_CATEGORIES[3], // rouge
+  Data: PALETTE_CATEGORIES[4], // indigo
+  Développement: PALETTE_CATEGORIES[5], // turquoise
+  'Emploi Tech': PALETTE_CATEGORIES[6], // ambre
+  'IA générative': PALETTE_CATEGORIES[7], // fuchsia
+  'Outils IA': PALETTE_CATEGORIES[8], // cyan
+  Productivité: PALETTE_CATEGORIES[2], // vert clair
+  'Régulation IA': PALETTE_CATEGORIES[11], // ardoise
+}
+
+function couleurCategorie(nom) {
+  if (COULEUR_PAR_CATEGORIE[nom]) return COULEUR_PAR_CATEGORIE[nom]
+  let hash = 0
+  for (let i = 0; i < nom.length; i++) hash = (hash * 31 + nom.charCodeAt(i)) >>> 0
+  return PALETTE_CATEGORIES[hash % PALETTE_CATEGORIES.length]
+}
+
 function classeScore(score) {
   if (score >= 80) return 'badge-score--haut'
   if (score >= 60) return 'badge-score--moyen'
@@ -20,6 +63,23 @@ function anciennete(dateIso) {
   const minutes = Math.floor(ecoule / 60000)
   if (minutes < 60) return `il y a ${Math.max(minutes, 1)} min`
   return `il y a ${Math.floor(minutes / 60)} h`
+}
+
+// Fraîcheur en dégradé (0 à 3 flammes) plutôt qu'un simple seuil — la
+// fraîcheur pèse 30 % du score (cadrage), ça mérite un signal visuel qui
+// suit vraiment la récence : < 2 h (3), < 6 h (2), < 12 h (1), sinon rien.
+function niveauFlammes(dateIso) {
+  const heuresEcoulees = (Date.now() - new Date(dateIso).getTime()) / 3600000
+  if (heuresEcoulees < 2) return 3
+  if (heuresEcoulees < 6) return 2
+  if (heuresEcoulees < 12) return 1
+  return 0
+}
+
+const LIBELLE_FLAMMES = {
+  3: 'Sujet très frais, moins de 2 h',
+  2: 'Sujet frais, moins de 6 h',
+  1: 'Sujet récent, moins de 12 h',
 }
 
 // `Infos.contenu` est le contenu recomposé complet, pas un résumé : on le
@@ -42,6 +102,11 @@ export default function Dashboard({
   const [userId, setUserId] = useState(null)
   const [tonaliteDefinie, setTonaliteDefinie] = useState(false)
   const [emailAdmin, setEmailAdmin] = useState(false)
+  const [initiales, setInitiales] = useState('')
+  const [nomComplet, setNomComplet] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState(null)
+  const [avatarEnCours, setAvatarEnCours] = useState(false)
+  const [erreurAvatar, setErreurAvatar] = useState('')
 
   const charger = useCallback(async () => {
     setEtat('chargement')
@@ -60,7 +125,7 @@ export default function Dashboard({
         await Promise.all([
           supabase
             .from('profiles')
-            .select('nom, prenom, "Tonalité_défaut"')
+            .select('nom, prenom, avatar_url, "Tonalité_défaut"')
             .eq('id', user.id)
             .maybeSingle(),
           supabase.from('profils_categories').select('category_id').eq('user_id', user.id),
@@ -79,6 +144,9 @@ export default function Dashboard({
       setUserId(user.id)
       setTonaliteDefinie(Boolean(profil['Tonalité_défaut']))
       setEmailAdmin(estAdmin(user.email))
+      setInitiales(`${profil.prenom[0]}${profil.nom[0]}`.toUpperCase())
+      setNomComplet(`${profil.prenom} ${profil.nom}`)
+      setAvatarUrl(profil.avatar_url || null)
 
       // Candidats : scorés, créés dans les dernières 24 h glissantes, non masqués
       // par un admin (ticket 14), du meilleur score au moins bon. (La colonne
@@ -173,6 +241,7 @@ export default function Dashboard({
         lien: LIEN_VALIDE.test(c.lien ?? '') ? c.lien : null,
         score: Math.round(c.score * 10),
         anciennete: anciennete(c.created_at),
+        flammes: niveauFlammes(c.created_at),
         categories: categoriesParInfo.get(c.id) ?? [],
         source: nomSource.get(sourceParSujetVeille.get(c.sujet_veille_id)) ?? null,
         horsPreferences: !infosDansPreferences.has(c.id),
@@ -189,6 +258,52 @@ export default function Dashboard({
   useEffect(() => {
     charger()
   }, [charger])
+
+  // Photo de profil : chemin `{userId}/avatar-<horodatage>.<ext>` — le
+  // premier segment doit correspondre à `auth.uid()` (policies RLS du bucket
+  // `avatars`). L'ancienne photo n'est pas supprimée (pas demandé), juste
+  // remplacée dans `profiles.avatar_url`.
+  async function gererChoixAvatar(evenement) {
+    const fichier = evenement.target.files?.[0]
+    evenement.target.value = ''
+    if (!fichier || !userId) return
+
+    setErreurAvatar('')
+    setAvatarEnCours(true)
+    try {
+      const extension = fichier.name.split('.').pop() || 'jpg'
+      const chemin = `${userId}/avatar-${Date.now()}.${extension}`
+
+      const { error: erreurUpload } = await supabase.storage
+        .from('avatars')
+        .upload(chemin, fichier, { contentType: fichier.type })
+      if (erreurUpload) {
+        setErreurAvatar("L'envoi de la photo a échoué. Vérifiez votre connexion et réessayez.")
+        setAvatarEnCours(false)
+        return
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('avatars').getPublicUrl(chemin)
+
+      const { error: erreurProfil } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', userId)
+      if (erreurProfil) {
+        setErreurAvatar("L'envoi de la photo a échoué. Vérifiez votre connexion et réessayez.")
+        setAvatarEnCours(false)
+        return
+      }
+
+      setAvatarUrl(publicUrl)
+      setAvatarEnCours(false)
+    } catch {
+      setErreurAvatar("L'envoi de la photo a échoué. Vérifiez votre connexion et réessayez.")
+      setAvatarEnCours(false)
+    }
+  }
 
   useEffect(() => {
     if (etat === 'incomplet') {
@@ -208,7 +323,6 @@ export default function Dashboard({
     <main>
       <LogoReachly />
       <header>
-        <h1>Vos sujets du jour</h1>
         <button type="button" className="bouton-primaire" onClick={onModifierPreferences}>
           Modifier mes préférences
         </button>
@@ -225,7 +339,34 @@ export default function Dashboard({
             Administration
           </button>
         )}
-        <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} className="bouton-deconnexion" />
+        <div className="profil-entete">
+          <div className="conteneur-avatar">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="" className="pastille-profil" />
+            ) : (
+              initiales && (
+                <span className="pastille-profil" aria-hidden="true">
+                  {initiales}
+                </span>
+              )
+            )}
+            <label className="bouton-ajout-avatar">
+              <span className="visually-hidden">Changer ma photo de profil</span>
+              <span aria-hidden="true">{avatarEnCours ? '…' : '+'}</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={gererChoixAvatar}
+                disabled={avatarEnCours}
+                className="visually-hidden"
+              />
+            </label>
+          </div>
+          {nomComplet && <span className="visually-hidden">Profil de {nomComplet}</span>}
+          {erreurAvatar && <p role="alert">{erreurAvatar}</p>}
+          <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} className="bouton-deconnexion" />
+        </div>
+        <h1>Vos sujets du jour</h1>
       </header>
 
       {etat === 'chargement' && <p role="status">Chargement des sujets…</p>}
@@ -269,13 +410,7 @@ export default function Dashboard({
 
           <ol>
             {sujets.map((sujet) => {
-              const meta = [
-                sujet.categories.length > 0 ? sujet.categories.join(', ') : null,
-                sujet.source,
-                sujet.anciennete,
-              ]
-                .filter(Boolean)
-                .join(' · ')
+              const metaReste = [sujet.source, sujet.anciennete].filter(Boolean).join(' · ')
 
               return (
                 <li key={sujet.id}>
@@ -284,6 +419,12 @@ export default function Dashboard({
                       <span className={`badge-score ${classeScore(sujet.score)}`}>
                         {sujet.score}%
                       </span>
+                      {sujet.flammes > 0 && (
+                        <span className="indicateur-chaud" title={LIBELLE_FLAMMES[sujet.flammes]}>
+                          <span aria-hidden="true">{'🔥'.repeat(sujet.flammes)}</span>
+                          <span className="visually-hidden">{LIBELLE_FLAMMES[sujet.flammes]}</span>
+                        </span>
+                      )}
                     </p>
                     <h2>{sujet.titre}</h2>
                     {sujet.horsPreferences && (
@@ -292,7 +433,23 @@ export default function Dashboard({
                       </p>
                     )}
                     {sujet.resume && <p>{sujet.resume}</p>}
-                    <p>{meta}</p>
+                    {sujet.categories.length > 0 && (
+                      <p className="etiquettes-categories">
+                        {sujet.categories.map((categorie) => {
+                          const couleur = couleurCategorie(categorie)
+                          return (
+                            <span
+                              key={categorie}
+                              className="etiquette-categorie"
+                              style={{ background: couleur.fond, color: couleur.texte, borderColor: 'transparent' }}
+                            >
+                              {categorie}
+                            </span>
+                          )
+                        })}
+                      </p>
+                    )}
+                    {metaReste && <p className="meta-discrete">{metaReste}</p>}
                     {sujet.lien && (
                       <p>
                         <a href={sujet.lien} target="_blank" rel="noopener noreferrer">
