@@ -13,7 +13,10 @@ export default function Identite({ onEtapeSuivante }) {
 
   const enCours = statut === 'chargement'
 
-  async function chargerProfil() {
+  // `estAnnule` protège contre le double montage de StrictMode en
+  // développement : si ce chargement a été annulé (montage suivant déjà en
+  // cours), on n'écrase pas un état plus frais avec une réponse en retard.
+  async function chargerProfil(estAnnule = () => false) {
     setErreurChargement('')
     setChargementInitial(true)
     try {
@@ -21,6 +24,7 @@ export default function Identite({ onEtapeSuivante }) {
         data: { user },
         error: erreurUtilisateur,
       } = await supabase.auth.getUser()
+      if (estAnnule()) return
 
       if (erreurUtilisateur || !user) {
         setErreurChargement('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -35,6 +39,7 @@ export default function Identite({ onEtapeSuivante }) {
         .select('prenom, nom')
         .eq('id', user.id)
         .maybeSingle()
+      if (estAnnule()) return
 
       if (error) {
         setErreurChargement('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -48,13 +53,18 @@ export default function Identite({ onEtapeSuivante }) {
       }
       setChargementInitial(false)
     } catch {
+      if (estAnnule()) return
       setErreurChargement('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
       setChargementInitial(false)
     }
   }
 
   useEffect(() => {
-    chargerProfil()
+    let annule = false
+    chargerProfil(() => annule)
+    return () => {
+      annule = true
+    }
   }, [])
 
   async function gererValidation(evenement) {
@@ -120,7 +130,7 @@ export default function Identite({ onEtapeSuivante }) {
           <p role="alert" className="erreur-globale">
             {erreurChargement}
           </p>
-          <button type="button" onClick={chargerProfil}>
+          <button type="button" onClick={() => chargerProfil()}>
             Réessayer
           </button>
         </div>

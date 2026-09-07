@@ -12,7 +12,10 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
 
   const enCours = statut === 'chargement'
 
-  async function charger() {
+  // `estAnnule` protège contre le double montage de StrictMode en
+  // développement : si ce chargement a été annulé (montage suivant déjà en
+  // cours), on n'écrase pas un état plus frais avec une réponse en retard.
+  async function charger(estAnnule = () => false) {
     setErreurListe('')
     setChargementListe(true)
     try {
@@ -21,6 +24,7 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
         .select('id, nom, type')
         .in('type', ['métier', 'secteur'])
         .order('nom')
+      if (estAnnule()) return
 
       if (error) {
         setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -38,6 +42,7 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
       const {
         data: { user },
       } = await supabase.auth.getUser()
+      if (estAnnule()) return
 
       if (user) {
         const idsMetiersSecteurs = [...listeMetiers, ...listeSecteurs].map((c) => c.id)
@@ -46,6 +51,7 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
           .select('category_id')
           .eq('user_id', user.id)
           .in('category_id', idsMetiersSecteurs)
+        if (estAnnule()) return
 
         if (erreurLiens) {
           setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -58,13 +64,18 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
 
       setChargementListe(false)
     } catch {
+      if (estAnnule()) return
       setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
       setChargementListe(false)
     }
   }
 
   useEffect(() => {
-    charger()
+    let annule = false
+    charger(() => annule)
+    return () => {
+      annule = true
+    }
   }, [])
 
   function basculer(id) {
@@ -151,7 +162,7 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
           <p role="alert" className="erreur-globale">
             {erreurListe}
           </p>
-          <button type="button" onClick={charger}>
+          <button type="button" onClick={() => charger()}>
             Réessayer
           </button>
         </div>

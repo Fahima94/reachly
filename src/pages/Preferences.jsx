@@ -7,6 +7,25 @@ const VOIX_NARRATIVES = [
   { valeur: 'nous', libelle: 'Nous (1ʳᵉ personne du pluriel)' },
 ]
 
+async function analyserLeStyle(postsPourAnalyse) {
+  const reponse = await fetch(import.meta.env.VITE_N8N_WEBHOOK_PROFIL_EDITORIAL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ posts: postsPourAnalyse }),
+  })
+
+  if (!reponse.ok) {
+    throw new Error('echec-analyse')
+  }
+
+  const donnees = await reponse.json()
+  if (!donnees?.success || typeof donnees.profil_editorial !== 'string') {
+    throw new Error('echec-analyse')
+  }
+
+  return donnees.profil_editorial
+}
+
 export default function Preferences({ onRetour }) {
   const [metiers, setMetiers] = useState([])
   const [secteurs, setSecteurs] = useState([])
@@ -19,6 +38,9 @@ export default function Preferences({ onRetour }) {
   const [selectionSources, setSelectionSources] = useState(new Set())
   const [tonaliteChoisie, setTonaliteChoisie] = useState('')
   const [voixChoisie, setVoixChoisie] = useState('')
+  const [linkedin, setLinkedin] = useState('')
+  const [posts, setPosts] = useState([''])
+  const [profilEditorial, setProfilEditorial] = useState('')
 
   const [chargementInitial, setChargementInitial] = useState(true)
   const [erreurChargement, setErreurChargement] = useState('')
@@ -27,10 +49,15 @@ export default function Preferences({ onRetour }) {
   const [erreurCategories, setErreurCategories] = useState('')
   const [erreurTonalite, setErreurTonalite] = useState('')
   const [erreurVoix, setErreurVoix] = useState('')
+  const [analyseEnCours, setAnalyseEnCours] = useState(false)
+  const [erreurAnalyse, setErreurAnalyse] = useState('')
 
   const enCours = statut === 'chargement'
 
-  async function charger() {
+  // `estAnnule` protège contre le double montage de StrictMode en
+  // développement : si ce chargement a été annulé (montage suivant déjà en
+  // cours), on n'écrase pas un état plus frais avec une réponse en retard.
+  async function charger(estAnnule = () => false) {
     setErreurChargement('')
     setChargementInitial(true)
     try {
@@ -38,6 +65,7 @@ export default function Preferences({ onRetour }) {
         data: { user },
         error: erreurUtilisateur,
       } = await supabase.auth.getUser()
+      if (estAnnule()) return
 
       if (erreurUtilisateur || !user) {
         setErreurChargement('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -54,10 +82,11 @@ export default function Preferences({ onRetour }) {
           .order('Visée de la publication'),
         supabase
           .from('profiles')
-          .select('préférences, "Tonalité_défaut", voix_narrative')
+          .select('préférences, "Tonalité_défaut", voix_narrative, linkedin, posts_exemples, profil_editorial')
           .eq('id', user.id)
           .maybeSingle(),
       ])
+      if (estAnnule()) return
 
       if (
         catsReponse.error ||
@@ -83,6 +112,7 @@ export default function Preferences({ onRetour }) {
         .from('profils_categories')
         .select('category_id')
         .eq('user_id', user.id)
+      if (estAnnule()) return
 
       if (erreurLiens) {
         setErreurChargement('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -100,16 +130,27 @@ export default function Preferences({ onRetour }) {
       setSelectionSources(new Set(sourcesActives))
       setTonaliteChoisie(profilReponse.data?.['Tonalité_défaut'] ?? '')
       setVoixChoisie(profilReponse.data?.voix_narrative ?? '')
+      setLinkedin(profilReponse.data?.linkedin ?? '')
+      const exemples = Array.isArray(profilReponse.data?.posts_exemples)
+        ? profilReponse.data.posts_exemples
+        : []
+      setPosts(exemples.length > 0 ? exemples : [''])
+      setProfilEditorial(profilReponse.data?.profil_editorial ?? '')
 
       setChargementInitial(false)
     } catch {
+      if (estAnnule()) return
       setErreurChargement('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
       setChargementInitial(false)
     }
   }
 
   useEffect(() => {
-    charger()
+    let annule = false
+    charger(() => annule)
+    return () => {
+      annule = true
+    }
   }, [])
 
   function basculer(setEnsemble, id) {
@@ -122,6 +163,42 @@ export default function Preferences({ onRetour }) {
       }
       return suivant
     })
+  }
+
+  function modifierPost(index, valeur) {
+    setPosts((precedent) => precedent.map((p, i) => (i === index ? valeur : p)))
+  }
+
+  function ajouterPost() {
+    setPosts((precedent) => [...precedent, ''])
+  }
+
+  function retirerPost(index) {
+    setPosts((precedent) => {
+      // Garde toujours au moins une zone de texte visible : si c'est la
+      // seule, on la vide plutôt que de la retirer.
+      if (precedent.length === 1) {
+        return ['']
+      }
+      return precedent.filter((_, i) => i !== index)
+    })
+  }
+
+  const postsNonVidesActuels = posts.map((p) => p.trim()).filter(Boolean)
+  const afficherSectionProfil = postsNonVidesActuels.length > 0 || profilEditorial.trim() !== ''
+
+  async function gererRegenerer() {
+    if (postsNonVidesActuels.length === 0) return
+    setErreurAnalyse('')
+    setAnalyseEnCours(true)
+    try {
+      const profil = await analyserLeStyle(postsNonVidesActuels)
+      setProfilEditorial(profil)
+    } catch {
+      setErreurAnalyse('La régénération a échoué. Vérifiez votre connexion et réessayez.')
+    } finally {
+      setAnalyseEnCours(false)
+    }
   }
 
   async function gererEnregistrement(evenement) {
@@ -202,6 +279,25 @@ export default function Preferences({ onRetour }) {
         return
       }
 
+      const linkedinTrim = linkedin.trim()
+      const postsNonVides = posts.map((p) => p.trim()).filter(Boolean)
+      const profilTrim = profilEditorial.trim()
+      let profilAEnregistrer = profilTrim
+
+      // Première analyse automatique : aucun profil éditorial encore
+      // enregistré, mais des posts à analyser. Les enregistrements suivants
+      // n'appellent jamais ceci automatiquement — seul "Régénérer" le fait.
+      if (!profilTrim && postsNonVides.length > 0) {
+        try {
+          profilAEnregistrer = await analyserLeStyle(postsNonVides)
+          setProfilEditorial(profilAEnregistrer)
+        } catch {
+          setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
+          setStatut('idle')
+          return
+        }
+      }
+
       const preferencesExistantes = profilExistant?.préférences ?? {}
       const { error: erreurEnregistrement } = await supabase.from('profiles').upsert({
         id: user.id,
@@ -211,6 +307,9 @@ export default function Preferences({ onRetour }) {
         },
         Tonalité_défaut: tonaliteChoisie,
         voix_narrative: voixChoisie,
+        linkedin: linkedinTrim || null,
+        posts_exemples: postsNonVides,
+        profil_editorial: profilAEnregistrer || null,
       })
 
       if (erreurEnregistrement) {
@@ -242,7 +341,7 @@ export default function Preferences({ onRetour }) {
           <p role="alert" className="erreur-globale">
             {erreurChargement}
           </p>
-          <button type="button" onClick={charger}>
+          <button type="button" onClick={() => charger()}>
             Réessayer
           </button>
         </div>
@@ -359,6 +458,58 @@ export default function Preferences({ onRetour }) {
               </label>
             ))}
           </fieldset>
+
+          <div>
+            <label htmlFor="linkedin">Profil LinkedIn</label>
+            <input
+              id="linkedin"
+              name="linkedin"
+              type="text"
+              autoComplete="url"
+              value={linkedin}
+              onChange={(e) => setLinkedin(e.target.value)}
+            />
+          </div>
+
+          <fieldset>
+            <legend>Posts ou documents existants</legend>
+            {posts.map((post, index) => (
+              <div key={index}>
+                <label htmlFor={`post-${index}`}>Post {index + 1}</label>
+                <textarea
+                  id={`post-${index}`}
+                  value={post}
+                  onChange={(e) => modifierPost(index, e.target.value)}
+                />
+                <button type="button" onClick={() => retirerPost(index)}>
+                  Retirer ce post
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={ajouterPost}>
+              Ajouter un autre post
+            </button>
+          </fieldset>
+
+          {afficherSectionProfil && (
+            <div>
+              <label htmlFor="profil-editorial">Profil éditorial, modifiable</label>
+              <textarea
+                id="profil-editorial"
+                value={profilEditorial}
+                onChange={(e) => setProfilEditorial(e.target.value)}
+                rows={6}
+              />
+              {erreurAnalyse && <p role="alert">{erreurAnalyse}</p>}
+              <button
+                type="button"
+                onClick={gererRegenerer}
+                disabled={analyseEnCours || enCours || postsNonVidesActuels.length === 0}
+              >
+                {analyseEnCours ? 'Analyse en cours…' : 'Régénérer à partir de mes posts'}
+              </button>
+            </div>
+          )}
 
           <button type="submit" disabled={enCours} aria-busy={enCours}>
             {enCours ? 'Enregistrement en cours…' : 'Enregistrer'}

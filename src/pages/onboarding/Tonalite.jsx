@@ -20,7 +20,10 @@ export default function Tonalite({ onEtapeSuivante }) {
 
   const enCours = statut === 'chargement'
 
-  async function charger() {
+  // `estAnnule` protège contre le double montage de StrictMode en
+  // développement : si ce chargement a été annulé (montage suivant déjà en
+  // cours), on n'écrase pas un état plus frais avec une réponse en retard.
+  async function charger(estAnnule = () => false) {
     setErreurListe('')
     setChargementListe(true)
     try {
@@ -28,6 +31,7 @@ export default function Tonalite({ onEtapeSuivante }) {
         .from('Tonalités')
         .select('id, "Visée de la publication", descriptif')
         .order('Visée de la publication')
+      if (estAnnule()) return
 
       if (error) {
         setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -42,6 +46,7 @@ export default function Tonalite({ onEtapeSuivante }) {
       const {
         data: { user },
       } = await supabase.auth.getUser()
+      if (estAnnule()) return
 
       if (user) {
         const { data: profil, error: erreurProfil } = await supabase
@@ -49,6 +54,7 @@ export default function Tonalite({ onEtapeSuivante }) {
           .select('Tonalité_défaut, voix_narrative')
           .eq('id', user.id)
           .maybeSingle()
+        if (estAnnule()) return
 
         if (erreurProfil) {
           setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -66,13 +72,18 @@ export default function Tonalite({ onEtapeSuivante }) {
 
       setChargementListe(false)
     } catch {
+      if (estAnnule()) return
       setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
       setChargementListe(false)
     }
   }
 
   useEffect(() => {
-    charger()
+    let annule = false
+    charger(() => annule)
+    return () => {
+      annule = true
+    }
   }, [])
 
   async function gererValidation(evenement) {
@@ -139,7 +150,7 @@ export default function Tonalite({ onEtapeSuivante }) {
           <p role="alert" className="erreur-globale">
             {erreurListe}
           </p>
-          <button type="button" onClick={charger}>
+          <button type="button" onClick={() => charger()}>
             Réessayer
           </button>
         </div>

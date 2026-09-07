@@ -14,7 +14,10 @@ export default function CategoriesSources({ onEtapeSuivante }) {
 
   const enCours = statut === 'chargement'
 
-  async function charger() {
+  // `estAnnule` protège contre le double montage de StrictMode en
+  // développement : si ce chargement a été annulé (montage suivant déjà en
+  // cours), on n'écrase pas un état plus frais avec une réponse en retard.
+  async function charger(estAnnule = () => false) {
     setErreurListe('')
     setChargementListe(true)
     try {
@@ -22,6 +25,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
         supabase.from('Catégories').select('id, nom').eq('type', 'thème').order('nom'),
         supabase.from('Sources').select('id, nom').eq('actif', true).order('nom'),
       ])
+      if (estAnnule()) return
 
       if (categoriesReponse.error || sourcesReponse.error) {
         setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -37,6 +41,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
       const {
         data: { user },
       } = await supabase.auth.getUser()
+      if (estAnnule()) return
 
       if (user) {
         const idsCategories = categoriesReponse.data.map((c) => c.id)
@@ -48,6 +53,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
             .in('category_id', idsCategories),
           supabase.from('profiles').select('préférences').eq('id', user.id).maybeSingle(),
         ])
+        if (estAnnule()) return
 
         if (liensReponse.error || profilReponse.error) {
           setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
@@ -62,13 +68,18 @@ export default function CategoriesSources({ onEtapeSuivante }) {
 
       setChargementListe(false)
     } catch {
+      if (estAnnule()) return
       setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
       setChargementListe(false)
     }
   }
 
   useEffect(() => {
-    charger()
+    let annule = false
+    charger(() => annule)
+    return () => {
+      annule = true
+    }
   }, [])
 
   function basculer(ensemble, setEnsemble, id) {
@@ -189,7 +200,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
           <p role="alert" className="erreur-globale">
             {erreurListe}
           </p>
-          <button type="button" onClick={charger}>
+          <button type="button" onClick={() => charger()}>
             Réessayer
           </button>
         </div>

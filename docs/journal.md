@@ -1,5 +1,28 @@
 # Journal
 
+## 2026-09-07 — Ticket 12 (amendement) : LinkedIn, posts et profil éditorial dans Préférences + correctif StrictMode
+
+**Contexte (product-manager, product-designer)**
+- LinkedIn, posts existants et profil éditorial (ticket 09) rejoignent l'écran de préférences — auparavant réservés à la relance complète de l'onboarding, ce qui n'avait pas de sens pour un simple ajustement.
+- Ticket 12 amendé : 6 nouveaux scénarios, direction d'écran étendue. Même règle de synchronisation qu'à l'onboarding : analyse automatique seulement au tout premier enregistrement, ensuite la personne garde la main (édition manuelle, bouton "Régénérer" séparé).
+
+**Fait (code)**
+- `src/pages/Preferences.jsx` : charge et pré-remplit `linkedin`, `posts_exemples`, `profil_editorial` ; ajoute les trois sections correspondantes (mêmes composants/logique que `LinkedinPosts.jsx`, dupliqués plutôt que partagés — cohérent avec le reste du fichier) ; `gererEnregistrement` les inclut dans le même `upsert` global.
+
+**Bug transverse trouvé et corrigé : double montage `React.StrictMode`**
+- En creusant une incohérence de pré-remplissage (`linkedin`/`posts_exemples` parfois vides après un « Terminer » pourtant réussi), diagnostic confirmé : `React.StrictMode` (actif dans `main.jsx`) monte-démonte-remonte chaque composant une fois en développement, ce qui déclenchait deux appels de chargement en parallèle sur les six écrans à `useEffect(() => { charger() }, [])` sans protection (les 5 étapes d'onboarding + `Preferences.jsx`). Si le second appel résolvait après que la personne avait commencé à saisir, il écrasait silencieusement sa saisie avec les données (vides) rechargées.
+- N'affecte pas la production (React désactive ce double-montage hors développement), mais rendait les tests locaux — humains ou automatisés — non fiables.
+- Corrigé sur les 6 fichiers avec le motif standard React : un drapeau `annule` local à chaque montage de l'effet, vérifié avant chaque `setState` qui suit une attente réseau ; le bouton "Réessayer" de chaque écran continue d'appeler la fonction de chargement directement (sans drapeau, action volontaire, jamais concurrente).
+
+**Vérifié en réel (Playwright, comptes jetables, vraie base, 3 exécutions consécutives après le correctif)**
+- Pré-remplissage LinkedIn/post/profil éditorial sur Préférences après un onboarding complet : correct à chaque fois (0 échec sur 3, contre une majorité d'échecs avant le correctif).
+- Modification + enregistrement + persistance après un second passage : correct à chaque fois.
+- Aucune erreur console.
+
+**Reste à faire / non vérifié**
+- Les scénarios "sans LinkedIn/posts", échec technique, retour sans enregistrer : logique en place, non rejoués isolément sur cet écran.
+- Accessibilité non testée au clavier ni au lecteur d'écran.
+
 ## 2026-09-07 — Ticket 09 (amendement) : profil éditorial
 
 **Contexte (product-manager, product-designer)**
