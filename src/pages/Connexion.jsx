@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../lib/supabase.js'
+import { definirSeSouvenir, supabase } from '../lib/supabase.js'
 import Dashboard from './Dashboard.jsx'
 import Preferences from './Preferences.jsx'
 
@@ -10,6 +10,7 @@ export default function Connexion({
 }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [seSouvenir, setSeSouvenir] = useState(true)
   const [preferencesOuvertes, setPreferencesOuvertes] = useState(false)
   const [statut, setStatut] = useState('idle') // idle | chargement | succes
   const [erreurGlobale, setErreurGlobale] = useState('')
@@ -33,6 +34,7 @@ export default function Connexion({
 
     setStatut('chargement')
     try {
+      definirSeSouvenir(seSouvenir)
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
@@ -125,6 +127,18 @@ export default function Connexion({
               {erreurMotDePasse}
             </p>
           )}
+        </div>
+
+        <div>
+          <label htmlFor="se-souvenir">
+            <input
+              id="se-souvenir"
+              type="checkbox"
+              checked={seSouvenir}
+              onChange={(e) => setSeSouvenir(e.target.checked)}
+            />
+            Se souvenir de moi
+          </label>
         </div>
 
         <button type="submit" disabled={enCours} aria-busy={enCours}>
