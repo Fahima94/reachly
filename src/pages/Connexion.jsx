@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { definirSeSouvenir, supabase } from '../lib/supabase.js'
 import Dashboard from './Dashboard.jsx'
 import Preferences from './Preferences.jsx'
+import Admin from './Admin.jsx'
 
 export default function Connexion({
   onAllerInscription,
@@ -12,6 +13,7 @@ export default function Connexion({
   const [password, setPassword] = useState('')
   const [seSouvenir, setSeSouvenir] = useState(true)
   const [preferencesOuvertes, setPreferencesOuvertes] = useState(false)
+  const [adminOuvert, setAdminOuvert] = useState(false)
   const [statut, setStatut] = useState('idle') // idle | chargement | succes
   const [erreurGlobale, setErreurGlobale] = useState('')
   const [erreurEmail, setErreurEmail] = useState('')
@@ -71,12 +73,17 @@ export default function Connexion({
     return <Preferences onRetour={() => setPreferencesOuvertes(false)} />
   }
 
+  if (statut === 'succes' && adminOuvert) {
+    return <Admin onRetour={() => setAdminOuvert(false)} />
+  }
+
   if (statut === 'succes') {
     return (
       <Dashboard
         onDeconnexionReussie={onDeconnexionReussie}
         onRelancerOnboarding={onRelancerOnboarding}
         onModifierPreferences={() => setPreferencesOuvertes(true)}
+        onOuvrirAdmin={() => setAdminOuvert(true)}
       />
     )
   }

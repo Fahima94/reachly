@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import BoutonDeconnexion from '../components/BoutonDeconnexion.jsx'
 import GenerationPost from '../components/GenerationPost.jsx'
+import { estAdmin } from '../lib/admin.js'
 
 const FENETRE_MS = 24 * 60 * 60 * 1000
 const LIEN_VALIDE = /^https?:\/\//i
@@ -21,13 +22,19 @@ function resumer(texte) {
   return t.length > RESUME_MAX ? `${t.slice(0, RESUME_MAX).trimEnd()}…` : t
 }
 
-export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding, onModifierPreferences }) {
+export default function Dashboard({
+  onDeconnexionReussie,
+  onRelancerOnboarding,
+  onModifierPreferences,
+  onOuvrirAdmin,
+}) {
   // chargement | incomplet | pret | vide | erreur
   const [etat, setEtat] = useState('chargement')
   const [sujets, setSujets] = useState([])
   const [aucuneCorrespondance, setAucuneCorrespondance] = useState(false)
   const [userId, setUserId] = useState(null)
   const [tonaliteDefinie, setTonaliteDefinie] = useState(false)
+  const [emailAdmin, setEmailAdmin] = useState(false)
 
   const charger = useCallback(async () => {
     setEtat('chargement')
@@ -64,14 +71,17 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding, 
 
       setUserId(user.id)
       setTonaliteDefinie(Boolean(profil['Tonalité_défaut']))
+      setEmailAdmin(estAdmin(user.email))
 
-      // Candidats : scorés, créés dans les dernières 24 h glissantes,
-      // du meilleur score au moins bon. (La colonne `publier` n'est pas utilisée.)
+      // Candidats : scorés, créés dans les dernières 24 h glissantes, non masqués
+      // par un admin (ticket 14), du meilleur score au moins bon. (La colonne
+      // `publier` n'est pas utilisée.)
       const seuil = new Date(Date.now() - FENETRE_MS).toISOString()
       const { data: candidats, error: erreurInfos } = await supabase
         .from('Infos')
         .select('id, titre_recomposé, contenu, article, lien, score, created_at, sujet_veille_id')
         .not('score', 'is', null)
+        .eq('masque', false)
         .gte('created_at', seuil)
         .order('score', { ascending: false })
         .limit(50)
@@ -202,6 +212,13 @@ export default function Dashboard({ onDeconnexionReussie, onRelancerOnboarding, 
             Relancer l'onboarding
           </button>
         </p>
+        {emailAdmin && (
+          <p>
+            <button type="button" onClick={onOuvrirAdmin}>
+              Administration
+            </button>
+          </p>
+        )}
       </header>
 
       {etat === 'chargement' && <p role="status">Chargement des sujets…</p>}

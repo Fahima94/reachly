@@ -1,5 +1,40 @@
 # Journal
 
+## 2026-09-07 — Ticket 14 : interface d'administration
+
+**Cadrage (product-manager)** : `docs/cadrage.md` mentionnait une interface admin sans
+aucun détail depuis le début du projet. Cadré avec l'humain : accès par liste fermée de 3
+e-mails (`francoisba@gmail.com`, `horizonsdatas@gmail.com`, `fguernalec@gmail.com`), trois
+besoins retenus — gérer les listes de référence (Catégories/Tonalités/Sources), surveiller/
+modérer la veille, voir les utilisateurs et leur activité. Portée volontairement limitée à
+la lecture + actions ciblées (pas de suppression de compte, pas d'audit, pas de stats
+avancées).
+
+**Fait (code + migration)** — détail complet dans
+[le ticket 14](tickets/14-interface-administration.md#fait-2026-09-07) :
+- Migration : `Infos.masque` + policies RLS `INSERT`/`UPDATE` scopées aux 3 e-mails admin
+  via `auth.email()` (pas de contrôle client seul — un décalage entre l'UI et les policies
+  serait un vrai trou de sécurité).
+- `src/pages/Admin.jsx`, `src/lib/admin.js` (nouveaux), `Dashboard.jsx` (filtre masquage +
+  bouton d'accès conditionnel), `App.jsx`/`Connexion.jsx` (écran câblé).
+
+**Bug trouvé et corrigé pendant la vérification** : les actions de bascule (désactiver une
+source, masquer un sujet) utilisaient `update()` sans `.select()` — un blocage RLS silencieux
+(0 ligne affectée) ne remonte alors aucune erreur, donc l'interface affichait un faux succès.
+Reproduit avec un compte de test ajouté temporairement à la liste *client* uniquement (pas à
+la vraie policy SQL, jamais commité) : la bascule de source semblait réussir avant correctif ;
+après correctif, elle échoue proprement avec un message. L'ajout de catégorie, lui, a été
+correctement bloqué par RLS dès le départ (403) — confirme que la sécurité est bien au niveau
+base de données, pas seulement côté interface.
+
+**Reste à faire / non vérifié**
+- Chemin de succès avec un vrai compte admin — je n'ai les mots de passe d'aucun des 3 ;
+  à confirmer par François, Fahima ou Florence directement.
+- États vide et erreur de chaque section, non provoqués (pas de sujet masqué existant, pas
+  d'échec de scraping à créer sans toucher aux vraies données).
+- Aucune donnée de test laissée en base (vérifié après coup : catégorie test jamais créée,
+  source re-basculée à son état d'origine).
+
 ## 2026-09-07 — Retrait des « sources actives » (onboarding + préférences)
 
 **Constat (humain) :** le choix « sources actives » proposé à l'étape catégories/sources
