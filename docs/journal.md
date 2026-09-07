@@ -1,5 +1,39 @@
 # Journal
 
+## 2026-09-07 — Audit accessibilité clavier + correctif focus de la modale de publication
+
+**Demande** : reprendre le point de dette technique le plus ancien et le plus répété du
+projet — l'accessibilité clavier, jamais testée en réel malgré tout le travail de fond déjà
+fait (focus visible, vrais `input`/`fieldset`, rôles ARIA, cibles ≥ 24×24 px).
+
+**Vérifié (Playwright, navigation 100% clavier — Tab/Espace/Entrée/Flèches/Échap, sans souris)**
+- Connexion : ordre de tabulation logique (onglets → email → mot de passe → "se souvenir" →
+  bouton), Espace bascule la case à cocher, Entrée soumet.
+- Tableau de bord : bouton "Générer un post" atteignable au clavier et activable par Entrée.
+- Chips (métiers/secteurs/catégories/sources) : la case reste focusable et activable à
+  l'Espace malgré son style visuel masqué ; le contour de focus s'applique bien au `<label>`
+  visible, pas à l'input caché.
+- Groupes radio (tonalité, voix narrative) : navigation aux flèches avec sélection
+  automatique — comportement natif du navigateur, rien à coder.
+
+**Bug trouvé et corrigé** : après publication d'un post, Échap fermait bien la modale de
+confirmation mais le focus n'était pas restauré sur le bouton "Publier" — il atterrissait
+sur `<body>`, forçant quelqu'un au clavier à retabuler depuis le haut de la page. Cause :
+`sauvegarder('Publié')` désactive le bouton (`disabled`) dès le début de l'action, *avant*
+que la modale ne s'ouvre — un élément désactivé perd son focus (le navigateur le renvoie
+sur `<body>`), donc `document.activeElement` capturé par la modale à son montage était déjà
+faux. Corrigé dans `src/components/GenerationPost.jsx` : le bouton "Publier" porte
+maintenant une vraie `ref`, transmise à la modale (`elementDeclencheur`), utilisée pour la
+restauration du focus à la fermeture au lieu de `document.activeElement`.
+
+**Reste à faire / non couvert par cet audit**
+- Lecteur d'écran (NVDA/VoiceOver) — toujours jamais testé.
+- Onboarding complet (5 étapes) et écran de préférences dans leur intégralité — seuls des
+  échantillons (chips, radios) ont été vérifiés, pas chaque écran un par un.
+- Interface admin (ticket 14) — pas couverte par cet audit.
+
+Détail synthétique dans [`docs/dette-technique.md`](dette-technique.md).
+
 ## 2026-09-07 — Ticket 14 : interface d'administration
 
 **Cadrage (product-manager)** : `docs/cadrage.md` mentionnait une interface admin sans

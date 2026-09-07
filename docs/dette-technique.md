@@ -6,11 +6,9 @@ en ticket quand l'un de ces points devient prioritaire.
 
 ## Jamais vérifié en conditions réelles
 
-- **Accessibilité clavier / lecteur d'écran.** Signalé comme non testé dans quasiment
-  chaque ticket depuis le premier (01). Le travail de fond existe (focus visible, vrais
-  `input`/`fieldset`/`legend`, `role="alert"`/`role="status"`, cibles ≥ 24×24 px, jamais la
-  couleur seule) mais rien n'a été validé avec un vrai clavier ou un vrai lecteur d'écran.
-  C'est le point de dette le plus ancien et le plus répété du projet.
+- **Lecteur d'écran.** Toujours jamais testé avec un vrai lecteur d'écran (NVDA, VoiceOver…).
+  Le clavier seul, lui, a été audité le 2026-09-07 — voir « Accessibilité clavier, vérifiée »
+  plus bas.
 - **Aucun test automatisé.** Toute vérification faite jusqu'ici est manuelle (Playwright
   piloté à la main pendant les sessions, jamais commité comme suite de tests qui tourne
   seule). Aucun `npm test`, aucune CI.
@@ -53,6 +51,38 @@ en ticket quand l'un de ces points devient prioritaire.
   synchronisé depuis cette session, et une recherche rapide y a fait remonter un
   avertissement de page en double laissé par quelqu'un d'autre. État réel non vérifié en
   profondeur — à clarifier avec l'humain si cette vue doit rester à jour.
+
+## Accessibilité clavier, vérifiée (2026-09-07)
+
+Audit réel au clavier (Tab/Espace/Entrée/Flèches/Échap, sans souris) sur connexion,
+tableau de bord, génération de post, chips et groupes radio.
+
+- **Un bug trouvé et corrigé** : après avoir publié un post, le focus ne revenait pas sur
+  le bouton "Publier" à la fermeture de la modale de confirmation (atterrissait sur
+  `<body>`). Cause : le bouton est désactivé (`disabled`) au moment même où l'action
+  démarre, avant l'ouverture de la modale — un élément désactivé perd le focus, donc
+  `document.activeElement` capturé par la modale à son montage était déjà faux. Corrigé en
+  passant une vraie référence (`ref`) du bouton déclencheur plutôt que de se fier à
+  `document.activeElement`.
+- **Confirmé fonctionnel** : ordre de tabulation logique sur l'écran de connexion ;
+  bouton "Générer un post" atteignable et activable au clavier ; piège du focus dans la
+  modale de publication (Tab ne s'en échappe jamais) ; Échap la ferme ; les "chips" (cases
+  à cocher visuellement masquées) restent focusables et activables à l'Espace, avec un
+  contour de focus visible sur le label ; les groupes de boutons radio (tonalité, voix
+  narrative) répondent aux flèches avec sélection automatique, comportement natif du
+  navigateur.
+- **Non couvert par cet audit** : onboarding complet (5 étapes), écran de préférences dans
+  son intégralité, interface admin, lecteur d'écran (voir ci-dessus).
+
+## Responsive, vérifié (2026-09-07)
+
+Testé sur mobile (375px) : connexion, tableau de bord, préférences (chips + cartes voix
+narrative). Aucune media query n'existe dans `src/index.css` — pas nécessaire jusqu'ici,
+le flex-wrap et les largeurs relatives déjà en place suffisent. Aucun débordement
+horizontal, cibles tactiles toutes ≥ 40×42 px (au-dessus du minimum 24×24 px, proche des
+44 px recommandés en mobile). **Non vérifié** : interface admin — le tableau "Utilisateurs"
+n'a aucun style de tableau (`table`/`th`/`td` non stylés dans `index.css`), probablement le
+premier endroit où ça casserait sur petit écran si quelqu'un l'ouvre depuis un téléphone.
 
 ## Hygiène récurrente
 

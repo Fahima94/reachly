@@ -21,12 +21,23 @@ function IconeGeneration() {
   )
 }
 
-function ModaleConfirmationPublication({ lienLinkedin, copieReussie, onFermer, onOuvrirPreferences }) {
+function ModaleConfirmationPublication({
+  lienLinkedin,
+  copieReussie,
+  onFermer,
+  onOuvrirPreferences,
+  elementDeclencheur,
+}) {
   const dialogRef = useRef(null)
   const boutonPrincipalRef = useRef(null)
 
   useEffect(() => {
-    const elementPrecedent = document.activeElement
+    // Ne pas se fier à `document.activeElement` ici : le bouton "Publier" est
+    // désactivé (`disabled`) au moment même où l'action démarre, avant que
+    // cette modale ne monte — un élément désactivé perd le focus (le
+    // navigateur le renvoie sur `<body>`), donc `document.activeElement`
+    // serait déjà faux à cet instant. On restaure plutôt sur une vraie
+    // référence au bouton déclencheur, transmise par le parent.
     boutonPrincipalRef.current?.focus()
 
     function gererClavier(evenement) {
@@ -52,9 +63,9 @@ function ModaleConfirmationPublication({ lienLinkedin, copieReussie, onFermer, o
     document.addEventListener('keydown', gererClavier)
     return () => {
       document.removeEventListener('keydown', gererClavier)
-      if (elementPrecedent instanceof HTMLElement) elementPrecedent.focus()
+      elementDeclencheur?.current?.focus()
     }
-  }, [onFermer])
+  }, [onFermer, elementDeclencheur])
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="titre-confirmation-publication" ref={dialogRef}>
@@ -102,6 +113,7 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
   const [modaleOuverte, setModaleOuverte] = useState(false)
   const [lienLinkedin, setLienLinkedin] = useState(null)
   const [copieModaleReussie, setCopieModaleReussie] = useState(true)
+  const boutonPublierRef = useRef(null)
 
   async function genererPost() {
     setEtat('chargement')
@@ -274,6 +286,7 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
       <p>
         <button
           type="button"
+          ref={boutonPublierRef}
           className="bouton-primaire"
           onClick={() => sauvegarder('Publié')}
           disabled={actionEnCoursQuelconque}
@@ -288,6 +301,7 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
           copieReussie={copieModaleReussie}
           onFermer={() => setModaleOuverte(false)}
           onOuvrirPreferences={onModifierPreferences}
+          elementDeclencheur={boutonPublierRef}
         />
       )}
     </div>
