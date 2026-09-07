@@ -321,24 +321,8 @@ export default function Dashboard({
 
   return (
     <main>
-      <LogoReachly />
-      <header>
-        <button type="button" className="bouton-primaire" onClick={onModifierPreferences}>
-          Modifier mes préférences
-        </button>
-        {/* Réservé aux 3 comptes admin (lib/admin.js) — "Relancer l'onboarding"
-            reste utile pour les tests, mais n'a plus sa place dans les actions
-            courantes d'une personne qui utilise juste l'app. */}
-        {emailAdmin && (
-          <button type="button" onClick={onRelancerOnboarding}>
-            Relancer l'onboarding
-          </button>
-        )}
-        {emailAdmin && (
-          <button type="button" onClick={onOuvrirAdmin}>
-            Administration
-          </button>
-        )}
+      <div className="barre-superieure">
+        <LogoReachly />
         <div className="profil-entete">
           <div className="conteneur-avatar">
             {avatarUrl ? (
@@ -363,9 +347,22 @@ export default function Dashboard({
             </label>
           </div>
           {nomComplet && <span className="visually-hidden">Profil de {nomComplet}</span>}
-          {erreurAvatar && <p role="alert">{erreurAvatar}</p>}
           <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} className="bouton-deconnexion" />
         </div>
+      </div>
+      {erreurAvatar && <p role="alert">{erreurAvatar}</p>}
+      <header>
+        <button type="button" className="bouton-primaire" onClick={onModifierPreferences}>
+          Modifier mes préférences
+        </button>
+        {/* Réservé aux 3 comptes admin (lib/admin.js) — "Relancer l'onboarding"
+            reste utile pour les tests, mais n'a plus sa place dans les actions
+            courantes d'une personne qui utilise juste l'app. */}
+        {emailAdmin && (
+          <button type="button" onClick={onRelancerOnboarding}>
+            Relancer l'onboarding
+          </button>
+        )}
         <h1>Vos sujets du jour</h1>
       </header>
 
@@ -410,8 +407,6 @@ export default function Dashboard({
 
           <ol>
             {sujets.map((sujet) => {
-              const metaReste = [sujet.source, sujet.anciennete].filter(Boolean).join(' · ')
-
               return (
                 <li key={sujet.id}>
                   <article>
@@ -425,6 +420,7 @@ export default function Dashboard({
                           <span className="visually-hidden">{LIBELLE_FLAMMES[sujet.flammes]}</span>
                         </span>
                       )}
+                      <span className="meta-discrete"> {sujet.anciennete}</span>
                     </p>
                     <h2>{sujet.titre}</h2>
                     {sujet.horsPreferences && (
@@ -449,7 +445,7 @@ export default function Dashboard({
                         })}
                       </p>
                     )}
-                    {metaReste && <p className="meta-discrete">{metaReste}</p>}
+                    {sujet.source && <p className="meta-discrete">{sujet.source}</p>}
                     {sujet.lien && (
                       <p>
                         <a href={sujet.lien} target="_blank" rel="noopener noreferrer">
@@ -469,6 +465,14 @@ export default function Dashboard({
             })}
           </ol>
         </>
+      )}
+
+      {emailAdmin && (
+        <footer className="pied-de-page">
+          <button type="button" className="bouton-discret" onClick={onOuvrirAdmin}>
+            Administration
+          </button>
+        </footer>
       )}
     </main>
   )

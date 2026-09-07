@@ -122,6 +122,16 @@ header {
   border-bottom: 1px solid var(--color-border);
 }
 
+/* Pied de page du tableau de bord : réservé aux 3 comptes admin (lib/admin.js)
+   pour l'instant — "Administration" n'a pas sa place dans les actions
+   courantes d'une personne qui utilise juste l'app. */
+.pied-de-page {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  text-align: right;
+}
+
 header h1 {
   flex: 1 1 100%;
   margin-bottom: var(--space-1);
@@ -172,19 +182,33 @@ header p {
   border: 0;
 }
 
-/* Pastille de profil (en-tête du tableau de bord) : photo si renseignée
+/* Barre tout en haut de l'écran : logo à gauche, pastille de profil à
+   droite — distincte de la ligne d'actions (Modifier mes préférences, etc.)
+   qui reste dans <header>. */
+.barre-superieure {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.barre-superieure .logo-reachly {
+  margin-bottom: 0;
+}
+
+/* Pastille de profil (barre du haut) : photo si renseignée
    (`profiles.avatar_url`), sinon initiales — même gabarit dans les deux cas. */
 .profil-entete {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
-  margin-left: auto;
 }
 
 .pastille-profil {
-  width: 36px;
-  height: 36px;
+  width: 56px;
+  height: 56px;
   border-radius: 999px;
   background: var(--color-primary);
   color: var(--color-primary-text);
@@ -192,7 +216,7 @@ header p {
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 1.1rem;
   object-fit: cover;
   box-shadow: var(--shadow-sm);
 }
@@ -565,10 +589,11 @@ fieldset.choix-icones input[type='radio'] {
   font-size: 0.85rem;
 }
 
-/* Sujet très frais (< 6 h) : flammes à côté du score. */
+/* Fraîcheur du sujet (0 à 3 flammes) : à côté du score. */
 .indicateur-chaud {
-  margin-left: var(--space-2);
-  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 1rem;
 }
 
 /* Catégories correspondantes (carte du tableau de bord) : étiquettes à
@@ -621,16 +646,10 @@ main > ol > li:first-child > article {
 }
 
 main > ol > li > article > p:first-child {
-  color: var(--color-text-muted);
-  font-weight: 600;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin-bottom: var(--space-1);
-}
-
-main > ol > li:first-child > article > p:first-child {
-  color: var(--color-primary);
 }
 
 /* Bouton à l'apparence d'un lien texte — reste un vrai <button> au clavier et
@@ -651,9 +670,10 @@ main > ol > li:first-child > article > p:first-child {
   color: var(--color-primary);
 }
 
-/* Pousse "Se déconnecter" tout à droite de l'en-tête du tableau de bord. */
+/* "Se déconnecter" sous la pastille de profil (barre du haut) — centré,
+   comme le reste de `.profil-entete`. */
 .bouton-deconnexion {
-  margin-left: auto;
+  margin-top: var(--space-1);
 }
 
 /* Actions du post généré (ticket 13) : Publier avant Enregistrer, en ligne
