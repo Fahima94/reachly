@@ -251,7 +251,12 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
       </p>
 
       <p>
-        <button type="button" onClick={() => sauvegarder('Publié')} disabled={actionEnCoursQuelconque}>
+        <button
+          type="button"
+          className="bouton-primaire"
+          onClick={() => sauvegarder('Publié')}
+          disabled={actionEnCoursQuelconque}
+        >
           {actionEnCours === 'publier' ? 'Publication…' : 'Publier'}
         </button>
       </p>

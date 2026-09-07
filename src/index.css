@@ -138,14 +138,16 @@ button:disabled {
   cursor: not-allowed;
 }
 
-button[type='submit'] {
+button[type='submit'],
+button.bouton-primaire {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-primary-text);
   font-weight: 600;
 }
 
-button[type='submit']:hover:not(:disabled) {
+button[type='submit']:hover:not(:disabled),
+button.bouton-primaire:hover:not(:disabled) {
   background: var(--color-primary-hover);
   border-color: var(--color-primary-hover);
 }
