@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
+import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
 
 export default function Identite({ onEtapeSuivante }) {
   const [prenom, setPrenom] = useState('')
@@ -117,7 +118,7 @@ export default function Identite({ onEtapeSuivante }) {
 
   return (
     <main>
-      <p>Étape 1 sur 5</p>
+      <ProgressionOnboarding etape={1} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Comment vous appelez-vous ?</h1>
 

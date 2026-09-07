@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
+import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
 
 async function analyserLeStyle(postsPourAnalyse) {
   const reponse = await fetch(import.meta.env.VITE_N8N_WEBHOOK_PROFIL_EDITORIAL, {
@@ -196,7 +197,7 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
 
   return (
     <main>
-      <p>Étape 5 sur 5</p>
+      <ProgressionOnboarding etape={5} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>LinkedIn et posts existants</h1>
 

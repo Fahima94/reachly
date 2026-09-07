@@ -72,6 +72,13 @@ main {
   padding: var(--space-5) var(--space-4) var(--space-6);
 }
 
+/* Écrans à un seul formulaire (auth, onboarding, préférences) : une colonne
+   plus étroite que le tableau de bord, pour ne pas laisser un grand vide à
+   droite de champs qui restent volontairement courts. */
+main:has(form) {
+  max-width: 560px;
+}
+
 h1 {
   font-size: 1.75rem;
   line-height: 1.25;
@@ -281,8 +288,27 @@ main > ol > li > article > p:first-child {
   margin-bottom: var(--space-1);
 }
 
-/* Étapes d'onboarding : indicateur de progression discret */
-main > p:first-child {
+/* Étapes d'onboarding : texte + barre de progression */
+.progression-onboarding {
+  margin-bottom: var(--space-4);
+}
+
+.progression-onboarding p {
   color: var(--color-text-muted);
   font-size: 0.85rem;
+  margin-bottom: var(--space-1);
+}
+
+.progression-onboarding [role='progressbar'] {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.progression-onboarding [role='progressbar'] > div {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 999px;
+  transition: width 200ms ease;
 }

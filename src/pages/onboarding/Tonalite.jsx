@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
+import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
 
 const VOIX_NARRATIVES = [
   { valeur: 'je_masculin', libelle: 'Je (masculin)' },
@@ -139,7 +140,7 @@ export default function Tonalite({ onEtapeSuivante }) {
 
   return (
     <main>
-      <p>Étape 4 sur 5</p>
+      <ProgressionOnboarding etape={4} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Votre tonalité par défaut</h1>
 

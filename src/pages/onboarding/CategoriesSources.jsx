@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
+import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
 
 export default function CategoriesSources({ onEtapeSuivante }) {
   const [categories, setCategories] = useState([])
@@ -189,7 +190,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
 
   return (
     <main>
-      <p>Étape 3 sur 5</p>
+      <ProgressionOnboarding etape={3} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Vos catégories et sources actives</h1>
 
