@@ -201,24 +201,23 @@ export default function Dashboard({
     <main>
       <header>
         <h1>Vos sujets du jour</h1>
-        <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} />
-        <p>
-          <button type="button" onClick={onModifierPreferences}>
-            Modifier mes préférences
-          </button>
-        </p>
-        <p>
+        <button type="button" className="bouton-primaire" onClick={onModifierPreferences}>
+          Modifier mes préférences
+        </button>
+        {/* Réservé aux 3 comptes admin (lib/admin.js) — "Relancer l'onboarding"
+            reste utile pour les tests, mais n'a plus sa place dans les actions
+            courantes d'une personne qui utilise juste l'app. */}
+        {emailAdmin && (
           <button type="button" onClick={onRelancerOnboarding}>
             Relancer l'onboarding
           </button>
-        </p>
-        {emailAdmin && (
-          <p>
-            <button type="button" onClick={onOuvrirAdmin}>
-              Administration
-            </button>
-          </p>
         )}
+        {emailAdmin && (
+          <button type="button" onClick={onOuvrirAdmin}>
+            Administration
+          </button>
+        )}
+        <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} className="bouton-deconnexion" />
       </header>
 
       {etat === 'chargement' && <p role="status">Chargement des sujets…</p>}

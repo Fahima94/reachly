@@ -131,3 +131,21 @@ Le cadrage exige un score « compréhensible et défendable, pas une boîte noir
 - [ ] État de chargement traité — code présent (texte immédiat, sans la nuance 1 s/5 s de la direction), non observé en conditions réelles (chargement trop rapide)
 - [ ] État d'erreur traité — code présent, non rejoué en navigateur
 - [x] Journal à jour, commit fait
+
+### Amendement (2026-09-07) : hiérarchie de l'en-tête
+
+Depuis les tickets 12 (« Modifier mes préférences ») et 14 (« Administration »), l'en-tête avait
+accumulé quatre actions au même niveau visuel. Hiérarchie revue :
+
+- **Modifier mes préférences** — action primaire, seule action courante pour une personne qui
+  utilise juste l'app.
+- **Se déconnecter** — reléguée tout à droite, apparence de lien texte (reste un vrai `<button>`,
+  c'est une action, pas une navigation — seule l'apparence change).
+- **Relancer l'onboarding** et **Administration** — réservées aux 3 comptes admin (`lib/admin.js`,
+  ticket 14). « Relancer l'onboarding » n'a plus sa place dans les actions courantes, mais reste
+  utile pour les tests — conservée, simplement plus restreinte.
+
+Vérifié en réel (Playwright, compte non-admin) : seuls « Modifier mes préférences » (primaire) et
+« Se déconnecter » (discret, aligné à droite) sont visibles ; « Relancer l'onboarding » et
+« Administration » absents. Le cas admin réutilise exactement le même mécanisme déjà vérifié au
+ticket 14 (`emailAdmin &&`) — non rejoué avec un vrai compte admin faute d'accès à ses identifiants.

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 
-export default function BoutonDeconnexion({ onDeconnecte }) {
+export default function BoutonDeconnexion({ onDeconnecte, className }) {
   const [enCours, setEnCours] = useState(false)
   const [erreur, setErreur] = useState('')
 
@@ -27,13 +27,21 @@ export default function BoutonDeconnexion({ onDeconnecte }) {
   }
 
   return (
-    <div>
+    <div className={className}>
       {erreur && (
         <p role="alert" className="erreur-globale">
           {erreur}
         </p>
       )}
-      <button type="button" onClick={gererClic} disabled={enCours} aria-busy={enCours}>
+      {/* Un vrai <button> (action, pas une navigation) — seule l'apparence est
+          discrète (classe .bouton-discret), pas la sémantique. */}
+      <button
+        type="button"
+        className="bouton-discret"
+        onClick={gererClic}
+        disabled={enCours}
+        aria-busy={enCours}
+      >
         {enCours ? 'Déconnexion en cours…' : 'Se déconnecter'}
       </button>
     </div>

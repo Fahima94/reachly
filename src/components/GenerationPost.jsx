@@ -68,32 +68,40 @@ function ModaleConfirmationPublication({
   }, [onFermer, elementDeclencheur])
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="titre-confirmation-publication" ref={dialogRef}>
-      <h2 id="titre-confirmation-publication">Post publié</h2>
-      <p role="status">
-        Votre post est enregistré{copieReussie ? ' et copié dans le presse-papiers.' : '.'}
-      </p>
-      {!copieReussie && (
-        <p role="alert">
-          La copie automatique a échoué — sélectionnez et copiez le texte manuellement.
+    <div className="fond-modale">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titre-confirmation-publication"
+        className="modale"
+        ref={dialogRef}
+      >
+        <h2 id="titre-confirmation-publication">Post publié</h2>
+        <p role="status">
+          Votre post est enregistré{copieReussie ? ' et copié dans le presse-papiers.' : '.'}
         </p>
-      )}
-      {lienLinkedin ? (
-        <p>
-          <a ref={boutonPrincipalRef} href={lienLinkedin} target="_blank" rel="noopener noreferrer">
-            Ouvrir LinkedIn
-          </a>
-        </p>
-      ) : (
-        <p>
-          <button type="button" ref={boutonPrincipalRef} onClick={onOuvrirPreferences}>
-            Renseigner mon LinkedIn
-          </button>
-        </p>
-      )}
-      <button type="button" onClick={onFermer}>
-        Fermer
-      </button>
+        {!copieReussie && (
+          <p role="alert">
+            La copie automatique a échoué — sélectionnez et copiez le texte manuellement.
+          </p>
+        )}
+        {lienLinkedin ? (
+          <p>
+            <a ref={boutonPrincipalRef} href={lienLinkedin} target="_blank" rel="noopener noreferrer">
+              Ouvrir LinkedIn
+            </a>
+          </p>
+        ) : (
+          <p>
+            <button type="button" ref={boutonPrincipalRef} onClick={onOuvrirPreferences}>
+              Renseigner mon LinkedIn
+            </button>
+          </p>
+        )}
+        <button type="button" onClick={onFermer}>
+          Fermer
+        </button>
+      </div>
     </div>
   )
 }
@@ -103,8 +111,6 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
   const [etat, setEtat] = useState('idle')
   const [texte, setTexte] = useState('')
   const [publicationId, setPublicationId] = useState(null)
-  const [copieConfirmee, setCopieConfirmee] = useState(false)
-  const [erreurCopie, setErreurCopie] = useState(false)
 
   // idle | enregistrer | publier
   const [actionEnCours, setActionEnCours] = useState(null)
@@ -114,6 +120,17 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
   const [lienLinkedin, setLienLinkedin] = useState(null)
   const [copieModaleReussie, setCopieModaleReussie] = useState(true)
   const boutonPublierRef = useRef(null)
+  const texteRef = useRef(null)
+
+  // Le champ suit la longueur du texte plutôt qu'une hauteur fixe (6 lignes
+  // quel que soit le contenu) — recalculée à chaque changement, génération
+  // initiale comme frappe au clavier.
+  useEffect(() => {
+    const el = texteRef.current
+    if (!el) return
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight}px`
+  }, [texte])
 
   async function genererPost() {
     setEtat('chargement')
@@ -149,17 +166,6 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
       return
     }
     genererPost()
-  }
-
-  async function gererCopie() {
-    setErreurCopie(false)
-    try {
-      await navigator.clipboard.writeText(texte)
-      setCopieConfirmee(true)
-      setTimeout(() => setCopieConfirmee(false), 3000)
-    } catch {
-      setErreurCopie(true)
-    }
   }
 
   // Enregistre toujours le texte tel qu'affiché à l'écran (avec les
@@ -219,7 +225,7 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
 
   if (etat === 'idle') {
     return (
-      <button type="button" onClick={gererClicGenerer}>
+      <button type="button" className="bouton-primaire" onClick={gererClicGenerer}>
         Générer un post
       </button>
     )
@@ -262,28 +268,18 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
   return (
     <div>
       <label htmlFor={idTexte}>Texte du post généré, modifiable</label>
-      <textarea id={idTexte} value={texte} onChange={(e) => setTexte(e.target.value)} rows={6} />
+      <textarea
+        id={idTexte}
+        ref={texteRef}
+        value={texte}
+        onChange={(e) => setTexte(e.target.value)}
+        rows={1}
+        className="texte-auto-adaptatif"
+      />
 
       {erreurAction && <p role="alert">{erreurAction}</p>}
 
-      <p>
-        <button type="button" onClick={gererCopie}>
-          Copier
-        </button>
-        {copieConfirmee && <span role="status"> Copié !</span>}
-        {erreurCopie && (
-          <span role="alert"> La copie a échoué — sélectionnez et copiez le texte manuellement.</span>
-        )}
-      </p>
-
-      <p>
-        <button type="button" onClick={() => sauvegarder('Enregistré')} disabled={actionEnCoursQuelconque}>
-          {actionEnCours === 'enregistrer' ? 'Enregistrement…' : 'Enregistrer'}
-        </button>
-        {confirmationEnregistre && <span role="status"> Enregistré !</span>}
-      </p>
-
-      <p>
+      <div className="actions-generation-post">
         <button
           type="button"
           ref={boutonPublierRef}
@@ -293,7 +289,11 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
         >
           {actionEnCours === 'publier' ? 'Publication…' : 'Publier'}
         </button>
-      </p>
+        <button type="button" onClick={() => sauvegarder('Enregistré')} disabled={actionEnCoursQuelconque}>
+          {actionEnCours === 'enregistrer' ? 'Enregistrement…' : 'Enregistrer'}
+        </button>
+      </div>
+      {confirmationEnregistre && <p role="status">Enregistré !</p>}
 
       {modaleOuverte && (
         <ModaleConfirmationPublication

@@ -48,14 +48,6 @@ Scénario: Post modifié conservé à l'écran
 
   Alors ses modifications restent visibles tant qu'elle ne quitte pas l'écran ou ne régénère pas
 
-Scénario: Copier le post
-
-  Étant donné un premier jet (généré ou modifié) affiché
-
-  Quand elle clique sur « Copier »
-
-  Alors le texte est copié dans le presse-papiers et une confirmation visible s'affiche
-
 Scénario: Tonalité manquante
 
   Étant donné une personne dont le profil n'a pas de tonalité renseignée (le workflow n8n en a besoin pour générer un texte correct)
@@ -174,9 +166,23 @@ Workflow n8n **« Reachly Publication CC »** (`WnLJIyaYmy9QYmso`), export JSON 
 
 **Accessibilité :** la modale piège le focus tant qu'elle est ouverte, se ferme au clavier (Échap), le bouton « Ouvrir LinkedIn » est un vrai bouton/lien (jamais du texte cliquable), son ouverture est annoncée aux lecteurs d'écran (`role="dialog"`, `aria-modal="true"`, titre associé). Boutons « Enregistrer »/« Publier » ≥ 24×24 px, focus visible.
 
+### Amendement (2026-09-07) : retrait de « Copier », disposition des boutons, modale visible, zone de texte adaptative
+
+**Constat (humain) :** la modale de confirmation n'avait aucun style — elle s'affichait comme un simple bloc de texte de plus au milieu de la page, impossible à distinguer du reste (bug d'implémentation, pas un écart de conception : la direction d'écran d'origine prévoyait déjà une fenêtre de confirmation). La zone de texte avait aussi une hauteur fixe (6 lignes), quelle que soit la longueur du post.
+
+**Décisions**
+- Bouton « Copier » retiré — sur réflexion, il fait doublon avec « Publier » (qui copie déjà automatiquement dans le presse-papiers avant d'ouvrir la modale). Le scénario Gherkin correspondant est supprimé de ce ticket.
+- Les deux boutons restants s'affichent en ligne, dans l'ordre **Publier** puis **Enregistrer** (Publier est l'action la plus engageante, elle passe en premier).
+- La modale de confirmation est désormais stylée comme une vraie fenêtre superposée (fond assombri, boîte centrée) — pas un nouveau comportement, un correctif d'implémentation sur ce qui était déjà spécifié.
+- La zone de texte du post généré s'adapte à la longueur du contenu (plus de hauteur fixe).
+
+**Direction d'écran mise à jour :** « Ce qui vient ensuite » (amendement 2026-09-04) devient « deux boutons alignés en ligne sous la zone de texte, dans l'ordre Publier puis Enregistrer » (au lieu de trois boutons empilés avec Copier en tête).
+
+**Même tour :** le bouton « Générer un post » (sur chaque carte du tableau de bord) passe en action primaire — cohérent avec la revue de hiérarchie de l'en-tête du tableau de bord (ticket 11, amendement 2026-09-07).
+
 ## Fini quand
 
-- [x] Les cinq scénarios passent — génération réussie vérifiée en navigateur réel ; « post modifié conservé », « tonalité manquante » et « échec de la génération » non exercés isolément (même code, logique simple) ; « copier le post » vérifié mais bloqué par une restriction presse-papiers propre à Chromium headless, à revérifier en usage humain réel
+- [x] Les scénarios passent — génération réussie vérifiée en navigateur réel ; « post modifié conservé », « tonalité manquante » et « échec de la génération » non exercés isolément (même code, logique simple) ; « copier le post » retiré du ticket (amendement 2026-09-07, bouton « Copier » supprimé)
 - [x] État de chargement (génération en cours) traité — code présent
 - [x] État d'erreur traité — code présent (réponse non-OK ou format inattendu)
 - [x] Contrat du webhook vérifié en réel — appel `curl` avec de vraies données, CORS confirmé pour un usage navigateur, réponse conforme exactement à ce que le code attend, texte de post complet et cohérent obtenu

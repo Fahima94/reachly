@@ -461,6 +461,75 @@ main > ol > li:first-child > article > p:first-child {
   color: var(--color-primary);
 }
 
+/* Bouton à l'apparence d'un lien texte — reste un vrai <button> au clavier et
+   pour les lecteurs d'écran (c'est une action, pas une navigation), seule
+   l'apparence change. Utilisé pour "Se déconnecter" (tableau de bord). */
+.bouton-discret {
+  border: none;
+  background: none;
+  padding: 0;
+  min-height: auto;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  font-weight: 400;
+  font-size: 0.9rem;
+}
+
+.bouton-discret:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+/* Pousse "Se déconnecter" tout à droite de l'en-tête du tableau de bord. */
+.bouton-deconnexion {
+  margin-left: auto;
+}
+
+/* Actions du post généré (ticket 13) : Publier avant Enregistrer, en ligne
+   plutôt qu'empilées — "Copier" retiré (faisait doublon avec la copie déjà
+   effectuée à la publication). */
+.actions-generation-post {
+  display: flex;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+/* Champ d'édition du post généré (ticket 13) : hauteur recalculée en JS à
+   chaque changement de contenu (voir GenerationPost.jsx) — ici, on retire
+   juste le redimensionnement manuel (qui entrerait en conflit) et la
+   barre de défilement devenue inutile. */
+.texte-auto-adaptatif {
+  resize: none;
+  overflow: hidden;
+}
+
+/* Modale de confirmation de publication (ticket 13) : fond assombri en
+   overlay plein écran, boîte centrée — sans ça, la modale n'était qu'un
+   bloc de texte de plus au milieu de la page, impossible à distinguer du
+   reste. */
+.fond-modale {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  z-index: 100;
+}
+
+.fond-modale .modale {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.25);
+}
+
+.fond-modale .modale h2 {
+  margin-top: 0;
+}
+
 /* Bascule Se connecter / Créer un compte (tickets 01/02) : deux onglets en
    tête des écrans d'authentification, l'actif marqué par le trait et le
    poids de police (jamais la couleur seule). */

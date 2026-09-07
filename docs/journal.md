@@ -34,6 +34,83 @@ restauration du focus à la fermeture au lieu de `document.activeElement`.
 
 Détail synthétique dans [`docs/dette-technique.md`](dette-technique.md).
 
+## 2026-09-07 — Tickets 11/13 (amendement) : hiérarchie des actions du tableau de bord
+
+**Demande (humain) :** l'en-tête avait accumulé quatre actions au même niveau (Se déconnecter,
+Modifier mes préférences, Relancer l'onboarding, Administration). Revue de hiérarchie : Se
+déconnecter discret à droite (lien plutôt que bouton), Modifier mes préférences en primaire,
+Relancer l'onboarding et Administration réservés aux admins (le premier conservé pour les tests).
+« Générer un post » (sur chaque carte) passe aussi en action primaire.
+
+**Fait (code)**
+- `src/components/BoutonDeconnexion.jsx` : prop `className` ajoutée (générique, réutilisable) ;
+  bouton avec la nouvelle classe `.bouton-discret`. Reste un vrai `<button>` — c'est une action,
+  pas une navigation, seule l'apparence change.
+- `src/pages/Dashboard.jsx` : en-tête restructurée — « Modifier mes préférences » en
+  `.bouton-primaire`, « Relancer l'onboarding » désormais derrière `emailAdmin` (au même titre
+  qu'« Administration », déjà le cas depuis le ticket 14), « Se déconnecter » poussé à droite
+  (`margin-left: auto`).
+- `src/components/GenerationPost.jsx` : bouton « Générer un post » (état `idle`) en
+  `.bouton-primaire`.
+- `src/index.css` : `.bouton-discret`, `.bouton-deconnexion` (alignement à droite).
+- Tickets 11 et 13 amendés.
+- `npm run build` : OK (92 modules).
+
+**Vérifié en réel (Playwright, compte de test jetable non-admin)**
+- En-tête : seuls « Modifier mes préférences » (primaire, gauche) et « Se déconnecter »
+  (discret, droite) visibles ; « Relancer l'onboarding » et « Administration » absents.
+- Capture d'écran : disposition conforme (primaire à gauche, lien discret aligné à droite).
+- Aucune erreur console.
+
+**Non vérifié**
+- Le rendu avec un vrai compte admin (mêmes 3 e-mails que le ticket 14) — même mécanisme déjà
+  vérifié à ce ticket-là, pas rejoué faute d'accès à ces identifiants.
+- Le bouton « Générer un post » en primaire sur une vraie carte du tableau de bord — même souci
+  récurrent de fenêtre de veille 24 h vide ; classe CSS identique à celle déjà vérifiée ailleurs
+  (Publier, Modifier mes préférences), risque jugé faible.
+
+## 2026-09-07 — Ticket 13 (amendement) : modale visible, zone de texte adaptative, boutons revus
+
+**Constat (humain) :** la modale de confirmation promise à l'amendement du 2026-09-04 ne se
+voyait pas au clic sur « Publier ».
+
+**Diagnostic** : la modale existait bien dans le DOM (rôle `dialog`, piège du focus, fermeture
+Échap — tout ce qui avait été vérifié) mais sans aucune règle CSS — `index.css` n'avait rien
+pour `[role="dialog"]`. Elle s'affichait donc comme un bloc de texte de plus au milieu de la
+page, sans fond assombri ni encadré. Bug d'implémentation, pas un écart de conception.
+
+**Fait (code)**
+- `src/components/GenerationPost.jsx` : la modale est enveloppée dans un fond overlay
+  (`.fond-modale`) ; la zone de texte du post (`ref` + `useEffect` sur `texte`) recalcule sa
+  hauteur à chaque changement au lieu d'un `rows={6}` fixe.
+- `src/index.css` : styles `.fond-modale`/`.modale` (overlay plein écran assombri, boîte
+  centrée, ombre) et `.texte-auto-adaptatif` (pas de redimensionnement manuel, plus de
+  scrollbar interne).
+- `npm run build` : OK.
+
+**Deuxième demande, même tour (humain) :** boutons empilés → alignés en ligne, ordre Publier
+avant Enregistrer, bouton « Copier » retiré (doublon avec la copie déjà faite par « Publier »).
+
+**Fait (code)**
+- `src/components/GenerationPost.jsx` : bouton « Copier » et son état (`copieConfirmee`,
+  `erreurCopie`, `gererCopie`) supprimés ; les deux boutons restants dans un conteneur en ligne
+  (`.actions-generation-post`), Publier avant Enregistrer.
+- `src/index.css` : `.actions-generation-post` (flex, gap).
+- Ticket 13 amendé (scénario « Copier le post » retiré, direction d'écran mise à jour).
+- `npm run build` : OK (92 modules).
+
+**Vérifié** : reproduction fidèle du HTML/CSS/JS réel dans une page de test isolée (captures
+d'écran) — modale bien affichée en overlay centré, zone de texte qui s'agrandit et se réduit
+selon le contenu (testé avec un texte long puis un texte court), boutons bien en ligne dans
+l'ordre Publier/Enregistrer.
+
+**Reste à faire / non vérifié**
+- Clic réel sur « Publier » depuis une vraie carte du tableau de bord, en conditions live —
+  bloqué par la fenêtre de veille 24 h actuellement vide (souci récurrent, sans lien avec ce
+  correctif). Le code étant identique à ce qui a été vérifié en aperçu, risque jugé faible, à
+  reconfirmer dès qu'un vrai sujet sera disponible.
+- Navigation clavier et lecteur d'écran non retestés sur la modale après ce changement visuel.
+
 ## 2026-09-07 — Ticket 14 : interface d'administration
 
 **Cadrage (product-manager)** : `docs/cadrage.md` mentionnait une interface admin sans
