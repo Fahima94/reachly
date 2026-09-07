@@ -119,6 +119,66 @@ Scénario: Échec de la régénération
 
   Alors le profil éditorial affiché n'est pas modifié, et elle voit un message l'invitant à réessayer
 
+### Amendement (2026-09-07) : boutons « tout cocher / tout décocher » par groupe
+
+Sélectionner ou retirer plusieurs métiers, secteurs ou catégories se fait aujourd'hui
+case par case. Un bouton par groupe accélère ce geste sans changer la logique
+d'enregistrement.
+
+- Un bouton par groupe à choix multiple : métiers, secteurs, catégories. Rien sur
+  tonalité ni voix narrative (choix unique — « tout cocher » n'a pas de sens).
+- Bouton unique qui bascule selon l'état du groupe : tant qu'au moins une valeur du
+  groupe est décochée, il propose « tout cocher » ; quand le groupe est entièrement
+  coché, il propose « tout décocher ».
+- Le bouton ne modifie que la sélection affichée. Rien n'est enregistré tant que la
+  personne n'a pas cliqué sur « Enregistrer » — comme pour toute autre modification
+  de cet écran.
+- Les règles de validation existantes ne changent pas : « tout décocher » sur les
+  catégories laisse un état invalide, bloqué à l'enregistrement par le message
+  « Choisissez au moins une catégorie » (scénario « Enregistrement sans catégorie »).
+
+Scénario: Tout cocher un groupe
+
+  Étant donné une personne sur l'écran de préférences, avec au moins une valeur non cochée dans le groupe « catégories »
+
+  Quand elle active le bouton « tout cocher » de ce groupe
+
+  Alors toutes les valeurs du groupe « catégories » sont cochées, et rien n'est encore enregistré
+
+Scénario: Tout décocher un groupe
+
+  Étant donné une personne sur l'écran de préférences, avec toutes les valeurs du groupe « métiers » cochées
+
+  Quand elle active le bouton « tout décocher » de ce groupe
+
+  Alors toutes les valeurs du groupe « métiers » sont décochées, et rien n'est encore enregistré
+
+Scénario: Le bouton n'agit que sur son groupe
+
+  Étant donné une personne sur l'écran de préférences
+
+  Quand elle active le bouton « tout cocher » ou « tout décocher » d'un groupe
+
+  Alors seules les valeurs de ce groupe changent, et les autres groupes gardent leur sélection
+
+Scénario: Le bouton reflète l'état du groupe
+
+  Étant donné une personne sur l'écran de préférences
+
+  Quand toutes les valeurs d'un groupe sont cochées
+
+  Alors le bouton de ce groupe propose « tout décocher »
+
+  Et dès qu'au moins une valeur de ce groupe est décochée, il propose « tout cocher »
+
+Scénario: Tout décocher les catégories puis enregistrer
+
+  Étant donné une personne sur l'écran de préférences
+
+  Quand elle active « tout décocher » sur le groupe « catégories » puis tente d'enregistrer
+
+  Alors elle voit le message lui demandant de choisir au moins une catégorie, et rien n'est enregistré
+
 ## Hors périmètre
 
 - Identité (nom/prénom) — relance complète de l'onboarding (ticket 10), pas cet écran.
@@ -157,10 +217,27 @@ Scénario: Échec de la régénération
 
 **Accessibilité :** mêmes règles que le reste de l'écran — label explicite sur chaque champ, boutons "Ajouter"/"Retirer un post" nommés explicitement, message d'erreur de régénération annoncé (`role="alert"`), focus clavier visible, cibles ≥ 24×24 px.
 
+### Amendement (2026-09-07) : boutons « tout cocher / tout décocher » par groupe
+
+**Ce qu'on voit en premier :** inchangé — les cinq groupes de préférences.
+**Ce qui vient ensuite :** dans chacun des trois groupes à choix multiple (métiers, secteurs, catégories), un bouton d'action rattaché au groupe, placé après la légende et l'éventuel message d'erreur, avant la liste des cases. Un seul bouton par groupe.
+**Ce qui est relégué :** le bouton reste une action secondaire, visuellement discret — il ne concurrence pas le bouton « Enregistrer » unique en bas de formulaire.
+
+**Structure :** un vrai `<button type="button">` dans le `fieldset` du groupe. Son libellé nomme le groupe pour rester compréhensible hors contexte : « Tout cocher les métiers » / « Tout décocher les métiers », idem secteurs et catégories. Aucun bouton sur les groupes tonalité et voix narrative. Le clic modifie seulement la sélection en mémoire ; l'enregistrement reste porté par le bouton « Enregistrer » unique — même schéma que le reste de l'écran, pas de nouveau pattern.
+
+**Les états**
+- Groupe entièrement coché → libellé « Tout décocher les &lt;groupe&gt; ». Sinon (au moins une case décochée, groupe sans aucune sélection compris) → « Tout cocher les &lt;groupe&gt; ».
+- Groupe sans aucune valeur disponible (liste vide) → pas de bouton.
+- Enregistrement en cours : bouton désactivé, comme les autres contrôles du formulaire.
+- Pas d'erreur propre au bouton : « tout décocher » sur les catégories mène à l'état invalide déjà géré par la validation à l'enregistrement (message relié au groupe par `aria-describedby`).
+
+**Accessibilité :** bouton réel (jamais de `div` cliquable), libellé texte explicite incluant le nom du groupe, cible ≥ 24×24 px, focus clavier visible. Le basculement « tout cocher » ↔ « tout décocher » est porté par le texte du libellé, jamais par la seule couleur ou une icône.
+
 ## Fini quand
 
 - [x] Les six scénarios initiaux passent — vérifiés en navigateur réel : ouverture avec préférences pré-remplies, modification + enregistrement réussi (retour au tableau de bord, classement mis à jour), validation bloquante sans tonalité. Non rejoués explicitement : sans catégorie, sans voix narrative seule, échec technique, retour sans enregistrer (même code, non exercés isolément)
 - [ ] Les six scénarios de l'amendement (LinkedIn/posts/profil éditorial) — à vérifier
+- [ ] Les cinq scénarios de l'amendement « tout cocher / tout décocher » par groupe — à vérifier
 - [ ] État de chargement traité (initial et enregistrement) — code présent, chargement trop rapide pour être observé
 - [ ] État d'erreur traité (chargement et enregistrement) — code présent, non provoqué en réel
 - [x] Journal à jour, commit fait
