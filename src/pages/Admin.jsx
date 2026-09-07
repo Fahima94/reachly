@@ -61,7 +61,7 @@ function SectionCategories() {
       {!chargement && erreur && (
         <div>
           <p role="alert">{erreur}</p>
-          <button type="button" onClick={charger}>
+          <button type="button" onClick={charger} aria-label="Réessayer de charger les catégories">
             Réessayer
           </button>
         </div>
@@ -93,7 +93,12 @@ function SectionCategories() {
                 <option value="secteur">secteur</option>
               </select>
             </div>
-            <button type="submit" disabled={ajoutEnCours} aria-busy={ajoutEnCours}>
+            <button
+              type="submit"
+              disabled={ajoutEnCours}
+              aria-busy={ajoutEnCours}
+              aria-label={ajoutEnCours ? undefined : 'Ajouter une catégorie'}
+            >
               {ajoutEnCours ? 'Ajout…' : 'Ajouter'}
             </button>
           </form>
@@ -161,7 +166,7 @@ function SectionTonalites() {
       {!chargement && erreur && (
         <div>
           <p role="alert">{erreur}</p>
-          <button type="button" onClick={charger}>
+          <button type="button" onClick={charger} aria-label="Réessayer de charger les tonalités">
             Réessayer
           </button>
         </div>
@@ -194,7 +199,12 @@ function SectionTonalites() {
                 onChange={(e) => setDescriptif(e.target.value)}
               />
             </div>
-            <button type="submit" disabled={ajoutEnCours} aria-busy={ajoutEnCours}>
+            <button
+              type="submit"
+              disabled={ajoutEnCours}
+              aria-busy={ajoutEnCours}
+              aria-label={ajoutEnCours ? undefined : 'Ajouter une tonalité'}
+            >
               {ajoutEnCours ? 'Ajout…' : 'Ajouter'}
             </button>
           </form>
@@ -283,7 +293,7 @@ function SectionSources() {
       {!chargement && erreur && (
         <div>
           <p role="alert">{erreur}</p>
-          <button type="button" onClick={charger}>
+          <button type="button" onClick={charger} aria-label="Réessayer de charger les sources">
             Réessayer
           </button>
         </div>
@@ -302,6 +312,7 @@ function SectionSources() {
                     type="button"
                     onClick={() => gererBascule(s)}
                     disabled={basculeEnCours === s.id}
+                    aria-label={`${s.actif ? 'Désactiver' : 'Activer'} la source ${s.nom}`}
                   >
                     {s.actif ? 'Désactiver' : 'Activer'}
                   </button>
@@ -315,7 +326,12 @@ function SectionSources() {
               <label htmlFor="source-nom">Nom</label>
               <input id="source-nom" value={nom} onChange={(e) => setNom(e.target.value)} />
             </div>
-            <button type="submit" disabled={ajoutEnCours} aria-busy={ajoutEnCours}>
+            <button
+              type="submit"
+              disabled={ajoutEnCours}
+              aria-busy={ajoutEnCours}
+              aria-label={ajoutEnCours ? undefined : 'Ajouter une source'}
+            >
               {ajoutEnCours ? 'Ajout…' : 'Ajouter'}
             </button>
           </form>
@@ -393,7 +409,7 @@ function SectionVeille() {
       {!chargement && erreur && (
         <div>
           <p role="alert">{erreur}</p>
-          <button type="button" onClick={charger}>
+          <button type="button" onClick={charger} aria-label="Réessayer de charger la veille">
             Réessayer
           </button>
         </div>
@@ -406,19 +422,23 @@ function SectionVeille() {
             <p>Aucun sujet récent.</p>
           ) : (
             <ul>
-              {sujets.map((s) => (
-                <li key={s.id}>
-                  {s.titre_recomposé || '(Sans titre)'} — score {s.score ?? '—'}
-                  {s.masque && <strong> (masqué)</strong>}{' '}
-                  <button
-                    type="button"
-                    onClick={() => gererMasquage(s)}
-                    disabled={masquageEnCours === s.id}
-                  >
-                    {s.masque ? 'Démasquer' : 'Masquer'}
-                  </button>
-                </li>
-              ))}
+              {sujets.map((s) => {
+                const titre = s.titre_recomposé || '(Sans titre)'
+                return (
+                  <li key={s.id}>
+                    {titre} — score {s.score ?? '—'}
+                    {s.masque && <strong> (masqué)</strong>}{' '}
+                    <button
+                      type="button"
+                      onClick={() => gererMasquage(s)}
+                      disabled={masquageEnCours === s.id}
+                      aria-label={`${s.masque ? 'Démasquer' : 'Masquer'} le sujet ${titre}`}
+                    >
+                      {s.masque ? 'Démasquer' : 'Masquer'}
+                    </button>
+                  </li>
+                )
+              })}
             </ul>
           )}
 
@@ -493,7 +513,7 @@ function SectionUtilisateurs() {
       {!chargement && erreur && (
         <div>
           <p role="alert">{erreur}</p>
-          <button type="button" onClick={charger}>
+          <button type="button" onClick={charger} aria-label="Réessayer de charger les utilisateurs">
             Réessayer
           </button>
         </div>
@@ -504,6 +524,9 @@ function SectionUtilisateurs() {
             <p>Aucun utilisateur.</p>
           ) : (
             <table>
+              <caption className="visually-hidden">
+                Liste des utilisateurs, leur onboarding et leurs publications
+              </caption>
               <thead>
                 <tr>
                   <th scope="col">Email</th>

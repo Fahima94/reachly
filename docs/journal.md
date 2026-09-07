@@ -1,5 +1,61 @@
 # Journal
 
+## 2026-09-07 — Tableau de bord : profil, catégories colorées, flammes, source masquée ; audit accessibilité de l'admin
+
+**Demande (humain, amendements successifs)** : photo de profil en en-tête, étiquettes de
+catégorie colorées, indicateur de fraîcheur en flammes, ajustements de mise en page
+(pastille de profil en haut à côté du logo, agrandie ; « Se déconnecter » dessous ;
+« Administration » déplacé en pied de page, réservé aux admins), nom de la source masqué
+sur les cartes (redondant avec le lien « Voir la source »). Puis, avant un premier
+déploiement (jamais fait — cf. README), stabilisation demandée : accessibilité de
+l'interface admin, jamais auditée jusqu'ici.
+
+**Bug trouvé et corrigé en cours de route** : `Dashboard.jsx` appelait `estChaud(...)`,
+une fonction inexistante — la fonction `niveauFlammes` (dégradé 0 à 3 flammes selon
+l'ancienneté : < 2 h, < 6 h, < 12 h) avait été écrite mais jamais branchée. Aurait fait
+planter le chargement du tableau de bord (`ReferenceError` avalée par le `catch`, écran
+d'erreur générique). Corrigé : `flammes: niveauFlammes(c.created_at)`, rendu avec
+`'🔥'.repeat(sujet.flammes)` et un libellé accessible variable selon le niveau.
+
+**Deuxième bug trouvé** : une règle CSS (`main > ol > li > article > p:first-child`),
+pensée à l'origine pour l'ancien badge de score seul, mettait tout le contenu de cette
+ligne en majuscules et en couleur grisée. Une fois « il y a X h » et les flammes ajoutés
+à la même ligne, ça rendait « il y a 10 H » illisible en capitales et ternissait les
+flammes. Corrigé : la règle ne porte plus que la mise en page (flex, espacement), chaque
+élément garde sa propre couleur.
+
+**Fait (code)**
+- `src/pages/Dashboard.jsx` : upload de photo de profil (bucket `avatars`, repli sur
+  initiales), étiquettes de catégorie colorées (palette fixe pour les 12 catégories
+  connues, repli déterministe par hash pour toute catégorie ajoutée depuis l'admin),
+  indicateur de fraîcheur en 1 à 3 flammes à côté de « il y a X h », pastille de profil
+  et « Se déconnecter » remontés dans une barre dédiée en haut (à côté du logo, séparée
+  de la ligne d'actions), « Administration » déplacé en pied de page (admins uniquement),
+  nom de la source retiré de l'affichage (le lien « Voir la source » suffit).
+- `src/index.css` : `.barre-superieure`, pastille de profil agrandie (36→56 px),
+  `.pied-de-page`, correctifs `.indicateur-chaud` / `p:first-child` ci-dessus.
+- `src/pages/Admin.jsx` (audit accessibilité statique) : les boutons « Réessayer »
+  (identiques dans les 5 sections), « Ajouter » (identique dans 3 formulaires), et les
+  bascules par ligne (« Activer/Désactiver » une source, « Masquer/Démasquer » un sujet)
+  portaient tous un nom accessible générique et indiscernable hors contexte visuel pour
+  quelqu'un naviguant par liste de boutons (clavier/lecteur d'écran) — critère WCAG
+  2.4.6/4.1.2. Ajout d'`aria-label` explicites sur chacun (ex. « Désactiver la source
+  TechCrunch »). Ajout d'une légende masquée visuellement sur le tableau Utilisateurs.
+- `npm run build` : OK (93 modules).
+
+**Non couvert par cet audit (signalé explicitement)**
+- **Aucun outil de navigateur/lecteur d'écran automatisé disponible dans cette session** —
+  contrairement à l'audit clavier du même jour (Playwright), cet audit de l'admin est
+  purement statique (lecture du code). Un vrai passage NVDA/VoiceOver reste à faire par un
+  humain ou une session outillée avant de considérer l'accessibilité « stabilisée ».
+- Onboarding (5 étapes) et écran de préférences : toujours non audités dans leur
+  intégralité (déjà signalé le même jour, audit clavier).
+- Annonce de statut après une action réussie dans l'admin (ajout, bascule) : aucun
+  `role="status"` de confirmation — repose sur le changement de texte du bouton, pas
+  vérifié avec un vrai lecteur d'écran.
+- Choix d'hébergeur (Vercel) confirmé par l'humain, mais aucune configuration de
+  déploiement (variables d'environnement sur la plateforme, domaine) faite dans ce tour.
+
 ## 2026-09-07 — Ticket 01 (amendement) : case d'acceptation obligatoire à l'inscription
 
 **Demande** : au moment de s'inscrire, l'utilisateur doit impérativement cocher la case
