@@ -1,13 +1,35 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 
+async function analyserLeStyle(postsPourAnalyse) {
+  const reponse = await fetch(import.meta.env.VITE_N8N_WEBHOOK_PROFIL_EDITORIAL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ posts: postsPourAnalyse }),
+  })
+
+  if (!reponse.ok) {
+    throw new Error('echec-analyse')
+  }
+
+  const donnees = await reponse.json()
+  if (!donnees?.success || typeof donnees.profil_editorial !== 'string') {
+    throw new Error('echec-analyse')
+  }
+
+  return donnees.profil_editorial
+}
+
 export default function LinkedinPosts({ onEtapeSuivante }) {
   const [linkedin, setLinkedin] = useState('')
   const [posts, setPosts] = useState([''])
+  const [profilEditorial, setProfilEditorial] = useState('')
   const [chargementInitial, setChargementInitial] = useState(true)
   const [erreurChargement, setErreurChargement] = useState('')
   const [statut, setStatut] = useState('idle') // idle | chargement
   const [erreurGlobale, setErreurGlobale] = useState('')
+  const [analyseEnCours, setAnalyseEnCours] = useState(false)
+  const [erreurAnalyse, setErreurAnalyse] = useState('')
 
   const enCours = statut === 'chargement'
 
@@ -26,11 +48,12 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
         return
       }
 
-      // Pré-remplissage : lit le profil LinkedIn et les exemples de posts déjà
-      // enregistrés (relance de l'onboarding). Premier onboarding → data null.
+      // Pré-remplissage : lit le profil LinkedIn, les exemples de posts et le
+      // profil éditorial déjà enregistrés (relance de l'onboarding). Premier
+      // onboarding → data null.
       const { data, error } = await supabase
         .from('profiles')
-        .select('linkedin, posts_exemples')
+        .select('linkedin, posts_exemples, profil_editorial')
         .eq('id', user.id)
         .maybeSingle()
 
@@ -45,6 +68,7 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
         const exemples = Array.isArray(data.posts_exemples) ? data.posts_exemples : []
         // Garde toujours au moins une zone de texte visible.
         setPosts(exemples.length > 0 ? exemples : [''])
+        setProfilEditorial(data.profil_editorial ?? '')
       }
       setChargementInitial(false)
     } catch {
@@ -76,21 +100,55 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
     })
   }
 
+  const postsNonVidesActuels = posts.map((p) => p.trim()).filter(Boolean)
+  const afficherSectionProfil = postsNonVidesActuels.length > 0 || profilEditorial.trim() !== ''
+
+  async function gererRegenerer() {
+    if (postsNonVidesActuels.length === 0) return
+    setErreurAnalyse('')
+    setAnalyseEnCours(true)
+    try {
+      const profil = await analyserLeStyle(postsNonVidesActuels)
+      setProfilEditorial(profil)
+    } catch {
+      setErreurAnalyse('La régénération a échoué. Vérifiez votre connexion et réessayez.')
+    } finally {
+      setAnalyseEnCours(false)
+    }
+  }
+
   async function gererValidation(evenement) {
     evenement.preventDefault()
     setErreurGlobale('')
 
     const linkedinTrim = linkedin.trim()
     const postsNonVides = posts.map((p) => p.trim()).filter(Boolean)
+    const profilTrim = profilEditorial.trim()
 
     // Rien à enregistrer : on termine directement, sans appel.
-    if (!linkedinTrim && postsNonVides.length === 0) {
+    if (!linkedinTrim && postsNonVides.length === 0 && !profilTrim) {
       onEtapeSuivante()
       return
     }
 
     setStatut('chargement')
     try {
+      let profilAEnregistrer = profilTrim
+
+      // Première analyse automatique : aucun profil encore enregistré, mais
+      // des posts à analyser. Les relances suivantes n'appellent jamais ceci
+      // automatiquement — seul le bouton "Régénérer" le fait.
+      if (!profilTrim && postsNonVides.length > 0) {
+        try {
+          profilAEnregistrer = await analyserLeStyle(postsNonVides)
+          setProfilEditorial(profilAEnregistrer)
+        } catch {
+          setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
+          setStatut('idle')
+          return
+        }
+      }
+
       const {
         data: { user },
         error: erreurUtilisateur,
@@ -106,6 +164,7 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
         id: user.id,
         linkedin: linkedinTrim || null,
         posts_exemples: postsNonVides,
+        profil_editorial: profilAEnregistrer || null,
       })
 
       if (error) {
@@ -183,6 +242,26 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
               Ajouter un autre post
             </button>
           </fieldset>
+
+          {afficherSectionProfil && (
+            <div>
+              <label htmlFor="profil-editorial">Profil éditorial, modifiable</label>
+              <textarea
+                id="profil-editorial"
+                value={profilEditorial}
+                onChange={(e) => setProfilEditorial(e.target.value)}
+                rows={6}
+              />
+              {erreurAnalyse && <p role="alert">{erreurAnalyse}</p>}
+              <button
+                type="button"
+                onClick={gererRegenerer}
+                disabled={analyseEnCours || enCours || postsNonVidesActuels.length === 0}
+              >
+                {analyseEnCours ? 'Analyse en cours…' : 'Régénérer à partir de mes posts'}
+              </button>
+            </div>
+          )}
 
           <button type="submit" disabled={enCours} aria-busy={enCours}>
             {enCours ? 'Enregistrement en cours…' : 'Terminer'}

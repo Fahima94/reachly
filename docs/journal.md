@@ -1,5 +1,37 @@
 # Journal
 
+## 2026-09-07 — Ticket 09 (amendement) : profil éditorial
+
+**Contexte (product-manager, product-designer)**
+- Nouveau workflow n8n `Reachly_Profil_Utilisateur` : reçoit les posts existants, renvoie via Groq une description du style (« profil éditorial »), destinée au futur prompt de génération de post (ticket 13, pas encore câblé).
+- Stockage tranché avec l'humain : colonne dédiée `profiles.profil_editorial` (pas dans `posts_exemples`, pas dans `préférences`) — alignée sur le précédent `voix_narrative`, plutôt que sur l'intention initiale de `préférences` (réservée à la génération), jugée moins pertinente que le précédent le plus récent.
+- Logique de synchronisation actée avec l'humain : analyse automatique seulement au tout premier passage (aucun profil encore enregistré) ; ensuite, la personne garde la main — profil modifiable à la main, bouton « Régénérer à partir de mes posts » séparé, jamais de régénération silencieuse qui écraserait une modification manuelle. Ajouter des posts sans cliquer « Régénérer » laisse le profil tel quel, assumé.
+- Ticket 09 amendé : 4 nouveaux scénarios, direction d'écran étendue.
+
+**Fait (n8n)**
+- Workflow `Reachly_Profil_Utilisateur` construit avec les outils n8n (webhook → Basic LLM Chain via Groq → Respond to Webhook). Contrat : `{ posts: string[] }` → `{ success, profil_editorial }`.
+- Prompt conçu pour être directement exploitable dans un futur prompt de génération : réponse toujours préfixée par « Profil éditorial : », suivi de « aucun » si le style n'est pas détectable (jamais un paragraphe d'explication qui polluerait un prompt).
+- Bug trouvé et corrigé : le modèle par défaut suggéré (`llama-3.3-70b-versatile`) n'existe plus / plus accessible sur le compte Groq (404 `model_not_found`) — remplacé par `openai/gpt-oss-120b`.
+- Activé en production par l'humain.
+
+**Fait (code app)**
+- `.env` / `.env.example` : `VITE_N8N_WEBHOOK_PROFIL_EDITORIAL`.
+- `src/pages/onboarding/LinkedinPosts.jsx` : charge `profil_editorial` au montage (pré-remplissage) ; nouvelle section conditionnelle (visible seulement s'il y a des posts ou un profil existant) avec zone modifiable + bouton « Régénérer » ; « Terminer » déclenche l'analyse automatiquement seulement si aucun profil n'existe encore, sinon enregistre tel quel le texte affiché.
+- `npm run build` : OK.
+
+**Vérifié en réel (Playwright, comptes jetables, vraie base, workflow n8n actif)**
+- Visibilité de la section (apparaît/disparaît selon présence de posts).
+- Premier « Terminer » avec un post → analyse automatique, appel réseau 200, résultat enregistré.
+- Relance de l'onboarding → profil re-précédenté depuis la base.
+- « Régénérer » → nouvel appel, résultat mis à jour sans être enregistré avant validation.
+- Aucune erreur console.
+
+**Reste à faire / non vérifié**
+- Le cas « profil réellement détecté » (posts substantiels, ≥ 2) fonctionne — vérifié directement sur le workflow n8n, pas rejoué dans l'app avec un vrai compte (les tests app n'utilisaient qu'un seul post à la fois, donc toujours « aucun », comportement attendu du prompt).
+- Édition manuelle du profil puis « Terminer » sans régénérer : logique en place, non rejouée isolément.
+- Utilisation réelle de `profil_editorial` dans le prompt de génération (ticket 13) : pas câblée, hors périmètre de cet amendement.
+- Accessibilité non testée au clavier ni au lecteur d'écran.
+
 ## 2026-09-04 — Ticket 13 (amendement) : Enregistrer / Publier
 
 **Cadrage (product-manager, product-designer)**
