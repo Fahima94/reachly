@@ -1,5 +1,37 @@
 # Journal
 
+## 2026-09-07 — Profil éditorial câblé dans le prompt de génération (n8n "Reachly Publication CC")
+
+**Demande** : le profil éditorial (ticket 09/12) existait déjà en base (`profiles.profil_editorial`) mais n'était pas exploité par la génération de post réelle — seulement calculé, jamais utilisé.
+
+**Fait (n8n, workflow actif en production `WnLJIyaYmy9QYmso`)**
+- Nœud "Generation Post" modifié (`update_workflow`, opération atomique sur `/text`) : ajout d'un bloc conditionnel juste après la règle 9 du prompt (« Réponds UNIQUEMENT avec le texte final... ») et avant "SUJET À TRAITER" — n'ajoute le profil éditorial au prompt que s'il existe **et** ne contient pas "aucun" (cas "aucun style détecté", géré côté prompt de `Reachly_Profil_Utilisateur`) :
+  ```
+  ($('Get Profile').item.json.profil_editorial && $('Get Profile').item.json.profil_editorial.indexOf('aucun') === -1
+      ? "\n\n" + $('Get Profile').item.json.profil_editorial + "\nRespecte ce style d'écriture autant que la tonalité et la voix narrative ci-dessus."
+      : "")
+  ```
+- Constat au passage : les deux bugs précédemment signalés sur ce workflow (colonne `full_name` obsolète, `voix_narrative` non utilisée dans le prompt) étaient **déjà corrigés** par quelqu'un d'autre (Florence ou l'humain) — rien à faire de ce côté.
+- Modification appliquée avec l'accord explicite de l'humain, après avoir signalé que le workflow est actif en production (effet immédiat sur de vraies générations).
+
+**Vérifié en réel (exécution manuelle du workflow n8n, vrai compte + vrai sujet)**
+- Compte jetable créé via Playwright avec 2 posts d'exemple substantiels → analyse automatique par `Reachly_Profil_Utilisateur` → `profil_editorial` réel enregistré (pas "aucun"), décrivant précisément le style (longueur, accroche, chute en question, absence de hashtags/emojis).
+- `execute_workflow` déclenché manuellement sur `Reachly Publication CC` avec ce `user_id` et un `info_id` réel (extrait d'une exécution passée en production) → exécution réussie (`348231`).
+- Inspection des données résolues (`get_workflow_execution`, `includeData: true`) : le nœud "Get Profile" renvoie bien le `profil_editorial` complet ; le texte produit par "Generation Post" respecte visiblement le style décrit (paragraphes courts, liste à puces, chute en question ouverte) — cohérent avec l'injection du profil dans le prompt.
+- Post bien enregistré en `Publications` (statut "Brouillon") via "Creer Publication", chaîne complète fonctionnelle.
+
+**Constat non lié à ma modification, signalé pour info**
+- Cette exécution est passée par le modèle de secours (Groq `groq/compound`), pas par Mistral (primaire) — comportement du `needsFallback` existant, pas creusé.
+
+**Reste à faire / non vérifié**
+- Vérification faite via exécution manuelle du workflow n8n (données réelles, vrai prompt résolu), pas via un clic réel sur "Générer un post" dans l'app — le tableau de bord n'avait aucune carte disponible au moment du test (fenêtre de veille 24 h vide), donc ce chemin UI précis reste à rejouer quand des sujets seront disponibles. Le contrat entre l'app et le webhook n'a pas changé, donc risque jugé faible.
+- Compte de test jetable (`francoisba+promptprofil...@gmail.com`, `8f2edcaa-066f-42e2-af8e-4b5f8b37f041`) et sa publication brouillon (`591db9c6-ad61-45bb-9447-f308d83a283d`) laissés en base — à nettoyer si l'humain le souhaite.
+
+**Suite (même jour) : remplacement de Mistral (Free Tier suspendu)**
+- L'humain a remplacé le modèle principal du nœud "Generation Post" : Mistral (`mistral-large-2512`, credential "Mistral FBA") → Google Gemini (credential "FBA.dev"). Groq (`groq/compound`) reste le modèle de secours (`needsFallback: true`), inchangé.
+- Constat au passage : le changement était enregistré côté n8n comme brouillon (`versionId` différent d'`activeVersionId`), donc pas encore actif en production malgré l'édition — publié explicitement (`publish_workflow`) pour que les vrais appels webhook utilisent bien Gemini.
+- Voix narrative (`profiles.voix_narrative`) reconfirmée présente à la fois dans les données du nœud "Get Profile" (get complet, pas de sélection de colonnes) et utilisée explicitement dans le prompt (règle 2) — déjà vérifié plus tôt via l'exécution réelle `348231`, revérifié après ce changement de modèle sans nouvelle régression.
+
 ## 2026-09-07 — Ticket 12 (amendement) : LinkedIn, posts et profil éditorial dans Préférences + correctif StrictMode
 
 **Contexte (product-manager, product-designer)**
