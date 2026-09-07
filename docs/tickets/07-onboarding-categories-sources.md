@@ -1,5 +1,15 @@
 # 07 — Onboarding : catégories et sources actives
 
+## Amendement (2026-09-07) : sources actives retirées
+
+Décision de l'humain : le choix de « sources actives » n'a jamais été exploité par rien —
+ni le tableau de bord (ticket 11, aucun filtre sur `préférences.sources_actives`), ni le
+workflow n8n de veille (toutes les sources actives en base, `Sources.actif`, sont scrapées
+pour tout le monde). Proposer ce choix à l'utilisateur était donc trompeur : ça laissait
+croire à un filtrage qui n'existait pas. Retiré de l'étape et de l'écran de préférences
+(ticket 12) — plus rien ne lit ni n'écrit `profiles.préférences.sources_actives`. Le reste
+du ticket ci-dessous (catégories) est inchangé.
+
 ## Pourquoi
 
 Choisir les thèmes suivis et les sources actives pour personnaliser sa veille.

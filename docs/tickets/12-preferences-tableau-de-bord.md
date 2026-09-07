@@ -7,7 +7,7 @@ Le classement du top 5 (ticket 11) dépend des préférences choisies à l'onboa
 ## Décisions prises pour ce ticket
 
 - Un seul écran de préférences, accessible depuis le tableau de bord (lien « Ajuster mes préférences » du ticket 11, et un nouvel accès permanent hors du cas « hors préférences »).
-- Regroupe : métiers/secteurs (ticket 06), catégories/sources actives (ticket 07), tonalité par défaut et voix narrative (ticket 08, amendé le 2026-09-04), LinkedIn/posts existants et profil éditorial (ticket 09, amendé le 2026-09-07 — voir amendement ci-dessous). Identité (nom/prénom, ticket 05) reste réservée à la relance complète de l'onboarding (ticket 10) — pas dupliquée ici.
+- Regroupe : métiers/secteurs (ticket 06), catégories (ticket 07 — sources actives retirées le 2026-09-07, jamais exploitées par rien, voir journal), tonalité par défaut et voix narrative (ticket 08, amendé le 2026-09-04), LinkedIn/posts existants et profil éditorial (ticket 09, amendé le 2026-09-07 — voir amendement ci-dessous). Identité (nom/prénom, ticket 05) reste réservée à la relance complète de l'onboarding (ticket 10) — pas dupliquée ici.
 - Un seul enregistrement global (pas un enregistrement par section) : un bouton « Enregistrer » unique, un message de succès unique.
 - Voix narrative : choix explicite parmi 3 valeurs fixes (je masculin / je féminin / nous) — pas de « il »/« elle », la personne publie en son nom (outil de publication, pas de 3ᵉ personne). Obligatoire, comme la tonalité.
 

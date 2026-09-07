@@ -31,12 +31,10 @@ export default function Preferences({ onRetour }) {
   const [metiers, setMetiers] = useState([])
   const [secteurs, setSecteurs] = useState([])
   const [categories, setCategories] = useState([])
-  const [sources, setSources] = useState([])
   const [tonalites, setTonalites] = useState([])
 
   const [selectionMetiersSecteurs, setSelectionMetiersSecteurs] = useState(new Set())
   const [selectionCategories, setSelectionCategories] = useState(new Set())
-  const [selectionSources, setSelectionSources] = useState(new Set())
   const [tonaliteChoisie, setTonaliteChoisie] = useState('')
   const [voixChoisie, setVoixChoisie] = useState('')
   const [linkedin, setLinkedin] = useState('')
@@ -52,6 +50,9 @@ export default function Preferences({ onRetour }) {
   const [erreurVoix, setErreurVoix] = useState('')
   const [analyseEnCours, setAnalyseEnCours] = useState(false)
   const [erreurAnalyse, setErreurAnalyse] = useState('')
+  const [sauvegardePostsEnCours, setSauvegardePostsEnCours] = useState(false)
+  const [erreurSauvegardePosts, setErreurSauvegardePosts] = useState('')
+  const [confirmationSauvegardePosts, setConfirmationSauvegardePosts] = useState(false)
 
   const enCours = statut === 'chargement'
   const tonaliteChoisieDescriptif = tonalites.find((t) => t.id === tonaliteChoisie)?.descriptif
@@ -75,27 +76,21 @@ export default function Preferences({ onRetour }) {
         return
       }
 
-      const [catsReponse, sourcesReponse, tonalitesReponse, profilReponse] = await Promise.all([
+      const [catsReponse, tonalitesReponse, profilReponse] = await Promise.all([
         supabase.from('Catégories').select('id, nom, type').order('nom'),
-        supabase.from('Sources').select('id, nom').eq('actif', true).order('nom'),
         supabase
           .from('Tonalités')
           .select('id, "Visée de la publication", descriptif')
           .order('Visée de la publication'),
         supabase
           .from('profiles')
-          .select('préférences, "Tonalité_défaut", voix_narrative, linkedin, posts_exemples, profil_editorial')
+          .select('"Tonalité_défaut", voix_narrative, linkedin, posts_exemples, profil_editorial')
           .eq('id', user.id)
           .maybeSingle(),
       ])
       if (estAnnule()) return
 
-      if (
-        catsReponse.error ||
-        sourcesReponse.error ||
-        tonalitesReponse.error ||
-        profilReponse.error
-      ) {
+      if (catsReponse.error || tonalitesReponse.error || profilReponse.error) {
         setErreurChargement('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
         setChargementInitial(false)
         return
@@ -107,7 +102,6 @@ export default function Preferences({ onRetour }) {
       setMetiers(listeMetiers)
       setSecteurs(listeSecteurs)
       setCategories(listeCategories)
-      setSources(sourcesReponse.data)
       setTonalites(tonalitesReponse.data)
 
       const { data: liens, error: erreurLiens } = await supabase
@@ -128,8 +122,6 @@ export default function Preferences({ onRetour }) {
       setSelectionMetiersSecteurs(new Set(idsChoisis.filter((id) => idsMetiersSecteurs.has(id))))
       setSelectionCategories(new Set(idsChoisis.filter((id) => idsCategories.has(id))))
 
-      const sourcesActives = profilReponse.data?.préférences?.sources_actives ?? []
-      setSelectionSources(new Set(sourcesActives))
       setTonaliteChoisie(profilReponse.data?.['Tonalité_défaut'] ?? '')
       setVoixChoisie(profilReponse.data?.voix_narrative ?? '')
       setLinkedin(profilReponse.data?.linkedin ?? '')
@@ -188,6 +180,44 @@ export default function Preferences({ onRetour }) {
 
   const postsNonVidesActuels = posts.map((p) => p.trim()).filter(Boolean)
   const afficherSectionProfil = postsNonVidesActuels.length > 0 || profilEditorial.trim() !== ''
+
+  // Enregistre uniquement LinkedIn + les posts, sans toucher au reste du
+  // profil ni déclencher l'analyse du profil éditorial.
+  async function sauvegarderPosts() {
+    setErreurSauvegardePosts('')
+    setSauvegardePostsEnCours(true)
+    try {
+      const {
+        data: { user },
+        error: erreurUtilisateur,
+      } = await supabase.auth.getUser()
+
+      if (erreurUtilisateur || !user) {
+        setErreurSauvegardePosts("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
+        setSauvegardePostsEnCours(false)
+        return
+      }
+
+      const { error } = await supabase.from('profiles').upsert({
+        id: user.id,
+        linkedin: linkedin.trim() || null,
+        posts_exemples: postsNonVidesActuels,
+      })
+
+      if (error) {
+        setErreurSauvegardePosts("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
+        setSauvegardePostsEnCours(false)
+        return
+      }
+
+      setConfirmationSauvegardePosts(true)
+      setTimeout(() => setConfirmationSauvegardePosts(false), 3000)
+      setSauvegardePostsEnCours(false)
+    } catch {
+      setErreurSauvegardePosts("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
+      setSauvegardePostsEnCours(false)
+    }
+  }
 
   async function gererRegenerer() {
     if (postsNonVidesActuels.length === 0) return
@@ -269,18 +299,6 @@ export default function Preferences({ onRetour }) {
         }
       }
 
-      const { data: profilExistant, error: erreurLecture } = await supabase
-        .from('profiles')
-        .select('préférences')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      if (erreurLecture) {
-        setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
-        setStatut('idle')
-        return
-      }
-
       const linkedinTrim = linkedin.trim()
       const postsNonVides = posts.map((p) => p.trim()).filter(Boolean)
       const profilTrim = profilEditorial.trim()
@@ -300,13 +318,8 @@ export default function Preferences({ onRetour }) {
         }
       }
 
-      const preferencesExistantes = profilExistant?.préférences ?? {}
       const { error: erreurEnregistrement } = await supabase.from('profiles').upsert({
         id: user.id,
-        préférences: {
-          ...preferencesExistantes,
-          sources_actives: [...selectionSources],
-        },
         Tonalité_défaut: tonaliteChoisie,
         voix_narrative: voixChoisie,
         linkedin: linkedinTrim || null,
@@ -404,20 +417,6 @@ export default function Preferences({ onRetour }) {
             ))}
           </fieldset>
 
-          <fieldset className="chips">
-            <legend>Sources actives (facultatif)</legend>
-            {sources.map((source) => (
-              <label key={source.id}>
-                <input
-                  type="checkbox"
-                  checked={selectionSources.has(source.id)}
-                  onChange={() => basculer(setSelectionSources, source.id)}
-                />
-                {source.nom}
-              </label>
-            ))}
-          </fieldset>
-
           <fieldset className="chips" aria-describedby={erreurTonalite ? 'tonalite-erreur' : undefined}>
             <legend>Tonalité</legend>
             {erreurTonalite && (
@@ -477,7 +476,7 @@ export default function Preferences({ onRetour }) {
           </div>
 
           <fieldset>
-            <legend>Posts ou documents existants</legend>
+            <legend>Posts inspirants</legend>
             {posts.map((post, index) => (
               <div key={index}>
                 <label htmlFor={`post-${index}`}>Post {index + 1}</label>
@@ -496,9 +495,21 @@ export default function Preferences({ onRetour }) {
             </button>
           </fieldset>
 
+          <p>
+            {erreurSauvegardePosts && <span role="alert">{erreurSauvegardePosts} </span>}
+            <button
+              type="button"
+              onClick={sauvegarderPosts}
+              disabled={sauvegardePostsEnCours || enCours}
+            >
+              {sauvegardePostsEnCours ? 'Enregistrement…' : 'Enregistrer mes posts'}
+            </button>
+            {confirmationSauvegardePosts && <span role="status"> Enregistré !</span>}
+          </p>
+
           {afficherSectionProfil && (
             <div>
-              <label htmlFor="profil-editorial">Profil éditorial, modifiable</label>
+              <label htmlFor="profil-editorial">Profil éditorial</label>
               <textarea
                 id="profil-editorial"
                 value={profilEditorial}

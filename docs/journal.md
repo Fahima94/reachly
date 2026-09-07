@@ -1,5 +1,29 @@
 # Journal
 
+## 2026-09-07 — Retrait des « sources actives » (onboarding + préférences)
+
+**Constat (humain) :** le choix « sources actives » proposé à l'étape catégories/sources
+(ticket 07) et sur l'écran de préférences (ticket 12) n'a jamais eu d'effet réel — le
+tableau de bord (ticket 11) ne filtre jamais dessus, et le workflow n8n scrape toutes les
+sources actives en base pour tout le monde, sans distinction par utilisateur. Proposer ce
+choix laissait croire à un contrôle qui n'existait pas.
+
+**Fait**
+- `src/pages/onboarding/CategoriesSources.jsx` : fieldset "Sources actives" retiré, plus de
+  chargement/écriture de `Sources` ni de `profiles.préférences`. Titre repassé à "Vos
+  catégories".
+- `src/pages/Preferences.jsx` : même retrait (fieldset, état, lecture/écriture). La colonne
+  `profiles.préférences` (jsonb) n'a plus aucun producteur ni consommateur dans l'app.
+- Tickets 07 et 12 amendés pour tracer la décision.
+- `npm run build` : OK. Vérifié en navigateur réel : plus aucune mention "Sources actives"
+  ni en onboarding ni en préférences, enregistrement toujours fonctionnel, aucune erreur
+  console.
+
+**Reste à faire**
+- La colonne `profiles.préférences` (jsonb) est désormais vide de tout usage — à supprimer
+  par migration si personne ne prévoit de s'en resservir, pas fait ici (décision de schéma,
+  pas demandée).
+
 ## 2026-09-07 — Profil éditorial câblé dans le prompt de génération (n8n "Reachly Publication CC")
 
 **Demande** : le profil éditorial (ticket 09/12) existait déjà en base (`profiles.profil_editorial`) mais n'était pas exploité par la génération de post réelle — seulement calculé, jamais utilisé.

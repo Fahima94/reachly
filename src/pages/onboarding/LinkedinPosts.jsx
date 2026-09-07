@@ -31,6 +31,9 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
   const [erreurGlobale, setErreurGlobale] = useState('')
   const [analyseEnCours, setAnalyseEnCours] = useState(false)
   const [erreurAnalyse, setErreurAnalyse] = useState('')
+  const [sauvegardePostsEnCours, setSauvegardePostsEnCours] = useState(false)
+  const [erreurSauvegardePosts, setErreurSauvegardePosts] = useState('')
+  const [confirmationSauvegardePosts, setConfirmationSauvegardePosts] = useState(false)
 
   const enCours = statut === 'chargement'
 
@@ -113,6 +116,44 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
 
   const postsNonVidesActuels = posts.map((p) => p.trim()).filter(Boolean)
   const afficherSectionProfil = postsNonVidesActuels.length > 0 || profilEditorial.trim() !== ''
+
+  // Enregistre uniquement LinkedIn + les posts, sans toucher au reste du
+  // profil ni déclencher l'analyse du profil éditorial.
+  async function sauvegarderPosts() {
+    setErreurSauvegardePosts('')
+    setSauvegardePostsEnCours(true)
+    try {
+      const {
+        data: { user },
+        error: erreurUtilisateur,
+      } = await supabase.auth.getUser()
+
+      if (erreurUtilisateur || !user) {
+        setErreurSauvegardePosts("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
+        setSauvegardePostsEnCours(false)
+        return
+      }
+
+      const { error } = await supabase.from('profiles').upsert({
+        id: user.id,
+        linkedin: linkedin.trim() || null,
+        posts_exemples: postsNonVidesActuels,
+      })
+
+      if (error) {
+        setErreurSauvegardePosts("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
+        setSauvegardePostsEnCours(false)
+        return
+      }
+
+      setConfirmationSauvegardePosts(true)
+      setTimeout(() => setConfirmationSauvegardePosts(false), 3000)
+      setSauvegardePostsEnCours(false)
+    } catch {
+      setErreurSauvegardePosts("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
+      setSauvegardePostsEnCours(false)
+    }
+  }
 
   async function gererRegenerer() {
     if (postsNonVidesActuels.length === 0) return
@@ -235,7 +276,7 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
           </div>
 
           <fieldset>
-            <legend>Posts ou documents existants</legend>
+            <legend>Posts inspirants</legend>
             {posts.map((post, index) => (
               <div key={index}>
                 <label htmlFor={`post-${index}`}>Post {index + 1}</label>
@@ -254,9 +295,21 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
             </button>
           </fieldset>
 
+          <p>
+            {erreurSauvegardePosts && <span role="alert">{erreurSauvegardePosts} </span>}
+            <button
+              type="button"
+              onClick={sauvegarderPosts}
+              disabled={sauvegardePostsEnCours || enCours}
+            >
+              {sauvegardePostsEnCours ? 'Enregistrement…' : 'Enregistrer mes posts'}
+            </button>
+            {confirmationSauvegardePosts && <span role="status"> Enregistré !</span>}
+          </p>
+
           {afficherSectionProfil && (
             <div>
-              <label htmlFor="profil-editorial">Profil éditorial, modifiable</label>
+              <label htmlFor="profil-editorial">Profil éditorial</label>
               <textarea
                 id="profil-editorial"
                 value={profilEditorial}

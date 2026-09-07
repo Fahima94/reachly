@@ -4,9 +4,7 @@ import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
 
 export default function CategoriesSources({ onEtapeSuivante }) {
   const [categories, setCategories] = useState([])
-  const [sources, setSources] = useState([])
   const [categoriesSelectionnees, setCategoriesSelectionnees] = useState(new Set())
-  const [sourcesSelectionnees, setSourcesSelectionnees] = useState(new Set())
   const [chargementListe, setChargementListe] = useState(true)
   const [erreurListe, setErreurListe] = useState('')
   const [statut, setStatut] = useState('idle') // idle | chargement
@@ -22,49 +20,44 @@ export default function CategoriesSources({ onEtapeSuivante }) {
     setErreurListe('')
     setChargementListe(true)
     try {
-      const [categoriesReponse, sourcesReponse] = await Promise.all([
-        supabase.from('Catégories').select('id, nom').eq('type', 'thème').order('nom'),
-        supabase.from('Sources').select('id, nom').eq('actif', true).order('nom'),
-      ])
+      const { data: categoriesData, error: erreurCategories } = await supabase
+        .from('Catégories')
+        .select('id, nom')
+        .eq('type', 'thème')
+        .order('nom')
       if (estAnnule()) return
 
-      if (categoriesReponse.error || sourcesReponse.error) {
+      if (erreurCategories) {
         setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
         setChargementListe(false)
         return
       }
 
-      setCategories(categoriesReponse.data)
-      setSources(sourcesReponse.data)
+      setCategories(categoriesData)
 
-      // Pré-cochage : lit les catégories "thème" et les sources actives déjà
-      // en base (relance de l'onboarding). Premier onboarding → rien à cocher.
+      // Pré-cochage : lit les catégories "thème" déjà en base (relance de
+      // l'onboarding). Premier onboarding → rien à cocher.
       const {
         data: { user },
       } = await supabase.auth.getUser()
       if (estAnnule()) return
 
       if (user) {
-        const idsCategories = categoriesReponse.data.map((c) => c.id)
-        const [liensReponse, profilReponse] = await Promise.all([
-          supabase
-            .from('profils_categories')
-            .select('category_id')
-            .eq('user_id', user.id)
-            .in('category_id', idsCategories),
-          supabase.from('profiles').select('préférences').eq('id', user.id).maybeSingle(),
-        ])
+        const idsCategories = categoriesData.map((c) => c.id)
+        const { data: liens, error: erreurLiens } = await supabase
+          .from('profils_categories')
+          .select('category_id')
+          .eq('user_id', user.id)
+          .in('category_id', idsCategories)
         if (estAnnule()) return
 
-        if (liensReponse.error || profilReponse.error) {
+        if (erreurLiens) {
           setErreurListe('Le chargement a échoué. Vérifiez votre connexion et réessayez.')
           setChargementListe(false)
           return
         }
 
-        setCategoriesSelectionnees(new Set(liensReponse.data.map((l) => l.category_id)))
-        const sourcesActives = profilReponse.data?.préférences?.sources_actives ?? []
-        setSourcesSelectionnees(new Set(sourcesActives))
+        setCategoriesSelectionnees(new Set(liens.map((l) => l.category_id)))
       }
 
       setChargementListe(false)
@@ -148,35 +141,6 @@ export default function CategoriesSources({ onEtapeSuivante }) {
         return
       }
 
-      // Sources actives : fusionnées dans profiles.préférences (jsonb) pour
-      // ne pas écraser d'autres clés qu'un futur ticket y aurait ajoutées.
-      const { data: profilExistant, error: erreurLecture } = await supabase
-        .from('profiles')
-        .select('préférences')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      if (erreurLecture) {
-        setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
-        setStatut('idle')
-        return
-      }
-
-      const preferencesExistantes = profilExistant?.préférences ?? {}
-      const { error: erreurPreferences } = await supabase.from('profiles').upsert({
-        id: user.id,
-        préférences: {
-          ...preferencesExistantes,
-          sources_actives: [...sourcesSelectionnees],
-        },
-      })
-
-      if (erreurPreferences) {
-        setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
-        setStatut('idle')
-        return
-      }
-
       onEtapeSuivante()
     } catch {
       setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
@@ -192,7 +156,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
     <main>
       <ProgressionOnboarding etape={3} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
-      <h1>Vos catégories et sources actives</h1>
+      <h1>Vos catégories</h1>
 
       {chargementListe && <p role="status">Chargement de vos réponses…</p>}
 
@@ -232,22 +196,6 @@ export default function CategoriesSources({ onEtapeSuivante }) {
                   }
                 />
                 {categorie.nom}
-              </label>
-            ))}
-          </fieldset>
-
-          <fieldset className="chips">
-            <legend>Sources actives (facultatif)</legend>
-            {sources.map((source) => (
-              <label key={source.id}>
-                <input
-                  type="checkbox"
-                  checked={sourcesSelectionnees.has(source.id)}
-                  onChange={() =>
-                    basculer(sourcesSelectionnees, setSourcesSelectionnees, source.id)
-                  }
-                />
-                {source.nom}
               </label>
             ))}
           </fieldset>
