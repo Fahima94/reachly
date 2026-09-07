@@ -2,11 +2,18 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import BoutonDeconnexion from '../components/BoutonDeconnexion.jsx'
 import GenerationPost from '../components/GenerationPost.jsx'
+import LogoReachly from '../components/LogoReachly.jsx'
 import { estAdmin } from '../lib/admin.js'
 
 const FENETRE_MS = 24 * 60 * 60 * 1000
 const LIEN_VALIDE = /^https?:\/\//i
 const RESUME_MAX = 220
+
+function classeScore(score) {
+  if (score >= 80) return 'badge-score--haut'
+  if (score >= 60) return 'badge-score--moyen'
+  return 'badge-score--bas'
+}
 
 function anciennete(dateIso) {
   const ecoule = Date.now() - new Date(dateIso).getTime()
@@ -199,6 +206,7 @@ export default function Dashboard({
 
   return (
     <main>
+      <LogoReachly />
       <header>
         <h1>Vos sujets du jour</h1>
         <button type="button" className="bouton-primaire" onClick={onModifierPreferences}>
@@ -260,7 +268,7 @@ export default function Dashboard({
           )}
 
           <ol>
-            {sujets.map((sujet, index) => {
+            {sujets.map((sujet) => {
               const meta = [
                 sujet.categories.length > 0 ? sujet.categories.join(', ') : null,
                 sujet.source,
@@ -273,10 +281,11 @@ export default function Dashboard({
                 <li key={sujet.id}>
                   <article>
                     <p>
-                      Sujet {index + 1} sur {sujets.length}
+                      <span className={`badge-score ${classeScore(sujet.score)}`}>
+                        {sujet.score}%
+                      </span>
                     </p>
                     <h2>{sujet.titre}</h2>
-                    <p>Score {sujet.score}/100</p>
                     {sujet.horsPreferences && (
                       <p>
                         <strong>Hors de vos préférences</strong>

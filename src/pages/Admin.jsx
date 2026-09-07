@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { estAdmin } from '../lib/admin.js'
+import LogoReachly from '../components/LogoReachly.jsx'
 
 const MSG_ECHEC = 'Une erreur est survenue. Vérifiez votre connexion et réessayez.'
 
@@ -567,6 +568,7 @@ export default function Admin({ onRetour }) {
 
   return (
     <main>
+      <LogoReachly />
       <header>
         <h1>Administration</h1>
         <button type="button" onClick={onRetour}>

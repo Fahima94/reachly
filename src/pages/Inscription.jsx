@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { PASSWORD_RULES, passwordRespecteLesRegles } from '../lib/passwordRules.js'
 import BasculeConnexionInscription from '../components/BasculeConnexionInscription.jsx'
+import LogoReachly from '../components/LogoReachly.jsx'
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -101,6 +102,7 @@ export default function Inscription({ onChangerMode, onInscriptionReussie }) {
 
   return (
     <main>
+      <LogoReachly />
       <BasculeConnexionInscription modeActif="inscription" onChangerMode={onChangerMode} />
       <h1>Créer un compte</h1>
       <form onSubmit={gererEnvoi} noValidate>

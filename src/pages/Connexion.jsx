@@ -4,6 +4,7 @@ import Dashboard from './Dashboard.jsx'
 import Preferences from './Preferences.jsx'
 import Admin from './Admin.jsx'
 import BasculeConnexionInscription from '../components/BasculeConnexionInscription.jsx'
+import LogoReachly from '../components/LogoReachly.jsx'
 
 export default function Connexion({
   onChangerMode,
@@ -91,6 +92,7 @@ export default function Connexion({
 
   return (
     <main>
+      <LogoReachly />
       <BasculeConnexionInscription modeActif="connexion" onChangerMode={onChangerMode} />
       <h1>Se connecter</h1>
       <form onSubmit={gererEnvoi} noValidate>

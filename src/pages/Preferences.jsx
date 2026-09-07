@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import IconeVoixNarrative from '../components/IconeVoixNarrative.jsx'
+import LogoReachly from '../components/LogoReachly.jsx'
 
 const VOIX_NARRATIVES = [
   { valeur: 'je_masculin', libelle: 'Je (masculin)' },
@@ -342,6 +343,7 @@ export default function Preferences({ onRetour }) {
 
   return (
     <main>
+      <LogoReachly />
       <header>
         <h1>Mes préférences</h1>
         <button type="button" onClick={onRetour} disabled={enCours}>
