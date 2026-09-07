@@ -351,6 +351,38 @@ fieldset.choix-icones input[type='radio'] {
   margin: 0 0 var(--space-3);
 }
 
+/* Génération de post en cours : ampoule qui pulse à côté du texte — le
+   texte reste le signal principal (annoncé par role="status"), l'animation
+   n'est qu'un renfort visuel. */
+.generation-en-cours {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.icone-generation {
+  color: var(--color-primary);
+  animation: pulse-idee 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse-idee {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icone-generation {
+    animation: none;
+  }
+}
+
 /* Liste ordonnée du top 5 (tableau de bord) */
 main > ol {
   list-style: none;

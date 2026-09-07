@@ -1,6 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 
+function IconeGeneration() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="28"
+      height="28"
+      aria-hidden="true"
+      focusable="false"
+      className="icone-generation"
+    >
+      <path
+        d="M12 2a7 7 0 0 0-4 12.74c.6.44 1 1.16 1 1.96V17a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.3c0-.8.4-1.52 1-1.96A7 7 0 0 0 12 2z"
+        fill="currentColor"
+      />
+      <rect x="9.5" y="19.5" width="5" height="1.6" rx="0.8" fill="currentColor" />
+      <rect x="10" y="21.6" width="4" height="1.4" rx="0.7" fill="currentColor" />
+    </svg>
+  )
+}
+
 function ModaleConfirmationPublication({ lienLinkedin, copieReussie, onFermer, onOuvrirPreferences }) {
   const dialogRef = useRef(null)
   const boutonPrincipalRef = useRef(null)
@@ -206,9 +226,10 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
 
   if (etat === 'chargement') {
     return (
-      <button type="button" disabled aria-busy="true">
+      <p role="status" className="generation-en-cours" aria-busy="true">
+        <IconeGeneration />
         Génération en cours…
-      </button>
+      </p>
     )
   }
 
