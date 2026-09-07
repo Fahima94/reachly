@@ -14,6 +14,14 @@ Scénario: Connexion réussie
 
   Alors elle accède à son compte
 
+Scénario: Session déjà active
+
+  Étant donné une personne dont la session précédente est toujours valide
+
+  Quand elle ouvre ou recharge l'application
+
+  Alors elle accède directement à son tableau de bord, sans repasser par un formulaire
+
 Scénario: Identifiants invalides
 
   Étant donné une personne sur le formulaire de connexion
@@ -47,11 +55,13 @@ Scénario: Échec technique
 
 ## Direction d'écran
 
-**Ce qu'on voit en premier :** le formulaire — champ email, champ mot de passe.
-**Ce qui vient ensuite :** le bouton "Se connecter", puis le lien "Créer un compte".
+**Ce qu'on voit en premier :** deux onglets ("Se connecter" / "Créer un compte"), l'onglet actif visuellement marqué, puis le formulaire — champ email, champ mot de passe.
+**Ce qui vient ensuite :** le bouton "Se connecter".
 **Ce qui est relégué :** rien de plus — écran volontairement minimal.
 
-**Structure :** formulaire centré, deux champs empilés avec label visible, bouton principal en dessous, un lien secondaire sous le bouton.
+**Structure :** formulaire centré, onglets en haut de la carte (remplacent l'ancien lien texte "Créer un compte" sous le bouton), deux champs empilés avec label visible, bouton principal en dessous.
+
+**Écran de démarrage :** en l'absence de session valide, l'application ouvre sur cet écran (Connexion), pas sur l'inscription — une personne qui revient sur l'app est plus probablement déjà inscrite qu'inversement. Avec une session valide, l'application saute directement au tableau de bord (voir scénario "Session déjà active").
 
 **Les états**
 - Vide : sans objet — formulaire vide par nature au démarrage.
@@ -63,7 +73,7 @@ Scénario: Échec technique
 
 ## Fini quand
 
-- [ ] Les quatre scénarios passent
+- [ ] Les cinq scénarios passent
 - [ ] État vide traité
 - [ ] État de chargement traité
 - [ ] État d'erreur traité

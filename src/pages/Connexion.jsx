@@ -3,9 +3,10 @@ import { definirSeSouvenir, supabase } from '../lib/supabase.js'
 import Dashboard from './Dashboard.jsx'
 import Preferences from './Preferences.jsx'
 import Admin from './Admin.jsx'
+import BasculeConnexionInscription from '../components/BasculeConnexionInscription.jsx'
 
 export default function Connexion({
-  onAllerInscription,
+  onChangerMode,
   onDeconnexionReussie,
   onRelancerOnboarding,
 }) {
@@ -90,6 +91,7 @@ export default function Connexion({
 
   return (
     <main>
+      <BasculeConnexionInscription modeActif="connexion" onChangerMode={onChangerMode} />
       <h1>Se connecter</h1>
       <form onSubmit={gererEnvoi} noValidate>
         {erreurGlobale && (
@@ -151,12 +153,6 @@ export default function Connexion({
         <button type="submit" disabled={enCours} aria-busy={enCours}>
           {enCours ? 'Connexion en cours…' : 'Se connecter'}
         </button>
-
-        <p>
-          <button type="button" onClick={onAllerInscription}>
-            Créer un compte
-          </button>
-        </p>
       </form>
     </main>
   )

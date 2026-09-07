@@ -382,6 +382,39 @@ main > ol > li > article > p:first-child {
   margin-bottom: var(--space-1);
 }
 
+/* Bascule Se connecter / Créer un compte (tickets 01/02) : deux onglets en
+   tête des écrans d'authentification, l'actif marqué par le trait et le
+   poids de police (jamais la couleur seule). */
+.bascule-connexion-inscription {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.bascule-connexion-inscription button {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.bascule-connexion-inscription button:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+
+.bascule-connexion-inscription button[aria-current='true'] {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+  font-weight: 700;
+}
+
 /* Étapes d'onboarding : texte + barre de progression */
 .progression-onboarding {
   margin-bottom: var(--space-4);

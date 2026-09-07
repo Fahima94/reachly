@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { PASSWORD_RULES, passwordRespecteLesRegles } from '../lib/passwordRules.js'
+import BasculeConnexionInscription from '../components/BasculeConnexionInscription.jsx'
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function Inscription({ onAllerConnexion, onInscriptionReussie }) {
+export default function Inscription({ onChangerMode, onInscriptionReussie }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordTouched, setPasswordTouched] = useState(false)
@@ -100,6 +101,7 @@ export default function Inscription({ onAllerConnexion, onInscriptionReussie }) 
 
   return (
     <main>
+      <BasculeConnexionInscription modeActif="inscription" onChangerMode={onChangerMode} />
       <h1>Créer un compte</h1>
       <form onSubmit={gererEnvoi} noValidate>
         {erreurGlobale && (
@@ -165,12 +167,6 @@ export default function Inscription({ onAllerConnexion, onInscriptionReussie }) 
         <button type="submit" disabled={enCours} aria-busy={enCours}>
           {enCours ? 'Création en cours…' : 'Créer mon compte'}
         </button>
-
-        <p>
-          <button type="button" onClick={onAllerConnexion}>
-            J'ai déjà un compte
-          </button>
-        </p>
       </form>
     </main>
   )

@@ -35,6 +35,35 @@ base de données, pas seulement côté interface.
 - Aucune donnée de test laissée en base (vérifié après coup : catégorie test jamais créée,
   source re-basculée à son état d'origine).
 
+## 2026-09-07 — Tickets 01/02 (amendement) : reprise de session, écran de démarrage, bascule connexion/inscription
+
+**Constat (humain, retours de test) :** confusion fréquente entre les écrans de connexion et d'inscription.
+
+**Diagnostic**
+1. Aucune restauration de session au chargement de l'app (`getSession`/`onAuthStateChange` absents de `App.jsx`) — à chaque rechargement de page ou nouvel onglet, même une personne déjà connectée retombait sur l'écran par défaut.
+2. Cet écran par défaut était l'inscription (`useState('inscription')`), jamais la connexion.
+3. Les deux écrans étaient visuellement quasi identiques (même structure, un simple lien texte discret pour basculer de l'un à l'autre).
+
+Ticket 02 amendé (nouveau scénario "Session déjà active", direction d'écran : écran de démarrage par défaut = Connexion, bascule en onglets). Ticket 01 amendé en cohérence (hors périmètre + même bascule).
+
+**Fait (code)**
+- `src/App.jsx` : ajout d'une vérification de session au montage (`supabase.auth.getSession()`, avec le motif `estAnnule` habituel contre le double montage StrictMode) — écran `null` (chargement) le temps de la vérification, puis saut direct à `connecte` si une session valide existe, sinon `connexion` (nouvel écran par défaut, y compris en repli). `inscription` n'est plus atteint qu'explicitement via la bascule.
+- `src/components/BasculeConnexionInscription.jsx` (nouveau) : composant partagé, deux boutons "Se connecter" / "Créer un compte", état actif porté par `aria-current` (pas de rôle ARIA "tablist" complet, qui exigerait une navigation au clavier par flèches non implémentée).
+- `src/pages/Inscription.jsx`, `src/pages/Connexion.jsx` : bascule ajoutée en tête d'écran, ancien lien texte de bascule retiré ; prop renommée `onAllerConnexion`/`onAllerInscription` → `onChangerMode` (commune aux deux écrans).
+- `src/index.css` : style de la bascule (trait + poids de police pour l'onglet actif, jamais la couleur seule).
+- `npm run build` : OK (90 modules).
+
+**Vérifié en réel (Playwright, comptes jetables, vraie base)**
+- Premier chargement sans session → écran "Se connecter" (plus "Créer un compte").
+- Bascule par onglets → `aria-current` correctement posé sur l'onglet actif.
+- Session active + rechargement de page → saut direct au tableau de bord, sans repasser par un formulaire ; la redirection vers l'onboarding en cas de profil incomplet (ticket 11, préexistante) continue de fonctionner sans régression.
+- Déconnexion → retour à "Se connecter" (pas "Créer un compte").
+- Aucune erreur console sur ces parcours.
+
+**Reste à faire / non vérifié**
+- Navigation clavier complète de la bascule (Tab fonctionne, pas de flèches — choix assumé, voir ci-dessus) et lecteur d'écran non testés.
+- Scénario d'échec technique de `getSession()` (repli sur "connexion" codé, non provoqué en réel).
+
 ## 2026-09-07 — Retrait des « sources actives » (onboarding + préférences)
 
 **Constat (humain) :** le choix « sources actives » proposé à l'étape catégories/sources

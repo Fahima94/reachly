@@ -60,17 +60,18 @@ Scénario: Échec technique
 
 - L'onboarding (nom, prénom, profil LinkedIn, préférences) — prochaine étape, pas ce ticket.
 - La connexion à un compte existant — ticket séparé.
+- L'écran de démarrage par défaut de l'application — piloté par le ticket 02 (Connexion).
 - La récupération de mot de passe — annulée en V1 (ticket 03).
 - La confirmation d'adresse par e-mail — supprimée en V1 (voir cadrage).
 - Toute personnalisation de l'écran au-delà d'un formulaire email / mot de passe.
 
 ## Direction d'écran
 
-**Ce qu'on voit en premier :** le formulaire — champ email, champ mot de passe.
-**Ce qui vient ensuite :** le bouton d'action ("Créer mon compte") et un lien vers la connexion ("J'ai déjà un compte").
+**Ce qu'on voit en premier :** deux onglets ("Se connecter" / "Créer un compte"), l'onglet actif visuellement marqué, puis le formulaire — champ email, champ mot de passe.
+**Ce qui vient ensuite :** le bouton d'action ("Créer mon compte").
 **Ce qui est relégué :** mentions légales / CGU, en lien discret sous le formulaire.
 
-**Structure :** formulaire centré, deux champs empilés avec label visible (pas de placeholder seul), bouton principal en dessous, lien secondaire sous le bouton.
+**Structure :** formulaire centré, onglets en haut de la carte (remplacent l'ancien lien texte "J'ai déjà un compte" sous le bouton) — même bascule que l'écran de connexion (ticket 02), deux champs empilés avec label visible (pas de placeholder seul), bouton principal en dessous.
 
 **Les états**
 - Vide : sans objet — le formulaire est vide par nature au démarrage, les labels suffisent à orienter.

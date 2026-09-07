@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { supabase } from './lib/supabase.js'
 import Inscription from './pages/Inscription.jsx'
 import Connexion from './pages/Connexion.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -11,14 +12,48 @@ import Tonalite from './pages/onboarding/Tonalite.jsx'
 import LinkedinPosts from './pages/onboarding/LinkedinPosts.jsx'
 
 export default function App() {
-  const [ecran, setEcran] = useState('inscription')
+  // `null` : vérification de la session en cours, rien n'est encore décidé.
+  const [ecran, setEcran] = useState(null)
 
-  if (ecran === 'connexion') {
+  // Ticket 02 (amendement) : une session déjà valide (rechargement de page,
+  // nouvel onglet) mène directement au tableau de bord, sans repasser par un
+  // formulaire. `estAnnule` protège contre le double montage de StrictMode
+  // en développement, comme sur les autres écrans de l'app.
+  useEffect(() => {
+    let annule = false
+    async function verifierSession() {
+      try {
+        const { data, error } = await supabase.auth.getSession()
+        if (annule) return
+        if (error) {
+          setEcran('connexion')
+          return
+        }
+        setEcran(data.session ? 'connecte' : 'connexion')
+      } catch {
+        if (annule) return
+        setEcran('connexion')
+      }
+    }
+    verifierSession()
+    return () => {
+      annule = true
+    }
+  }, [])
+
+  if (ecran === null) {
     return (
-      <Connexion
-        onAllerInscription={() => setEcran('inscription')}
-        onDeconnexionReussie={() => setEcran('connexion')}
-        onRelancerOnboarding={() => setEcran('onboarding-identite')}
+      <main>
+        <p role="status">Chargement…</p>
+      </main>
+    )
+  }
+
+  if (ecran === 'inscription') {
+    return (
+      <Inscription
+        onChangerMode={setEcran}
+        onInscriptionReussie={() => setEcran('onboarding-identite')}
       />
     )
   }
@@ -53,10 +88,13 @@ export default function App() {
       />
     )
   }
+  // Par défaut (ecran === 'connexion', ou toute valeur imprévue) : écran de
+  // connexion — voir ticket 02.
   return (
-    <Inscription
-      onAllerConnexion={() => setEcran('connexion')}
-      onInscriptionReussie={() => setEcran('onboarding-identite')}
+    <Connexion
+      onChangerMode={setEcran}
+      onDeconnexionReussie={() => setEcran('connexion')}
+      onRelancerOnboarding={() => setEcran('onboarding-identite')}
     />
   )
 }
