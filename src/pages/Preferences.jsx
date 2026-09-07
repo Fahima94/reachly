@@ -355,7 +355,7 @@ export default function Preferences({ onRetour }) {
             </p>
           )}
 
-          <fieldset>
+          <fieldset className="chips">
             <legend>Vos métiers</legend>
             {metiers.map((metier) => (
               <label key={metier.id}>
@@ -369,7 +369,7 @@ export default function Preferences({ onRetour }) {
             ))}
           </fieldset>
 
-          <fieldset>
+          <fieldset className="chips">
             <legend>Vos secteurs d'activité</legend>
             {secteurs.map((secteur) => (
               <label key={secteur.id}>
@@ -383,7 +383,7 @@ export default function Preferences({ onRetour }) {
             ))}
           </fieldset>
 
-          <fieldset aria-describedby={erreurCategories ? 'categories-erreur' : undefined}>
+          <fieldset className="chips" aria-describedby={erreurCategories ? 'categories-erreur' : undefined}>
             <legend>Catégories (au moins une)</legend>
             {erreurCategories && (
               <p id="categories-erreur" role="alert">
@@ -402,7 +402,7 @@ export default function Preferences({ onRetour }) {
             ))}
           </fieldset>
 
-          <fieldset>
+          <fieldset className="chips">
             <legend>Sources actives (facultatif)</legend>
             {sources.map((source) => (
               <label key={source.id}>

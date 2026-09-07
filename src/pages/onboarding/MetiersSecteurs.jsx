@@ -177,7 +177,7 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
             </p>
           )}
 
-          <fieldset>
+          <fieldset className="chips">
             <legend>Vos métiers</legend>
             {metiers.map((metier) => (
               <label key={metier.id}>
@@ -191,7 +191,7 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
             ))}
           </fieldset>
 
-          <fieldset>
+          <fieldset className="chips">
             <legend>Vos secteurs d'activité</legend>
             {secteurs.map((secteur) => (
               <label key={secteur.id}>

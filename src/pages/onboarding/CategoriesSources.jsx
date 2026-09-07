@@ -215,7 +215,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
             </p>
           )}
 
-          <fieldset aria-describedby={erreurCategories ? 'categories-erreur' : undefined}>
+          <fieldset className="chips" aria-describedby={erreurCategories ? 'categories-erreur' : undefined}>
             <legend>Catégories (au moins une)</legend>
             {erreurCategories && (
               <p id="categories-erreur" role="alert">
@@ -236,7 +236,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
             ))}
           </fieldset>
 
-          <fieldset>
+          <fieldset className="chips">
             <legend>Sources actives (facultatif)</legend>
             {sources.map((source) => (
               <label key={source.id}>
