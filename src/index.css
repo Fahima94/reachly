@@ -268,7 +268,60 @@ fieldset.chips label:has(input:focus-visible) {
   outline-offset: 2px;
 }
 
-fieldset.chips input[type='checkbox'] {
+fieldset.chips input[type='checkbox'],
+fieldset.chips input[type='radio'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Description de la tonalité sélectionnée : affichée une seule fois, sous
+   le groupe de boutons, plutôt que répétée à côté de chaque option. */
+.description-choix {
+  flex-basis: 100%;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: var(--space-1) 0 0;
+}
+
+/* Voix narrative : cartes avec icône, choix unique. Même principe
+   d'accessibilité que .chips (vrai <input>, juste masqué visuellement). */
+fieldset.choix-icones {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+fieldset.choix-icones label {
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 96px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: center;
+}
+
+fieldset.choix-icones label:has(input:checked) {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+fieldset.choix-icones label:has(input:focus-visible) {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+fieldset.choix-icones input[type='radio'] {
   position: absolute;
   width: 1px;
   height: 1px;

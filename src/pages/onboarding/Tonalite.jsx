@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
+import IconeVoixNarrative from '../../components/IconeVoixNarrative.jsx'
 
 const VOIX_NARRATIVES = [
   { valeur: 'je_masculin', libelle: 'Je (masculin)' },
@@ -20,6 +21,7 @@ export default function Tonalite({ onEtapeSuivante }) {
   const [erreurVoix, setErreurVoix] = useState('')
 
   const enCours = statut === 'chargement'
+  const tonaliteChoisieDescriptif = tonalites.find((t) => t.id === tonaliteChoisie)?.descriptif
 
   // `estAnnule` protège contre le double montage de StrictMode en
   // développement : si ce chargement a été annulé (montage suivant déjà en
@@ -165,7 +167,7 @@ export default function Tonalite({ onEtapeSuivante }) {
             </p>
           )}
 
-          <fieldset aria-describedby={erreurTonalite ? 'tonalite-erreur' : undefined}>
+          <fieldset className="chips" aria-describedby={erreurTonalite ? 'tonalite-erreur' : undefined}>
             <legend>Tonalité</legend>
             {erreurTonalite && (
               <p id="tonalite-erreur" role="alert">
@@ -182,12 +184,14 @@ export default function Tonalite({ onEtapeSuivante }) {
                   onChange={() => setTonaliteChoisie(tonalite.id)}
                 />
                 {tonalite['Visée de la publication']}
-                {tonalite.descriptif && <span> — {tonalite.descriptif}</span>}
               </label>
             ))}
+            {tonaliteChoisieDescriptif && (
+              <p className="description-choix">{tonaliteChoisieDescriptif}</p>
+            )}
           </fieldset>
 
-          <fieldset aria-describedby={erreurVoix ? 'voix-erreur' : undefined}>
+          <fieldset className="choix-icones" aria-describedby={erreurVoix ? 'voix-erreur' : undefined}>
             <legend>Voix narrative</legend>
             {erreurVoix && (
               <p id="voix-erreur" role="alert">
@@ -203,6 +207,7 @@ export default function Tonalite({ onEtapeSuivante }) {
                   checked={voixChoisie === voix.valeur}
                   onChange={() => setVoixChoisie(voix.valeur)}
                 />
+                <IconeVoixNarrative valeur={voix.valeur} />
                 {voix.libelle}
               </label>
             ))}
