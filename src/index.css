@@ -289,6 +289,19 @@ input[type='radio'] {
   flex-shrink: 0;
 }
 
+/* Case d'acceptation des conditions à l'inscription : la case et son
+   libellé sur une même ligne, la case alignée sur la première ligne de
+   texte quand le libellé passe sur deux lignes. Le <label> enveloppe la
+   case, donc cliquer le texte coche aussi. */
+.champ-conditions label {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-weight: 400;
+  cursor: pointer;
+}
+
 /* Groupes de cases à cocher courtes (métiers, secteurs, catégories,
    sources) : puces au lieu d'une longue liste verticale. La case reste un
    vrai <input>, juste masquée visuellement (pas display:none, donc toujours

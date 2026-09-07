@@ -1,5 +1,43 @@
 # Journal
 
+## 2026-09-07 — Ticket 01 (amendement) : case d'acceptation obligatoire à l'inscription
+
+**Demande** : au moment de s'inscrire, l'utilisateur doit impérativement cocher la case
+« J'accepte les conditions d'utilisation et la politique de confidentialité de Reachly. »
+avant que le compte ne soit créé.
+
+**Fait**
+- `src/pages/Inscription.jsx` : `<input type="checkbox" id="conditions">` avec `<label>`
+  associé (le label enveloppe la case, cliquer le texte coche aussi), jamais pré-cochée,
+  placée sous le bloc mot de passe et sa checklist, avant le bouton « Créer mon compte ».
+- Blocage de la soumission si la case n'est pas cochée : message « Vous devez accepter les
+  conditions d'utilisation et la politique de confidentialité pour créer un compte. »,
+  relié à la case par `aria-describedby` + `aria-invalid`, affiché en `role="alert"` au
+  même niveau que les autres erreurs de champ. Aucun appel à `supabase.auth.signUp` tant
+  que la case n'est pas cochée.
+- `src/index.css` : `.champ-conditions label` — case et libellé sur une ligne, case
+  alignée en haut quand le libellé passe sur deux lignes.
+- Couvre les scénarios « Inscription sans accepter les conditions » (compte non créé,
+  message) et « Inscription en acceptant les conditions » (compte créé).
+
+**Décision prise dans le tour**
+- Les deux liens du libellé (« conditions d'utilisation », « politique de confidentialité »)
+  attendent le ticket 15 (pages légales à URL stable, non réalisé) : pour l'instant le
+  libellé est du texte brut, sans lien. À reprendre quand le ticket 15 livre les pages.
+
+**Reste à faire / non couvert**
+- Scénario « Consulter les conditions avant de s'inscrire » : bloqué par le ticket 15
+  (pas de pages, pas de liens).
+- Trace du consentement (date + version acceptée enregistrées avec le profil, RGPD art. 7.1) :
+  non traitée ici — la ligne `profiles` n'est créée qu'à l'onboarding, et la « version »
+  vient des pages du ticket 15.
+- Bouton afficher / masquer le mot de passe (autre partie de l'amendement) : non demandé
+  dans ce tour, non fait.
+- Cible de la case : 20×20 px comme toutes les cases de l'app (cohérence) — la zone
+  cliquable réelle inclut le libellé enveloppant, donc bien au-delà de 24 px.
+- Vérifié : `npm run build` passe. Non vérifié en réel dans le navigateur ni au clavier /
+  lecteur d'écran.
+
 ## 2026-09-07 — Audit accessibilité clavier + correctif focus de la modale de publication
 
 **Demande** : reprendre le point de dette technique le plus ancien et le plus répété du

@@ -10,10 +10,12 @@ export default function Inscription({ onChangerMode, onInscriptionReussie }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordTouched, setPasswordTouched] = useState(false)
+  const [accepteConditions, setAccepteConditions] = useState(false)
   const [statut, setStatut] = useState('idle') // idle | chargement
   const [erreurGlobale, setErreurGlobale] = useState('')
   const [erreurEmail, setErreurEmail] = useState('')
   const [erreurMotDePasse, setErreurMotDePasse] = useState('')
+  const [erreurConditions, setErreurConditions] = useState('')
 
   const enCours = statut === 'chargement'
 
@@ -22,6 +24,7 @@ export default function Inscription({ onChangerMode, onInscriptionReussie }) {
     setErreurGlobale('')
     setErreurEmail('')
     setErreurMotDePasse('')
+    setErreurConditions('')
 
     // Champ vide
     if (!email.trim() || !password) {
@@ -40,6 +43,14 @@ export default function Inscription({ onChangerMode, onInscriptionReussie }) {
     if (!passwordRespecteLesRegles(password)) {
       setPasswordTouched(true)
       setErreurMotDePasse('Le mot de passe ne respecte pas les règles ci-dessous.')
+      return
+    }
+
+    // Conditions non acceptées
+    if (!accepteConditions) {
+      setErreurConditions(
+        "Vous devez accepter les conditions d'utilisation et la politique de confidentialité pour créer un compte.",
+      )
       return
     }
 
@@ -163,6 +174,27 @@ export default function Inscription({ onChangerMode, onInscriptionReussie }) {
                 )
               })}
             </ul>
+          )}
+        </div>
+
+        <div className="champ-conditions">
+          <label htmlFor="conditions">
+            <input
+              id="conditions"
+              name="conditions"
+              type="checkbox"
+              checked={accepteConditions}
+              onChange={(e) => setAccepteConditions(e.target.checked)}
+              aria-describedby={erreurConditions ? 'conditions-erreur' : undefined}
+              aria-invalid={erreurConditions ? 'true' : 'false'}
+            />
+            J'accepte les conditions d'utilisation et la politique de
+            confidentialité de Reachly.
+          </label>
+          {erreurConditions && (
+            <p id="conditions-erreur" role="alert">
+              {erreurConditions}
+            </p>
           )}
         </div>
 
