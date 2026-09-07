@@ -445,7 +445,6 @@ export default function Dashboard({
                         })}
                       </p>
                     )}
-                    {sujet.source && <p className="meta-discrete">{sujet.source}</p>}
                     {sujet.lien && (
                       <p>
                         <a href={sujet.lien} target="_blank" rel="noopener noreferrer">
