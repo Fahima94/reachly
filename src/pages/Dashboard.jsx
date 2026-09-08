@@ -9,14 +9,6 @@ const FENETRE_MS = 24 * 60 * 60 * 1000
 const LIEN_VALIDE = /^https?:\/\//i
 const RESUME_MAX = 220
 
-const VOIX_NARRATIVES = [
-  { valeur: 'je_masculin', libelle: 'Je (masculin)' },
-  { valeur: 'je_feminin', libelle: 'Je (féminin)' },
-  { valeur: 'nous_masculin', libelle: 'Nous (masculin pluriel)' },
-  { valeur: 'nous_feminin', libelle: 'Nous (féminin pluriel)' },
-  { valeur: 'nous_inclusif', libelle: 'Nous (pluriel inclusif)' },
-]
-
 // Une couleur par catégorie, sur le tableau de bord uniquement — pour
 // distinguer les catégories d'un coup d'œil sur une carte qui en affiche
 // plusieurs. Assignation fixe pour les 12 catégories "thème" connues du
@@ -120,8 +112,9 @@ export default function Dashboard({
   const [menuProfilOuvert, setMenuProfilOuvert] = useState(false)
   const menuProfilRef = useRef(null)
   const [categoriesSelectionnees, setCategoriesSelectionnees] = useState(() => new Set())
-  const [tonaliteLabel, setTonaliteLabel] = useState('')
-  const [voixLabel, setVoixLabel] = useState('')
+  const [tonalites, setTonalites] = useState([])
+  const [tonaliteId, setTonaliteId] = useState(null)
+  const [voixCode, setVoixCode] = useState('')
 
   const charger = useCallback(async () => {
     setEtat('chargement')
@@ -163,20 +156,17 @@ export default function Dashboard({
       setInitiales(`${profil.prenom[0]}${profil.nom[0]}`.toUpperCase())
       setNomComplet(`${profil.prenom} ${profil.nom}`)
       setAvatarUrl(profil.avatar_url || null)
-      setVoixLabel(
-        VOIX_NARRATIVES.find((v) => v.valeur === profil.voix_narrative)?.libelle ?? '',
-      )
+      setTonaliteId(profil['Tonalité_défaut'] ?? null)
+      setVoixCode(profil.voix_narrative ?? '')
 
-      if (profil['Tonalité_défaut']) {
-        const { data: tonalite } = await supabase
-          .from('Tonalités')
-          .select('"Visée de la publication"')
-          .eq('id', profil['Tonalité_défaut'])
-          .maybeSingle()
-        setTonaliteLabel(tonalite?.['Visée de la publication'] ?? '')
-      } else {
-        setTonaliteLabel('')
-      }
+      // Liste complète (pas juste le libellé du profil) : sert aussi à peupler
+      // les menus de la pop up de génération (override ponctuel, ticket n8n
+      // du 2026-09-08 — tonalité/voix choisies là ne modifient pas le profil).
+      const { data: listeTonalites } = await supabase
+        .from('Tonalités')
+        .select('id, "Visée de la publication"')
+        .order('Visée de la publication')
+      setTonalites(listeTonalites ?? [])
 
       // Candidats : scorés, créés dans les dernières 24 h glissantes, non masqués
       // par un admin (ticket 14), du meilleur score au moins bon. (La colonne
@@ -617,8 +607,9 @@ export default function Dashboard({
                       sujetId={sujet.id}
                       userId={userId}
                       tonaliteDefinie={tonaliteDefinie}
-                      tonaliteLabel={tonaliteLabel}
-                      voixLabel={voixLabel}
+                      tonalites={tonalites}
+                      tonaliteId={tonaliteId}
+                      voixCode={voixCode}
                       onModifierPreferences={onModifierPreferences}
                     />
                   </article>

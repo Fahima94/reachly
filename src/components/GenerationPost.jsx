@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 
+const VOIX_NARRATIVES = [
+  { valeur: 'je_masculin', libelle: 'Je (masculin)' },
+  { valeur: 'je_feminin', libelle: 'Je (féminin)' },
+  { valeur: 'nous_masculin', libelle: 'Nous (masculin pluriel)' },
+  { valeur: 'nous_feminin', libelle: 'Nous (féminin pluriel)' },
+  { valeur: 'nous_inclusif', libelle: 'Nous (pluriel inclusif)' },
+]
+
 function IconeGeneration() {
   return (
     <svg
@@ -107,8 +115,12 @@ function ModaleConfirmationPublication({
 }
 
 function ModaleConfirmationGeneration({
-  tonaliteLabel,
-  voixLabel,
+  sujetId,
+  tonalites,
+  tonaliteSelectionnee,
+  onChangerTonalite,
+  voixSelectionnee,
+  onChangerVoix,
   onModifierPreferences,
   onConfirmer,
   onAnnuler,
@@ -157,12 +169,40 @@ function ModaleConfirmationGeneration({
         ref={dialogRef}
       >
         <h2 id="titre-confirmation-generation">Vérifier avant de générer</h2>
-        <p>
-          Tonalité : {tonaliteLabel || '—'} · Voix : {voixLabel || '—'}
+        <p className="meta-discrete">
+          Valable pour ce post uniquement — ne change pas vos préférences enregistrées.
         </p>
+        <div>
+          <label htmlFor={`tonalite-generation-${sujetId}`}>Tonalité</label>
+          <select
+            id={`tonalite-generation-${sujetId}`}
+            value={tonaliteSelectionnee ?? ''}
+            onChange={(e) => onChangerTonalite(e.target.value)}
+          >
+            {tonalites.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t['Visée de la publication']}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor={`voix-generation-${sujetId}`}>Voix narrative</label>
+          <select
+            id={`voix-generation-${sujetId}`}
+            value={voixSelectionnee ?? ''}
+            onChange={(e) => onChangerVoix(e.target.value)}
+          >
+            {VOIX_NARRATIVES.map((v) => (
+              <option key={v.valeur} value={v.valeur}>
+                {v.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
         <p>
           <button type="button" className="bouton-discret" onClick={onModifierPreferences}>
-            Modifier
+            Modifier mes préférences par défaut
           </button>
         </p>
         <div className="actions-generation-post">
@@ -182,14 +222,20 @@ export default function GenerationPost({
   sujetId,
   userId,
   tonaliteDefinie,
-  tonaliteLabel,
-  voixLabel,
+  tonalites,
+  tonaliteId,
+  voixCode,
   onModifierPreferences,
 }) {
   // idle | manque-tonalite | chargement | pret | erreur
   const [etat, setEtat] = useState('idle')
   const [texte, setTexte] = useState('')
   const [publicationId, setPublicationId] = useState(null)
+  // Pré-remplies avec le profil à l'ouverture de la pop up ; modifiables
+  // juste pour cette génération (ticket n8n du 2026-09-08 — override
+  // ponctuel, n'écrit jamais dans `profiles`).
+  const [tonaliteSelectionnee, setTonaliteSelectionnee] = useState(null)
+  const [voixSelectionnee, setVoixSelectionnee] = useState('')
 
   // idle | enregistrer | publier
   const [actionEnCours, setActionEnCours] = useState(null)
@@ -218,7 +264,12 @@ export default function GenerationPost({
       const reponse = await fetch(import.meta.env.VITE_N8N_WEBHOOK_GENERATION_POST, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, info_id: sujetId }),
+        body: JSON.stringify({
+          user_id: userId,
+          info_id: sujetId,
+          tonalite_id: tonaliteSelectionnee,
+          voix_narrative: voixSelectionnee,
+        }),
       })
 
       if (!reponse.ok) {
@@ -245,6 +296,8 @@ export default function GenerationPost({
       setEtat('manque-tonalite')
       return
     }
+    setTonaliteSelectionnee(tonaliteId)
+    setVoixSelectionnee(voixCode)
     setEtat('confirmation')
   }
 
@@ -317,8 +370,12 @@ export default function GenerationPost({
         </button>
         {etat === 'confirmation' && (
           <ModaleConfirmationGeneration
-            tonaliteLabel={tonaliteLabel}
-            voixLabel={voixLabel}
+            sujetId={sujetId}
+            tonalites={tonalites}
+            tonaliteSelectionnee={tonaliteSelectionnee}
+            onChangerTonalite={setTonaliteSelectionnee}
+            voixSelectionnee={voixSelectionnee}
+            onChangerVoix={setVoixSelectionnee}
             onModifierPreferences={onModifierPreferences}
             onConfirmer={genererPost}
             onAnnuler={() => setEtat('idle')}

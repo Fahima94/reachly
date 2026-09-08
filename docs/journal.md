@@ -1,5 +1,30 @@
 # Journal
 
+## 2026-09-08 — Câblage front : override ponctuel tonalité/voix dans la pop up de génération
+
+**Contexte** : suite au changement n8n du même jour (workflow "Reachly Publication CC" —
+accepte `tonalite_id`/`voix_narrative` en override, sans toucher au profil), câblage côté
+app annoncé comme prochaine étape.
+
+**Fait (code)**
+- `src/pages/Dashboard.jsx` : charge désormais la liste complète des `Tonalités` (pas
+  seulement le libellé de la tonalité par défaut) + expose `tonaliteId`/`voixCode` bruts
+  (en plus des infos déjà chargées) — transmis à chaque `GenerationPost`.
+- `src/components/GenerationPost.jsx` : la pop up de confirmation ("Vérifier avant de
+  générer") remplace le texte figé "Tonalité : X · Voix : Y" par deux vrais `<select>`
+  (tonalité, voix narrative — 5 valeurs), pré-remplis avec le profil à l'ouverture,
+  modifiables librement. Le choix ne s'enregistre nulle part dans `profiles` — envoyé
+  tel quel (`tonalite_id`, `voix_narrative`) dans l'appel au webhook de génération, qui
+  l'applique pour ce post uniquement (comportement confirmé par le test n8n du jour).
+  Lien "Modifier mes préférences par défaut" conservé, pour un changement permanent au
+  besoin (redirige vers l'écran Préférences, distinct de l'override ponctuel).
+- `npm run build` : OK (96 modules).
+
+**Reste à faire / non vérifié**
+- Non testé en navigateur réel (génération avec override réellement différent du profil,
+  vérification que le texte produit change bien de ton/voix).
+- Accessibilité non testée au clavier ni au lecteur d'écran sur les deux nouveaux `<select>`.
+
 ## 2026-09-08 — Bug : catégories métier/secteur mélangées aux thèmes sur le tableau de bord
 
 **Constat (humain)** : "Automobile" apparaît dans les étiquettes de catégorie et le filtre
