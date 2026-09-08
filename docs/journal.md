@@ -20,6 +20,42 @@ correct : restreint par `profils_categories`, qui ne contient que des id de thè
 
 **Non vérifié** : rendu réel en navigateur après correctif.
 
+## 2026-09-08 — Workflow n8n "Reachly Publication CC" : override ponctuel tonalité/voix narrative
+
+**Demande (humain)** : permettre à l'app d'envoyer une tonalité et une voix narrative ponctuelles
+au moment de générer un post — sans modifier le profil enregistré. Rétrocompatible : sans ces
+champs, comportement inchangé.
+
+**Fait (n8n, workflow actif en production `WnLJIyaYmy9QYmso`)**
+- Nouveau nœud "Resoudre Overrides" (Set) inséré entre "Get Profile" et "Get Tonalite" :
+  `tonalite_effective = body.tonalite_id || Get Profile.Tonalité_défaut`,
+  `voix_effective = body.voix_narrative || Get Profile.voix_narrative`.
+- "Get Tonalite" (lookup dans `Tonalités`) et le prompt de "Generation Post" (ligne voix
+  narrative) lisent désormais `Resoudre Overrides` au lieu de `Get Profile` directement.
+- "Creer Publication" : `Publications.tonalité_id` enregistre la tonalité **effectivement
+  utilisée** (l'override si présent) — décision actée avec l'humain.
+- Aucune écriture sur `profiles` — l'override reste un one-shot pour cette génération.
+- `Publications` n'a pas de colonne pour `voix_narrative` : seule la tonalité utilisée est
+  traçable a posteriori, pas la voix narrative. **Décision actée avec l'humain : on reste
+  ainsi, pas de colonne ajoutée.**
+- Modification appliquée en brouillon puis publiée explicitement (`publish_workflow`) — un
+  premier test avait révélé que le brouillon n'était pas encore actif sur l'URL de production.
+
+**Vérifié en réel (exécutions manuelles + une en mode production, sur le vrai workflow)**
+- Sans `tonalite_id`/`voix_narrative` : résolution identique au profil (`tonalite_effective`/
+  `voix_effective` = valeurs du profil), y compris via l'URL de production réelle.
+- Avec les deux champs fournis : prompt résolu utilisant bien les valeurs d'override (tonalité
+  et voix narrative différentes de celles du profil réel), texte généré cohérent, `Publications.
+  tonalité_id` enregistré avec la valeur d'override.
+- Contrat de réponse du webhook inchangé (`{ success, publication_id, post }`).
+
+**Reste à faire**
+- Câblage front (menus déroulants dans la pop-up de génération, envoi des deux champs) — à la
+  charge de l'humain, annoncé comme prochaine étape de son côté.
+- 3 lignes `Publications` (statut Brouillon) créées pendant les tests sur le compte jetable
+  `8f2edcaa-066f-42e2-af8e-4b5f8b37f041` — requête de nettoyage fournie à l'humain, pas exécutée
+  moi-même (pas d'accès direct à cette base).
+
 ## 2026-09-08 — Nouvel écran "Mon compte" (photo, identité en lecture seule, email, mot de passe)
 
 **Demande (humain)** : rendre fonctionnelle l'entrée "Mon compte" du menu du profil (laissée
