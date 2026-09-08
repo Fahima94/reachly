@@ -33,6 +33,33 @@ visible via une icône œil.
 - Case « Tout sélectionner » dans les préférences : plan présenté, en attente de validation,
   non commencée.
 
+## 2026-09-08 — Profil éditorial : empreinte en lecture seule au lieu d'un champ texte
+
+**Demande (humain)** : le profil éditorial ne doit plus s'afficher dans un champ de texte
+modifiable — l'affichage doit devenir une « empreinte éditoriale » en lecture seule, résumée.
+La génération/régénération est conservée.
+
+**Décision** : cela revient sur le choix explicite du ticket 09 (« profil modifiable à la
+main » — décidé avec l'humain le 2026-09-07). Signalé ici pour la trace ; l'humain a
+tranché dans l'autre sens aujourd'hui.
+
+**Fait (code)**
+- `src/pages/Preferences.jsx`, `src/pages/onboarding/LinkedinPosts.jsx` : le `<textarea
+  id="profil-editorial">` modifiable est remplacé par un encart en lecture seule
+  (`.empreinte-editoriale`), texte tronqué à 180 caractères pour l'affichage (le texte
+  complet reste enregistré tel quel — seul l'affichage est résumé). Le bouton « Régénérer
+  à partir de mes posts » est conservé à l'identique ; c'est désormais la seule façon de
+  faire évoluer le profil éditorial (plus de saisie manuelle).
+- `src/index.css` : `.empreinte-editoriale` (encart), `.etiquette-empreinte` (petit
+  libellé en majuscules, même esprit que les autres étiquettes de l'app).
+- `npm run build` : OK (93 modules).
+
+**Reste à faire / non vérifié**
+- Non testé en navigateur réel (affichage tronqué, bouton Régénérer après ce changement).
+- Le texte complet du profil éditorial n'est plus consultable nulle part dans l'interface
+  au-delà des 180 premiers caractères — à confirmer que c'est bien voulu (il reste
+  entièrement exploité par le prompt de génération de post, seul l'affichage change).
+
 ## 2026-09-07 — Tableau de bord : profil, catégories colorées, flammes, source masquée ; audit accessibilité de l'admin
 
 **Demande (humain, amendements successifs)** : photo de profil en en-tête, étiquettes de

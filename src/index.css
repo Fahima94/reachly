@@ -605,6 +605,24 @@ fieldset.choix-icones input[type='radio'] {
   border: 0;
 }
 
+/* Empreinte éditoriale (profil éditorial) : lecture seule, résumée — pas un
+   champ de saisie. "Régénérer" reste la seule façon de la faire évoluer. */
+.empreinte-editoriale {
+  padding: var(--space-4);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.etiquette-empreinte {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-1);
+}
+
 /* Messages d'état */
 [role='alert'] {
   color: var(--color-danger);

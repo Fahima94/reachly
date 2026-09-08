@@ -9,6 +9,15 @@ const VOIX_NARRATIVES = [
   { valeur: 'nous', libelle: 'Nous (1ʳᵉ personne du pluriel)' },
 ]
 
+const RESUME_PROFIL_MAX = 180
+
+// Affiché en lecture seule (« empreinte éditoriale ») plutôt qu'en entier —
+// le texte complet reste enregistré tel quel, seul l'affichage est tronqué.
+function resumerProfilEditorial(texte) {
+  const t = (texte ?? '').trim()
+  return t.length > RESUME_PROFIL_MAX ? `${t.slice(0, RESUME_PROFIL_MAX).trimEnd()}…` : t
+}
+
 async function analyserLeStyle(postsPourAnalyse) {
   const reponse = await fetch(import.meta.env.VITE_N8N_WEBHOOK_PROFIL_EDITORIAL, {
     method: 'POST',
@@ -510,14 +519,9 @@ export default function Preferences({ onRetour }) {
           </p>
 
           {afficherSectionProfil && (
-            <div>
-              <label htmlFor="profil-editorial">Profil éditorial</label>
-              <textarea
-                id="profil-editorial"
-                value={profilEditorial}
-                onChange={(e) => setProfilEditorial(e.target.value)}
-                rows={6}
-              />
+            <div className="empreinte-editoriale">
+              <p className="etiquette-empreinte">Empreinte éditoriale</p>
+              <p>{resumerProfilEditorial(profilEditorial) || 'Pas encore de profil détecté.'}</p>
               {erreurAnalyse && <p role="alert">{erreurAnalyse}</p>}
               <button
                 type="button"
