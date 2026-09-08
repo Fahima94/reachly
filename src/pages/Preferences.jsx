@@ -469,7 +469,9 @@ export default function Preferences({ onRetour }) {
           </div>
 
           <fieldset>
-            <legend>Posts inspirants</legend>
+            <legend title="Poste ici des exemples de publications — les tiennes ou celles d'autres personnes — que tu aimerais publier 🙂">
+              Posts inspirants
+            </legend>
             {posts.map((post, index) => (
               <div key={index}>
                 <label htmlFor={`post-${index}`}>Post {index + 1}</label>
