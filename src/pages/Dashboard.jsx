@@ -9,6 +9,12 @@ const FENETRE_MS = 24 * 60 * 60 * 1000
 const LIEN_VALIDE = /^https?:\/\//i
 const RESUME_MAX = 220
 
+const VOIX_NARRATIVES = [
+  { valeur: 'je_masculin', libelle: 'Je (masculin)' },
+  { valeur: 'je_feminin', libelle: 'Je (féminin)' },
+  { valeur: 'nous', libelle: 'Nous (1ʳᵉ personne du pluriel)' },
+]
+
 // Une couleur par catégorie, sur le tableau de bord uniquement — pour
 // distinguer les catégories d'un coup d'œil sur une carte qui en affiche
 // plusieurs. Assignation fixe pour les 12 catégories "thème" connues du
@@ -107,6 +113,8 @@ export default function Dashboard({
   const [avatarUrl, setAvatarUrl] = useState(null)
   const [avatarEnCours, setAvatarEnCours] = useState(false)
   const [erreurAvatar, setErreurAvatar] = useState('')
+  const [tonaliteLabel, setTonaliteLabel] = useState('')
+  const [voixLabel, setVoixLabel] = useState('')
 
   const charger = useCallback(async () => {
     setEtat('chargement')
@@ -125,7 +133,7 @@ export default function Dashboard({
         await Promise.all([
           supabase
             .from('profiles')
-            .select('nom, prenom, avatar_url, "Tonalité_défaut"')
+            .select('nom, prenom, avatar_url, "Tonalité_défaut", voix_narrative')
             .eq('id', user.id)
             .maybeSingle(),
           supabase.from('profils_categories').select('category_id').eq('user_id', user.id),
@@ -147,6 +155,20 @@ export default function Dashboard({
       setInitiales(`${profil.prenom[0]}${profil.nom[0]}`.toUpperCase())
       setNomComplet(`${profil.prenom} ${profil.nom}`)
       setAvatarUrl(profil.avatar_url || null)
+      setVoixLabel(
+        VOIX_NARRATIVES.find((v) => v.valeur === profil.voix_narrative)?.libelle ?? '',
+      )
+
+      if (profil['Tonalité_défaut']) {
+        const { data: tonalite } = await supabase
+          .from('Tonalités')
+          .select('"Visée de la publication"')
+          .eq('id', profil['Tonalité_défaut'])
+          .maybeSingle()
+        setTonaliteLabel(tonalite?.['Visée de la publication'] ?? '')
+      } else {
+        setTonaliteLabel('')
+      }
 
       // Candidats : scorés, créés dans les dernières 24 h glissantes, non masqués
       // par un admin (ticket 14), du meilleur score au moins bon. (La colonne
@@ -456,6 +478,8 @@ export default function Dashboard({
                       sujetId={sujet.id}
                       userId={userId}
                       tonaliteDefinie={tonaliteDefinie}
+                      tonaliteLabel={tonaliteLabel}
+                      voixLabel={voixLabel}
                       onModifierPreferences={onModifierPreferences}
                     />
                   </article>

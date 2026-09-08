@@ -106,7 +106,14 @@ function ModaleConfirmationPublication({
   )
 }
 
-export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onModifierPreferences }) {
+export default function GenerationPost({
+  sujetId,
+  userId,
+  tonaliteDefinie,
+  tonaliteLabel,
+  voixLabel,
+  onModifierPreferences,
+}) {
   // idle | manque-tonalite | chargement | pret | erreur
   const [etat, setEtat] = useState('idle')
   const [texte, setTexte] = useState('')
@@ -165,7 +172,7 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
       setEtat('manque-tonalite')
       return
     }
-    genererPost()
+    setEtat('confirmation')
   }
 
   // Enregistre toujours le texte tel qu'affiché à l'écran (avec les
@@ -228,6 +235,27 @@ export default function GenerationPost({ sujetId, userId, tonaliteDefinie, onMod
       <button type="button" className="bouton-primaire" onClick={gererClicGenerer}>
         Générer un post
       </button>
+    )
+  }
+
+  if (etat === 'confirmation') {
+    return (
+      <div>
+        <p className="meta-discrete">
+          Tonalité : {tonaliteLabel || '—'} · Voix : {voixLabel || '—'}{' '}
+          <button type="button" className="bouton-discret" onClick={onModifierPreferences}>
+            Modifier
+          </button>
+        </p>
+        <div className="actions-generation-post">
+          <button type="button" className="bouton-primaire" onClick={genererPost}>
+            Générer
+          </button>
+          <button type="button" onClick={() => setEtat('idle')}>
+            Annuler
+          </button>
+        </div>
+      </div>
     )
   }
 
