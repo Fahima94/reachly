@@ -1,5 +1,54 @@
 # Journal
 
+## 2026-09-08 — Branche `navigation-historique` : le bouton "Précédent" reste dans l'app
+
+**Demande (humain)** : le réflexe du bouton "Précédent" du navigateur fait souvent sortir de
+l'app. Question de faisabilité posée d'abord (routage complet avec URLs par écran, chantier
+transversal proposé à part) ; l'humain a choisi une version plus légère : garder le bouton
+"Précédent" dans l'app, sans nécessairement des URLs par écran.
+
+**Diagnostic** : `App.jsx` gère l'écran actif avec un simple `useState`, sans jamais toucher
+à l'historique du navigateur (`history.pushState`, aucune trace dans le code avant ce tour) —
+toute l'app tient en une seule entrée d'historique, donc "Précédent" saute directement à ce
+qu'il y avait avant l'ouverture de l'app.
+
+**Fait (code)** — sur la branche `navigation-historique` (pas fusionnée sur `main`) :
+- `src/App.jsx` : nouvelle fonction `naviguerVers(ecran, { remplacer })` — `setEcran(...)` +
+  `history.pushState({ ecran }, '')` (ou `replaceState` si `remplacer: true`). Tous les points
+  de navigation de ce fichier (onboarding, préférences, admin, publications, compte, bascule
+  connexion/inscription, déconnexion) passent désormais par cette fonction au lieu d'appeler
+  `setEcran` directement. Un `useEffect` écoute `popstate` et resynchronise `ecran` avec
+  l'historique sans réempiler d'entrée (sinon boucle avec les boutons Précédent/Suivant).
+- `remplacer: true` sur deux transitions précises : la résolution initiale de session (rien à
+  "annuler" avant elle), et la déconnexion (revenir en arrière ne doit pas raffraîchir un
+  écran protégé maintenant invalide).
+- `npm run build` : OK (96 modules).
+
+**Vérifié en réel (Playwright, comptes jetables, vraie base)**
+- Bascule Connexion ⇄ Inscription : "Précédent" reste dans l'app (repasse sur "Se connecter").
+- Onboarding (Identité → Catégories → Métiers/secteurs) : deux "Précédent" successifs
+  ramènent bien étape par étape, jamais hors de l'app ; renaviguer ensuite ("Suivant")
+  refonctionne normalement après un retour.
+- Déconnexion puis "Précédent" : confirmé que ça ne raffiche PAS le tableau de bord (écran
+  protégé) — retombe sur une étape d'onboarding antérieure dans l'historique, jamais sur du
+  contenu authentifié.
+- Aucune erreur console sur ces parcours.
+
+**Périmètre non couvert, signalé à l'humain** : `Connexion.jsx` a son propre mini-routage
+interne dupliqué (préférences/admin/publications affichés localement via
+`preferencesOuvertes`/`adminOuvert`/`publicationsOuvertes`, jamais par `App.jsx`) — limite
+architecturale déjà notée à plusieurs reprises. Le bouton "Précédent" ne fonctionne pas de
+façon fiable sur ce chemin précis (arrivée sur le tableau de bord juste après une connexion
+réussie dans ce composant). Corriger ça en profondeur suppose de faire remonter cette
+navigation locale vers `App.jsx` — chantier distinct, pas fait ici faute de mandat explicite
+sur ce point.
+
+**Reste à faire / non vérifié**
+- Le gap `Connexion.jsx` ci-dessus.
+- Navigation clavier et lecteur d'écran non retestées après ce changement (pas d'impact
+  attendu, aucun élément visuel ajouté).
+- Branche non fusionnée — en attente de revue.
+
 ## 2026-09-08 — Câblage front : override ponctuel tonalité/voix dans la pop up de génération
 
 **Contexte** : suite au changement n8n du même jour (workflow "Reachly Publication CC" —
