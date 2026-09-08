@@ -557,7 +557,7 @@ function SectionUtilisateurs() {
   )
 }
 
-export default function Admin({ onRetour }) {
+export default function Admin({ onAllerAccueil, onRetour }) {
   const [autorisationVerifiee, setAutorisationVerifiee] = useState(false)
   const [autorise, setAutorise] = useState(false)
 
@@ -591,7 +591,7 @@ export default function Admin({ onRetour }) {
 
   return (
     <main>
-      <LogoReachly />
+      <LogoReachly onNaviguer={onAllerAccueil} />
       <header>
         <h1>Administration</h1>
         <button type="button" onClick={onRetour}>

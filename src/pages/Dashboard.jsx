@@ -123,6 +123,7 @@ function resumer(texte) {
 }
 
 export default function Dashboard({
+  onAllerAccueil,
   onDeconnexionReussie,
   onRelancerOnboarding,
   onModifierPreferences,
@@ -444,7 +445,7 @@ export default function Dashboard({
   return (
     <main>
       <div className="barre-superieure">
-        <LogoReachly />
+        <LogoReachly onNaviguer={onAllerAccueil} />
         <div className="profil-entete">
           <div className="conteneur-avatar" ref={menuProfilRef}>
             <button

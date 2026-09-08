@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
+import LogoReachly from '../../components/LogoReachly.jsx'
 
-export default function Identite({ onEtapeSuivante }) {
+export default function Identite({ onAllerAccueil, onEtapeSuivante }) {
   const [prenom, setPrenom] = useState('')
   const [nom, setNom] = useState('')
   const [chargementInitial, setChargementInitial] = useState(true)
@@ -118,6 +119,7 @@ export default function Identite({ onEtapeSuivante }) {
 
   return (
     <main>
+      <LogoReachly onNaviguer={onAllerAccueil} />
       <ProgressionOnboarding etape={1} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Comment vous appelez-vous ?</h1>

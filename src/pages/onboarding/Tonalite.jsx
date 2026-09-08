@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
+import LogoReachly from '../../components/LogoReachly.jsx'
 
 const VOIX_NARRATIVES = [
   { valeur: 'je_masculin', libelle: 'Je (masculin)' },
@@ -10,7 +11,7 @@ const VOIX_NARRATIVES = [
   { valeur: 'nous_inclusif', libelle: 'Nous (pluriel inclusif)' },
 ]
 
-export default function Tonalite({ onEtapeSuivante }) {
+export default function Tonalite({ onAllerAccueil, onEtapeSuivante }) {
   const [tonalites, setTonalites] = useState([])
   const [tonaliteChoisie, setTonaliteChoisie] = useState('')
   const [voixChoisie, setVoixChoisie] = useState('')
@@ -143,6 +144,7 @@ export default function Tonalite({ onEtapeSuivante }) {
 
   return (
     <main>
+      <LogoReachly onNaviguer={onAllerAccueil} />
       <ProgressionOnboarding etape={4} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Votre tonalité par défaut</h1>

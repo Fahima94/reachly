@@ -10,6 +10,7 @@ import BoutonAfficherMotDePasse from '../components/BoutonAfficherMotDePasse.jsx
 import LogoReachly from '../components/LogoReachly.jsx'
 
 export default function Connexion({
+  onAllerAccueil,
   onChangerMode,
   onDeconnexionReussie,
   onRelancerOnboarding,
@@ -79,24 +80,35 @@ export default function Connexion({
   }
 
   if (statut === 'succes' && preferencesOuvertes) {
-    return <Preferences onRetour={() => setPreferencesOuvertes(false)} />
+    return (
+      <Preferences
+        onAllerAccueil={onAllerAccueil}
+        onRetour={() => setPreferencesOuvertes(false)}
+      />
+    )
   }
 
   if (statut === 'succes' && adminOuvert) {
-    return <Admin onRetour={() => setAdminOuvert(false)} />
+    return <Admin onAllerAccueil={onAllerAccueil} onRetour={() => setAdminOuvert(false)} />
   }
 
   if (statut === 'succes' && publicationsOuvertes) {
-    return <MesPublications onRetour={() => setPublicationsOuvertes(false)} />
+    return (
+      <MesPublications
+        onAllerAccueil={onAllerAccueil}
+        onRetour={() => setPublicationsOuvertes(false)}
+      />
+    )
   }
 
   if (statut === 'succes' && compteOuvert) {
-    return <MonCompte onRetour={() => setCompteOuvert(false)} />
+    return <MonCompte onAllerAccueil={onAllerAccueil} onRetour={() => setCompteOuvert(false)} />
   }
 
   if (statut === 'succes') {
     return (
       <Dashboard
+        onAllerAccueil={onAllerAccueil}
         onDeconnexionReussie={onDeconnexionReussie}
         onRelancerOnboarding={onRelancerOnboarding}
         onModifierPreferences={() => setPreferencesOuvertes(true)}
@@ -109,7 +121,7 @@ export default function Connexion({
 
   return (
     <main>
-      <LogoReachly />
+      <LogoReachly onNaviguer={onAllerAccueil} />
       <BasculeConnexionInscription modeActif="connexion" onChangerMode={onChangerMode} />
       <h1>Se connecter</h1>
       <form className="formulaire-auth" onSubmit={gererEnvoi} noValidate>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from './lib/supabase.js'
+import Accueil from './pages/Accueil.jsx'
 import Inscription from './pages/Inscription.jsx'
 import Connexion from './pages/Connexion.jsx'
 import Dashboard from './pages/Dashboard.jsx'
@@ -49,6 +50,8 @@ export default function App() {
   // nouvel onglet) mène directement au tableau de bord, sans repasser par un
   // formulaire. `estAnnule` protège contre le double montage de StrictMode
   // en développement, comme sur les autres écrans de l'app.
+  // Ticket 16 : sans session (ou si l'état n'a pas pu être déterminé), le
+  // visiteur arrive sur la page d'accueil publique, pas sur le formulaire.
   useEffect(() => {
     let annule = false
     async function verifierSession() {
@@ -56,13 +59,13 @@ export default function App() {
         const { data, error } = await supabase.auth.getSession()
         if (annule) return
         if (error) {
-          naviguerVers('connexion', { remplacer: true })
+          naviguerVers('accueil', { remplacer: true })
           return
         }
-        naviguerVers(data.session ? 'connecte' : 'connexion', { remplacer: true })
+        naviguerVers(data.session ? 'connecte' : 'accueil', { remplacer: true })
       } catch {
         if (annule) return
-        naviguerVers('connexion', { remplacer: true })
+        naviguerVers('accueil', { remplacer: true })
       }
     }
     verifierSession()
@@ -79,47 +82,89 @@ export default function App() {
     )
   }
 
+  // Ticket 16 (amendement) : le logo Reachly ramène toujours à l'accueil,
+  // sur tous les écrans.
+  const allerAccueil = () => naviguerVers('accueil')
+
+  if (ecran === 'accueil') {
+    return (
+      <Accueil
+        onAllerAccueil={allerAccueil}
+        onAllerConnexion={() => naviguerVers('connexion')}
+        onAllerInscription={() => naviguerVers('inscription')}
+      />
+    )
+  }
   if (ecran === 'inscription') {
     return (
       <Inscription
+        onAllerAccueil={allerAccueil}
         onChangerMode={naviguerVers}
         onInscriptionReussie={() => naviguerVers('onboarding-identite')}
       />
     )
   }
   if (ecran === 'onboarding-identite') {
-    return <Identite onEtapeSuivante={() => naviguerVers('onboarding-categories-sources')} />
+    return (
+      <Identite
+        onAllerAccueil={allerAccueil}
+        onEtapeSuivante={() => naviguerVers('onboarding-categories-sources')}
+      />
+    )
   }
   // Catégories avant Métiers/secteurs : c'est ce qui sert vraiment au
   // classement du tableau de bord (ticket 11), les métiers/secteurs restent
   // facultatifs.
   if (ecran === 'onboarding-categories-sources') {
-    return <CategoriesSources onEtapeSuivante={() => naviguerVers('onboarding-metiers-secteurs')} />
+    return (
+      <CategoriesSources
+        onAllerAccueil={allerAccueil}
+        onEtapeSuivante={() => naviguerVers('onboarding-metiers-secteurs')}
+      />
+    )
   }
   if (ecran === 'onboarding-metiers-secteurs') {
-    return <MetiersSecteurs onEtapeSuivante={() => naviguerVers('onboarding-tonalite')} />
+    return (
+      <MetiersSecteurs
+        onAllerAccueil={allerAccueil}
+        onEtapeSuivante={() => naviguerVers('onboarding-tonalite')}
+      />
+    )
   }
   if (ecran === 'onboarding-tonalite') {
-    return <Tonalite onEtapeSuivante={() => naviguerVers('onboarding-linkedin-posts')} />
+    return (
+      <Tonalite
+        onAllerAccueil={allerAccueil}
+        onEtapeSuivante={() => naviguerVers('onboarding-linkedin-posts')}
+      />
+    )
   }
   if (ecran === 'onboarding-linkedin-posts') {
-    return <LinkedinPosts onEtapeSuivante={() => naviguerVers('connecte')} />
+    return (
+      <LinkedinPosts
+        onAllerAccueil={allerAccueil}
+        onEtapeSuivante={() => naviguerVers('connecte')}
+      />
+    )
   }
   if (ecran === 'preferences') {
-    return <Preferences onRetour={() => naviguerVers('connecte')} />
+    return <Preferences onAllerAccueil={allerAccueil} onRetour={() => naviguerVers('connecte')} />
   }
   if (ecran === 'admin') {
-    return <Admin onRetour={() => naviguerVers('connecte')} />
+    return <Admin onAllerAccueil={allerAccueil} onRetour={() => naviguerVers('connecte')} />
   }
   if (ecran === 'publications') {
-    return <MesPublications onRetour={() => naviguerVers('connecte')} />
+    return (
+      <MesPublications onAllerAccueil={allerAccueil} onRetour={() => naviguerVers('connecte')} />
+    )
   }
   if (ecran === 'compte') {
-    return <MonCompte onRetour={() => naviguerVers('connecte')} />
+    return <MonCompte onAllerAccueil={allerAccueil} onRetour={() => naviguerVers('connecte')} />
   }
   if (ecran === 'connecte') {
     return (
       <Dashboard
+        onAllerAccueil={allerAccueil}
         onDeconnexionReussie={() => naviguerVers('connexion', { remplacer: true })}
         onRelancerOnboarding={() => naviguerVers('onboarding-identite')}
         onModifierPreferences={() => naviguerVers('preferences')}
@@ -133,6 +178,7 @@ export default function App() {
   // connexion — voir ticket 02.
   return (
     <Connexion
+      onAllerAccueil={allerAccueil}
       onChangerMode={naviguerVers}
       onDeconnexionReussie={() => naviguerVers('connexion', { remplacer: true })}
       onRelancerOnboarding={() => naviguerVers('onboarding-identite')}

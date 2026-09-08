@@ -7,7 +7,7 @@ import LogoReachly from '../components/LogoReachly.jsx'
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function Inscription({ onChangerMode, onInscriptionReussie }) {
+export default function Inscription({ onAllerAccueil, onChangerMode, onInscriptionReussie }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordTouched, setPasswordTouched] = useState(false)
@@ -116,7 +116,7 @@ export default function Inscription({ onChangerMode, onInscriptionReussie }) {
 
   return (
     <main>
-      <LogoReachly />
+      <LogoReachly onNaviguer={onAllerAccueil} />
       <BasculeConnexionInscription modeActif="inscription" onChangerMode={onChangerMode} />
       <h1>Créer un compte</h1>
       <form className="formulaire-auth" onSubmit={gererEnvoi} noValidate>

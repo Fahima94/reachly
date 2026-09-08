@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
+import LogoReachly from '../../components/LogoReachly.jsx'
 
-export default function CategoriesSources({ onEtapeSuivante }) {
+export default function CategoriesSources({ onAllerAccueil, onEtapeSuivante }) {
   const [categories, setCategories] = useState([])
   const [categoriesSelectionnees, setCategoriesSelectionnees] = useState(new Set())
   const [chargementListe, setChargementListe] = useState(true)
@@ -154,6 +155,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
 
   return (
     <main>
+      <LogoReachly onNaviguer={onAllerAccueil} />
       <ProgressionOnboarding etape={2} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Vos catégories</h1>

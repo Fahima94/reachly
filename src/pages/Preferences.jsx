@@ -30,7 +30,7 @@ async function analyserLeStyle(postsPourAnalyse) {
   return donnees.profil_editorial
 }
 
-export default function Preferences({ onRetour }) {
+export default function Preferences({ onAllerAccueil, onRetour }) {
   const [metiers, setMetiers] = useState([])
   const [secteurs, setSecteurs] = useState([])
   const [categories, setCategories] = useState([])
@@ -335,7 +335,7 @@ export default function Preferences({ onRetour }) {
 
   return (
     <main>
-      <LogoReachly />
+      <LogoReachly onNaviguer={onAllerAccueil} />
       <header>
         <h1>Mes préférences</h1>
         <button type="button" onClick={onRetour} disabled={enCours}>

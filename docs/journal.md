@@ -48,6 +48,110 @@ sur ce point.
 - Navigation clavier et lecteur d'écran non retestées après ce changement (pas d'impact
   attendu, aucun élément visuel ajouté).
 - Branche non fusionnée — en attente de revue.
+## 2026-09-08 — Ticket 16 (amendement) : animation de la landing en plein écran au clic
+
+**Demande** : pouvoir mettre l'animation en plein écran en cliquant dessus.
+
+**Fait**
+- `src/pages/Accueil.jsx` : la vidéo est enveloppée dans un `<button aria-label="Afficher
+  l'animation en plein écran">` ; au clic, `passerEnPleinEcran()` appelle
+  `requestFullscreen` (repli `webkitRequestFullscreen` / `webkitEnterFullscreen` pour
+  Safari / iOS), échec silencieux si refusé. La balise `<video>` reste `aria-hidden`.
+- État `videoPleinEcran` (écouteur `fullscreenchange`) → `controls` natifs affichés
+  seulement en plein écran ; `Échap` en sort.
+- `src/index.css` : `.landing-video-bouton` (chrome du bouton global neutralisé, curseur
+  `zoom-in`) ; `.landing-video:fullscreen { object-fit: contain }` pour montrer la vidéo
+  entière sans recadrage.
+- Sans objet quand l'animation est en repli (`prefers-reduced-motion`, échec de
+  chargement) : le repli n'est pas cliquable.
+
+**Vérifié**
+- `npm run build` passe (97 modules) ; serveur de dev : `Accueil.jsx` se transforme sans
+  erreur.
+
+**Non vérifié**
+- Passage réel en plein écran dans un navigateur (pas d'outil disponible) ; comportement
+  Safari / iOS (`webkitEnterFullscreen`) non testé.
+
+## 2026-09-08 — Ticket 16 (amendement) : logo Reachly cliquable vers l'accueil, partout
+
+**Demande** : le logo « Reachly » cliquable et renvoyant vers la landing, sur tous les
+écrans — y compris les cinq écrans d'onboarding (logo en haut à gauche).
+
+**Fait**
+- `src/components/LogoReachly.jsx` : prop `onNaviguer` → `<button aria-label="Reachly —
+  retour à l'accueil">` (chrome du bouton global neutralisé par `.logo-reachly-bouton`,
+  apparence inchangée) ; sans la prop, `<div>` comme avant.
+- `src/index.css` : `.logo-reachly-bouton`.
+- `src/App.jsx` : `allerAccueil = () => setEcran('accueil')`, transmis à tous les écrans.
+  `src/pages/Connexion.jsx` le relaie à ses rendus internes post-connexion (Dashboard,
+  Préférences, Admin, Mes publications, Mon compte).
+- Chaque page (`Accueil`, `Inscription`, `Connexion`, `Dashboard`, `Preferences`, `Admin`,
+  `MesPublications`, `MonCompte`) et les cinq écrans d'onboarding (`Identite`,
+  `CategoriesSources`, `MetiersSecteurs`, `Tonalite`, `LinkedinPosts`) passent
+  `onNaviguer={onAllerAccueil}` à `<LogoReachly>`. Sur l'onboarding, le logo est ajouté en
+  tête, au-dessus de la barre de progression.
+
+**Choix (réponse de l'humain)**
+- « Partout, toujours vers la landing » : cliquer le logo pendant l'onboarding ou depuis un
+  écran connecté ouvre la landing publique — quitte le parcours en cours sans confirmation.
+
+**Vérifié**
+- `npm run build` passe (97 modules) ; serveur de dev : les 15 modules touchés se
+  transforment sans erreur.
+- Revue : vrai `<button type="button">`, `aria-label` explicite, focus visible hérité,
+  cible = tout le logo (carré + mot), repli `<div>` si la prop manque.
+
+**Non vérifié**
+- Rendu et clic réels en navigateur (Playwright incompatible macOS Darwin 21, pas de
+  chromium-cli).
+
+## 2026-09-08 — Ticket 16 : page d'accueil (landing) publique
+
+**Demande** : créer la landing, absente jusqu'ici (un visiteur non connecté tombait direct
+sur le formulaire de connexion). Base : le prototype de soutenance
+(`~/Downloads/reachly-prototype/index.html`), resserré à l'essentiel. Présentation animée
+fournie (`Reachly-Animation.mp4`).
+
+**Ticket + direction** : `docs/tickets/16-landing-page.md` (six scénarios Gherkin, direction
+d'écran), validé par l'humain avant le code.
+
+**Fait**
+- `src/pages/Accueil.jsx` (nouveau) : en-tête (logo + menu « Connexion » / « Inscription »),
+  hero (titre, accroche, bouton « Créer mon compte », 3 chiffres repères, présentation
+  animée), bande « Notre promesse » (3 engagements), rappel final « Prêt à reprendre le
+  contrôle… » avec le même bouton. Contenu éditorial fixe.
+- `src/App.jsx` : nouvel écran `'accueil'` ; sans session — ou si l'état n'a pas pu être
+  déterminé — le visiteur y arrive au lieu du formulaire de connexion. « Connexion » →
+  écran connexion, « Inscription » → écran inscription (même écran d'auth, onglet actif
+  différent).
+- `public/reachly-animation.mp4` : la vidéo, déplacée depuis `docs/` (dossier non servi par
+  Vite), servie comme fichier statique — remplaçable sans toucher au code.
+- `src/index.css` : bloc `.landing-*` bâti sur les tokens existants (pas de reprise du CSS
+  du prototype).
+- Présentation animée : `autoplay` + `muted` + `loop` + `playsInline`, traitée comme
+  décorative (`aria-hidden`). Repli (aplat neutre, même encombrement) si la vidéo ne charge
+  pas (`onError`) **ou** si `prefers-reduced-motion: reduce` — dans ce cas pas de lecture
+  auto. Cadre en ratio 16:9 : hauteur réservée, pas de saut de mise en page au chargement.
+
+**Vérifié**
+- `npm run build` passe (97 modules) ; la vidéo est bien copiée dans `dist/`.
+- Serveur de dev : l'app répond, `/reachly-animation.mp4` est servi (200, 15 Mo).
+- Revue de code contre les six scénarios et la « Définition de fini » : un seul `<h1>`
+  (titre du hero), sections en `<h2>`, menu = vrais `<button>` tabulables, focus visible
+  hérité, cibles ≥ 40 px, contrastes via tokens.
+
+**Reste à faire / non couvert**
+- Pas de vérification en navigateur réel : Playwright ne supporte pas cette version de
+  macOS (Darwin 21), pas de chromium-cli. Non observé : rendu visuel, lecture de la vidéo,
+  passage clavier / lecteur d'écran.
+- La vidéo fournie fait **49 s** (cible 45 s) — acceptée en l'état, à remplacer sans code.
+- Poids : `public/reachly-animation.mp4` = 15 Mo commité dans le dépôt (choix assumé, la
+  landing en a besoin). Chargée d'emblée pour tout visiteur (autoplay) hors
+  `prefers-reduced-motion`.
+- Pas de bouton « retour à l'accueil » depuis les écrans connexion / inscription
+  (hors périmètre, ticket 16).
+- Pas de liens vers les pages légales (ticket 15 non livré).
 
 ## 2026-09-08 — Câblage front : override ponctuel tonalité/voix dans la pop up de génération
 

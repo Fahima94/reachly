@@ -227,6 +227,25 @@ header p {
   box-shadow: var(--shadow-primary);
 }
 
+/* Logo cliquable (retour à l'accueil) : on neutralise le chrome du bouton
+   global, l'apparence reste celle de `.logo-reachly`. */
+.logo-reachly-bouton {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  min-height: 0;
+  font: inherit;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+}
+
+.logo-reachly-bouton:hover:not(:disabled) {
+  border: 0;
+  box-shadow: none;
+  color: var(--color-primary);
+}
+
 /* Contenu réservé aux lecteurs d'écran (jamais display:none, qui les en
    priverait aussi). */
 .visually-hidden {
@@ -1017,4 +1036,218 @@ main > ol > li > article > p:first-child {
   background: var(--color-primary);
   border-radius: 999px;
   transition: width 200ms ease;
+}
+
+/* ------------------------------------------------------------------ *
+ * Ticket 16 — Page d'accueil (landing) publique
+ * ------------------------------------------------------------------ */
+
+.landing {
+  max-width: 1040px;
+}
+
+/* Les sections de la landing gèrent leur propre rythme : on neutralise le
+   séparateur générique `main > section + section` (ajouté pour "Mon compte"). */
+.landing > section + section {
+  margin-top: var(--space-6);
+  padding-top: 0;
+  border-top: 0;
+}
+
+.landing-entete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.landing-entete .logo-reachly {
+  margin-bottom: 0;
+}
+
+.landing-menu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* "Connexion" : action secondaire, rendue en lien-bouton sans le chrome
+   d'un bouton (bordure, fond, ombre). Reste un vrai <button>, tabulable. */
+.lien-menu {
+  border: 0;
+  background: none;
+  box-shadow: none;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+}
+
+.lien-menu:hover:not(:disabled) {
+  border: 0;
+  box-shadow: none;
+  color: var(--color-primary);
+}
+
+/* HERO : texte + appel à l'action d'un côté, présentation animée de l'autre.
+   Empilés sur les écrans étroits (texte puis animation). */
+.landing-hero {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+.landing-hero-texte h1 {
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
+  line-height: 1.15;
+  margin-bottom: var(--space-3);
+}
+
+.landing-accroche {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  max-width: 48ch;
+  margin-bottom: var(--space-4);
+}
+
+.landing-actions {
+  margin-bottom: var(--space-5);
+}
+
+/* Trois chiffres repères : le nombre en avant, la précision en dessous. */
+.landing-chiffres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-chiffres li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.landing-chiffres strong {
+  font-size: 1.15rem;
+  color: var(--color-text);
+}
+
+/* Cadre de la présentation animée : hauteur réservée (ratio 16:9) pour
+   éviter tout saut de mise en page pendant le chargement de la vidéo. */
+.landing-hero-media {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  background: var(--color-surface);
+}
+
+/* La vidéo est enveloppée dans un <button> (clic → plein écran) : on
+   neutralise le chrome du bouton global, il remplit le cadre. */
+.landing-video-bouton {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  box-shadow: none;
+  min-height: 0;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.landing-video-bouton:hover:not(:disabled) {
+  border: 0;
+  box-shadow: none;
+}
+
+.landing-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* En plein écran : on montre la vidéo entière (pas de recadrage). */
+.landing-video:fullscreen {
+  object-fit: contain;
+}
+
+/* Repli : animation désactivée (`prefers-reduced-motion`) ou impossible à
+   charger. Aplat neutre, même encombrement que la vidéo. */
+.landing-video-repli {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 14%, var(--color-surface)),
+    var(--color-surface)
+  );
+}
+
+/* NOTRE PROMESSE : trois cartes de même gabarit. */
+.landing-promesse-liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-promesse-liste li {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.landing-promesse-liste h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+}
+
+.landing-promesse-liste p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+/* RAPPEL FINAL : bloc centré, légèrement teinté pour se détacher. */
+.landing-cta {
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.landing-cta h2 {
+  font-size: 1.4rem;
+}
+
+.landing-cta p {
+  max-width: 52ch;
+  margin: 0 auto var(--space-4);
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 860px) {
+  .landing-hero {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
 }

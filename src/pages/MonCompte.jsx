@@ -6,7 +6,7 @@ import LogoReachly from '../components/LogoReachly.jsx'
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function MonCompte({ onRetour }) {
+export default function MonCompte({ onAllerAccueil, onRetour }) {
   // chargement | erreur | pret
   const [etat, setEtat] = useState('chargement')
   const [userId, setUserId] = useState(null)
@@ -209,7 +209,7 @@ export default function MonCompte({ onRetour }) {
 
   return (
     <main>
-      <LogoReachly />
+      <LogoReachly onNaviguer={onAllerAccueil} />
       <header>
         <h1>Mon compte</h1>
         <button type="button" onClick={onRetour}>

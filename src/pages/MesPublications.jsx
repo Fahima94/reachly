@@ -9,7 +9,7 @@ function formaterDate(date) {
 
 const STATUTS = ['Brouillon', 'Enregistré', 'Publié']
 
-export default function MesPublications({ onRetour }) {
+export default function MesPublications({ onAllerAccueil, onRetour }) {
   // chargement | erreur | pret
   const [etat, setEtat] = useState('chargement')
   const [publications, setPublications] = useState([])
@@ -121,7 +121,7 @@ export default function MesPublications({ onRetour }) {
 
   return (
     <main>
-      <LogoReachly />
+      <LogoReachly onNaviguer={onAllerAccueil} />
       <header>
         <h1>Mes publications</h1>
         <button type="button" onClick={onRetour}>
