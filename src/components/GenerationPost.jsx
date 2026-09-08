@@ -106,6 +106,78 @@ function ModaleConfirmationPublication({
   )
 }
 
+function ModaleConfirmationGeneration({
+  tonaliteLabel,
+  voixLabel,
+  onModifierPreferences,
+  onConfirmer,
+  onAnnuler,
+  elementDeclencheur,
+}) {
+  const dialogRef = useRef(null)
+  const boutonPrincipalRef = useRef(null)
+
+  useEffect(() => {
+    boutonPrincipalRef.current?.focus()
+
+    function gererClavier(evenement) {
+      if (evenement.key === 'Escape') {
+        onAnnuler()
+        return
+      }
+      if (evenement.key === 'Tab') {
+        const focusables = dialogRef.current?.querySelectorAll('button, a[href]')
+        if (!focusables || focusables.length === 0) return
+        const premier = focusables[0]
+        const dernier = focusables[focusables.length - 1]
+        if (evenement.shiftKey && document.activeElement === premier) {
+          evenement.preventDefault()
+          dernier.focus()
+        } else if (!evenement.shiftKey && document.activeElement === dernier) {
+          evenement.preventDefault()
+          premier.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', gererClavier)
+    return () => {
+      document.removeEventListener('keydown', gererClavier)
+      elementDeclencheur?.current?.focus()
+    }
+  }, [onAnnuler, elementDeclencheur])
+
+  return (
+    <div className="fond-modale">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titre-confirmation-generation"
+        className="modale"
+        ref={dialogRef}
+      >
+        <h2 id="titre-confirmation-generation">Vérifier avant de générer</h2>
+        <p>
+          Tonalité : {tonaliteLabel || '—'} · Voix : {voixLabel || '—'}
+        </p>
+        <p>
+          <button type="button" className="bouton-discret" onClick={onModifierPreferences}>
+            Modifier
+          </button>
+        </p>
+        <div className="actions-generation-post">
+          <button type="button" ref={boutonPrincipalRef} className="bouton-primaire" onClick={onConfirmer}>
+            Tout est ok, générer
+          </button>
+          <button type="button" onClick={onAnnuler}>
+            Annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function GenerationPost({
   sujetId,
   userId,
@@ -127,6 +199,7 @@ export default function GenerationPost({
   const [lienLinkedin, setLienLinkedin] = useState(null)
   const [copieModaleReussie, setCopieModaleReussie] = useState(true)
   const boutonPublierRef = useRef(null)
+  const boutonGenererRef = useRef(null)
   const texteRef = useRef(null)
 
   // Le champ suit la longueur du texte plutôt qu'une hauteur fixe (6 lignes
@@ -230,32 +303,29 @@ export default function GenerationPost({
     }
   }
 
-  if (etat === 'idle') {
+  if (etat === 'idle' || etat === 'confirmation') {
     return (
-      <button type="button" className="bouton-primaire" onClick={gererClicGenerer}>
-        Générer un post
-      </button>
-    )
-  }
-
-  if (etat === 'confirmation') {
-    return (
-      <div>
-        <p className="meta-discrete">
-          Tonalité : {tonaliteLabel || '—'} · Voix : {voixLabel || '—'}{' '}
-          <button type="button" className="bouton-discret" onClick={onModifierPreferences}>
-            Modifier
-          </button>
-        </p>
-        <div className="actions-generation-post">
-          <button type="button" className="bouton-primaire" onClick={genererPost}>
-            Générer
-          </button>
-          <button type="button" onClick={() => setEtat('idle')}>
-            Annuler
-          </button>
-        </div>
-      </div>
+      <>
+        <button
+          type="button"
+          ref={boutonGenererRef}
+          className="bouton-primaire"
+          onClick={gererClicGenerer}
+          disabled={etat === 'confirmation'}
+        >
+          Générer un post
+        </button>
+        {etat === 'confirmation' && (
+          <ModaleConfirmationGeneration
+            tonaliteLabel={tonaliteLabel}
+            voixLabel={voixLabel}
+            onModifierPreferences={onModifierPreferences}
+            onConfirmer={genererPost}
+            onAnnuler={() => setEtat('idle')}
+            elementDeclencheur={boutonGenererRef}
+          />
+        )}
+      </>
     )
   }
 
