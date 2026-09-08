@@ -1,5 +1,37 @@
 # Journal
 
+## 2026-09-08 — Branche `affichage-source-domaine` : "Voir la source" → "Source : nomdedomaine"
+
+**Demande (humain)** : afficher plus proprement la source de chaque sujet, plutôt qu'un
+lien générique "Voir la source".
+
+**Échange préalable** : proposition initiale d'utiliser `Sources.nom` (déjà chargé mais
+jamais affiché) — écartée par l'humain, qui a précisé que ce nom désigne le flux RSS/API de
+veille, pas forcément l'éditeur réel derrière le lien (un flux peut agréger plusieurs sites).
+Retenu à la place : extraire le domaine directement de l'URL de l'article, seule donnée
+fidèle à "vers où mène ce lien".
+
+**Fait (code)** — sur la branche `affichage-source-domaine` (pas fusionnée) :
+- `src/pages/Dashboard.jsx` : nouvelle fonction `domaineSource(url)` — `new URL(url).hostname`
+  sans le préfixe `www.`, `null` si l'URL est absente ou malformée (pas de plantage). Calculée
+  une fois par sujet à `charger()` (`sujet.domaineSource`), pas à chaque rendu. Le lien affiche
+  `Source : <domaine>` quand disponible, sinon retombe sur l'ancien texte générique
+  "Voir la source".
+- `npm run build` : OK (97 modules).
+
+**Vérifié en réel (Playwright, compte jetable, vraies données — 5 cartes réelles)** :
+domaines corrects et cohérents avec le contenu de chaque article (electrek.co pour un article
+Tesla, nber.org pour un papier de recherche, journaldunet.com, manualdousuario.net,
+cedarnews.net) — confirme au passage que le nom du flux n'aurait pas reflété ces domaines
+variés. Capture d'écran à l'appui. Aucune erreur console.
+
+**Limite connue, signalée à l'humain** : si un lien passe par une redirection/un agrégateur,
+le domaine affiché est celui de l'URL telle quelle, pas nécessairement celui de l'éditeur
+d'origine — pas de moyen fiable de le vérifier côté client (CORS). Pas de cas observé dans
+les 5 exemples réels testés.
+
+**Reste à faire** : branche non fusionnée — en attente de revue/test par l'humain.
+
 ## 2026-09-08 — Branche `navigation-historique` : le bouton "Précédent" reste dans l'app
 
 **Demande (humain)** : le réflexe du bouton "Précédent" du navigateur fait souvent sortir de
