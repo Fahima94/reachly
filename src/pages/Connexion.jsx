@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { definirSeSouvenir, supabase } from '../lib/supabase.js'
 import Dashboard from './Dashboard.jsx'
 import Preferences from './Preferences.jsx'
 import Admin from './Admin.jsx'
 import BasculeConnexionInscription from '../components/BasculeConnexionInscription.jsx'
+import BoutonAfficherMotDePasse from '../components/BoutonAfficherMotDePasse.jsx'
 import LogoReachly from '../components/LogoReachly.jsx'
 
 export default function Connexion({
@@ -14,6 +15,8 @@ export default function Connexion({
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [seSouvenir, setSeSouvenir] = useState(true)
+  const [motDePasseVisible, setMotDePasseVisible] = useState(false)
+  const refMotDePasse = useRef(null)
   const [preferencesOuvertes, setPreferencesOuvertes] = useState(false)
   const [adminOuvert, setAdminOuvert] = useState(false)
   const [statut, setStatut] = useState('idle') // idle | chargement | succes
@@ -123,16 +126,26 @@ export default function Connexion({
 
         <div>
           <label htmlFor="password">Mot de passe</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            aria-describedby={erreurMotDePasse ? 'password-erreur' : undefined}
-            aria-invalid={erreurMotDePasse ? 'true' : 'false'}
-          />
+          <div className="champ-mot-de-passe">
+            <input
+              id="password"
+              name="password"
+              ref={refMotDePasse}
+              type={motDePasseVisible ? 'text' : 'password'}
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-describedby={erreurMotDePasse ? 'password-erreur' : undefined}
+              aria-invalid={erreurMotDePasse ? 'true' : 'false'}
+            />
+            <BoutonAfficherMotDePasse
+              visible={motDePasseVisible}
+              onBasculer={() => {
+                setMotDePasseVisible((v) => !v)
+                refMotDePasse.current?.focus()
+              }}
+            />
+          </div>
           {erreurMotDePasse && (
             <p id="password-erreur" role="alert">
               {erreurMotDePasse}

@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { PASSWORD_RULES, passwordRespecteLesRegles } from '../lib/passwordRules.js'
 import BasculeConnexionInscription from '../components/BasculeConnexionInscription.jsx'
+import BoutonAfficherMotDePasse from '../components/BoutonAfficherMotDePasse.jsx'
 import LogoReachly from '../components/LogoReachly.jsx'
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -10,7 +11,9 @@ export default function Inscription({ onChangerMode, onInscriptionReussie }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordTouched, setPasswordTouched] = useState(false)
+  const [motDePasseVisible, setMotDePasseVisible] = useState(false)
   const [accepteConditions, setAccepteConditions] = useState(false)
+  const refMotDePasse = useRef(null)
   const [statut, setStatut] = useState('idle') // idle | chargement
   const [erreurGlobale, setErreurGlobale] = useState('')
   const [erreurEmail, setErreurEmail] = useState('')
@@ -144,19 +147,29 @@ export default function Inscription({ onChangerMode, onInscriptionReussie }) {
 
         <div>
           <label htmlFor="password">Mot de passe</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value)
-              setPasswordTouched(true)
-            }}
-            aria-describedby="password-regles password-erreur"
-            aria-invalid={erreurMotDePasse ? 'true' : 'false'}
-          />
+          <div className="champ-mot-de-passe">
+            <input
+              id="password"
+              name="password"
+              ref={refMotDePasse}
+              type={motDePasseVisible ? 'text' : 'password'}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                setPasswordTouched(true)
+              }}
+              aria-describedby="password-regles password-erreur"
+              aria-invalid={erreurMotDePasse ? 'true' : 'false'}
+            />
+            <BoutonAfficherMotDePasse
+              visible={motDePasseVisible}
+              onBasculer={() => {
+                setMotDePasseVisible((v) => !v)
+                refMotDePasse.current?.focus()
+              }}
+            />
+          </div>
           {erreurMotDePasse && (
             <p id="password-erreur" role="alert">
               {erreurMotDePasse}

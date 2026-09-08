@@ -456,6 +456,49 @@ input[type='radio'] {
   cursor: pointer;
 }
 
+/* Champ mot de passe avec la commande afficher / masquer à l'intérieur, à
+   droite. Le conteneur reprend la largeur du champ (max-width: 480px comme
+   les inputs) pour que le bouton se cale sur le bord droit du champ, pas
+   sur celui de la carte. */
+.champ-mot-de-passe {
+  position: relative;
+  max-width: 480px;
+}
+
+.champ-mot-de-passe input {
+  /* place réservée pour le bouton, pour que le texte saisi ne passe pas
+     dessous */
+  padding-right: calc(var(--space-3) + 2.5rem);
+}
+
+.bouton-afficher-mot-de-passe {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  box-shadow: none;
+  color: var(--color-text-muted);
+}
+
+.bouton-afficher-mot-de-passe:hover:not(:disabled) {
+  border: 0;
+  box-shadow: none;
+  color: var(--color-text);
+}
+
+.bouton-afficher-mot-de-passe:active:not(:disabled) {
+  transform: none;
+}
+
 /* Groupes de cases à cocher courtes (métiers, secteurs, catégories,
    sources) : puces au lieu d'une longue liste verticale. La case reste un
    vrai <input>, juste masquée visuellement (pas display:none, donc toujours

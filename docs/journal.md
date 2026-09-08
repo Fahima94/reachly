@@ -1,5 +1,38 @@
 # Journal
 
+## 2026-09-08 — Ticket 01 (amendement) : afficher / masquer le mot de passe (inscription + connexion)
+
+**Demande** : lors de la connexion et de l'inscription, pouvoir rendre le mot de passe
+visible via une icône œil.
+
+**Fait**
+- `src/components/BoutonAfficherMotDePasse.jsx` (nouveau) : vrai `<button type="button">`
+  avec icône œil (œil / œil barré selon l'état), `aria-pressed` porte l'état, `aria-label`
+  « Afficher le mot de passe » / « Masquer le mot de passe » (jamais l'icône seule).
+- `src/pages/Inscription.jsx` et `src/pages/Connexion.jsx` : état local `motDePasseVisible`
+  (masqué par défaut), `ref` sur le champ, champ enveloppé dans `<div className="champ-mot-de-passe">`,
+  bouton rendu à l'intérieur à droite. `type` bascule `password` ↔ `text`. Au clic : bascule
+  l'état puis `refMotDePasse.current?.focus()` — le focus reste dans le champ (cf. direction).
+  Aucun effet sur la validation ni le réseau.
+- `src/index.css` : `.champ-mot-de-passe` (position relative, max-width 480px alignée sur le
+  champ, padding droit réservé) et `.bouton-afficher-mot-de-passe` (bouton à droite dans le
+  champ, chrome du bouton global neutralisé, icône centrée, cible 2,75 rem de large sur toute
+  la hauteur du champ, contour de focus hérité).
+- L'amendement du ticket 01 cadrait l'icône pour l'inscription et la « proposait au ticket 02 »
+  pour la connexion : demande explicite des deux ici, comportement identique (« même champ,
+  même attente »).
+- Couvre les scénarios « Afficher le mot de passe » et « Masquer à nouveau le mot de passe ».
+
+**Reste à faire / non couvert**
+- Pas de vérification en navigateur réel : Playwright 1.63 ne supporte pas cette version de
+  macOS (Darwin 21), pas de chromium-cli disponible. Vérifié : `npm run build` passe, et le
+  serveur de dev transforme tous les modules touchés sans erreur. Non testé au clavier ni au
+  lecteur d'écran.
+- Trace du consentement (date + version acceptée avec le profil) : toujours non traitée
+  (voir entrée du 2026-09-07).
+- Case « Tout sélectionner » dans les préférences : plan présenté, en attente de validation,
+  non commencée.
+
 ## 2026-09-07 — Tableau de bord : profil, catégories colorées, flammes, source masquée ; audit accessibilité de l'admin
 
 **Demande (humain, amendements successifs)** : photo de profil en en-tête, étiquettes de
