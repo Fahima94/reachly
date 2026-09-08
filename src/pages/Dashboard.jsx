@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import BoutonDeconnexion from '../components/BoutonDeconnexion.jsx'
 import GenerationPost from '../components/GenerationPost.jsx'
@@ -113,6 +113,8 @@ export default function Dashboard({
   const [avatarUrl, setAvatarUrl] = useState(null)
   const [avatarEnCours, setAvatarEnCours] = useState(false)
   const [erreurAvatar, setErreurAvatar] = useState('')
+  const [menuProfilOuvert, setMenuProfilOuvert] = useState(false)
+  const menuProfilRef = useRef(null)
   const [tonaliteLabel, setTonaliteLabel] = useState('')
   const [voixLabel, setVoixLabel] = useState('')
 
@@ -333,6 +335,29 @@ export default function Dashboard({
     }
   }, [etat, onRelancerOnboarding])
 
+  // Menu du profil : se ferme au clic en dehors ou à Échap — motif déjà
+  // utilisé pour la modale de publication, allégé ici (pas de piège du
+  // focus complet, ce n'est pas une boîte de dialogue bloquante).
+  useEffect(() => {
+    if (!menuProfilOuvert) return
+
+    function gererClicExterieur(evenement) {
+      if (!menuProfilRef.current?.contains(evenement.target)) {
+        setMenuProfilOuvert(false)
+      }
+    }
+    function gererClavier(evenement) {
+      if (evenement.key === 'Escape') setMenuProfilOuvert(false)
+    }
+
+    document.addEventListener('mousedown', gererClicExterieur)
+    document.addEventListener('keydown', gererClavier)
+    return () => {
+      document.removeEventListener('mousedown', gererClicExterieur)
+      document.removeEventListener('keydown', gererClavier)
+    }
+  }, [menuProfilOuvert])
+
   if (etat === 'incomplet') {
     return (
       <main>
@@ -346,16 +371,27 @@ export default function Dashboard({
       <div className="barre-superieure">
         <LogoReachly />
         <div className="profil-entete">
-          <div className="conteneur-avatar">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="pastille-profil" />
-            ) : (
-              initiales && (
-                <span className="pastille-profil" aria-hidden="true">
-                  {initiales}
-                </span>
-              )
-            )}
+          <div className="conteneur-avatar" ref={menuProfilRef}>
+            <button
+              type="button"
+              className="declencheur-menu-profil"
+              onClick={() => setMenuProfilOuvert((ouvert) => !ouvert)}
+              aria-haspopup="true"
+              aria-expanded={menuProfilOuvert}
+            >
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="" className="pastille-profil" />
+              ) : (
+                initiales && (
+                  <span className="pastille-profil" aria-hidden="true">
+                    {initiales}
+                  </span>
+                )
+              )}
+              <span className="visually-hidden">
+                Menu du profil{nomComplet ? ` de ${nomComplet}` : ''}
+              </span>
+            </button>
             <label className="bouton-ajout-avatar">
               <span className="visually-hidden">Changer ma photo de profil</span>
               <span aria-hidden="true">{avatarEnCours ? '…' : '+'}</span>
@@ -367,24 +403,61 @@ export default function Dashboard({
                 className="visually-hidden"
               />
             </label>
+            {menuProfilOuvert && (
+              <div className="menu-profil" role="menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="element-menu-profil"
+                  disabled
+                  title="Bientôt disponible"
+                >
+                  Mes publications
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="element-menu-profil"
+                  onClick={() => {
+                    setMenuProfilOuvert(false)
+                    onModifierPreferences()
+                  }}
+                >
+                  Mes préférences
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="element-menu-profil"
+                  disabled
+                  title="Bientôt disponible"
+                >
+                  Mon compte
+                </button>
+                {/* Réservé aux 3 comptes admin (lib/admin.js) — reste utile pour les
+                    tests, mais n'a plus sa place dans les actions courantes d'une
+                    personne qui utilise juste l'app. */}
+                {emailAdmin && (
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="element-menu-profil"
+                    onClick={() => {
+                      setMenuProfilOuvert(false)
+                      onRelancerOnboarding()
+                    }}
+                  >
+                    Relancer l'onboarding
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-          {nomComplet && <span className="visually-hidden">Profil de {nomComplet}</span>}
           <BoutonDeconnexion onDeconnecte={onDeconnexionReussie} className="bouton-deconnexion" />
         </div>
       </div>
       {erreurAvatar && <p role="alert">{erreurAvatar}</p>}
       <header>
-        <button type="button" className="bouton-primaire" onClick={onModifierPreferences}>
-          Mes préférences
-        </button>
-        {/* Réservé aux 3 comptes admin (lib/admin.js) — "Relancer l'onboarding"
-            reste utile pour les tests, mais n'a plus sa place dans les actions
-            courantes d'une personne qui utilise juste l'app. */}
-        {emailAdmin && (
-          <button type="button" onClick={onRelancerOnboarding}>
-            Relancer l'onboarding
-          </button>
-        )}
         <h1>Vos sujets du jour</h1>
       </header>
 

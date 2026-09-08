@@ -254,6 +254,64 @@ header p {
   background: var(--color-primary-hover);
 }
 
+/* Déclencheur du menu du profil : enveloppe la pastille, sans reprendre
+   l'apparence par défaut d'un bouton (bordure, fond, ombre) — seule la
+   pastille doit se voir. */
+.declencheur-menu-profil {
+  border: none;
+  background: none;
+  padding: 0;
+  min-height: auto;
+  border-radius: 999px;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.declencheur-menu-profil:hover:not(:disabled) {
+  border: none;
+  box-shadow: none;
+}
+
+/* Menu du profil (Mes publications / Mes préférences / Mon compte /
+   Relancer l'onboarding) : carte flottante sous la pastille. */
+.menu-profil {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+}
+
+.element-menu-profil {
+  border: none;
+  background: none;
+  box-shadow: none;
+  min-height: 36px;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  font-weight: 400;
+  text-align: left;
+  color: var(--color-text);
+}
+
+.element-menu-profil:hover:not(:disabled) {
+  background: var(--color-bg);
+  border: none;
+  box-shadow: none;
+}
+
+.element-menu-profil:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
 /* Boutons */
 button {
   font-family: inherit;
