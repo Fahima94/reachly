@@ -49,6 +49,74 @@ sa version en dur, un composant partagé est créé à part.
 - Rendu et interactions réels en navigateur (menu, upload photo, déconnexion depuis ces
   écrans) — pas d'outil disponible.
 
+## 2026-09-08 — Branche `affichage-source-domaine` (suite) : taille du mot "Source" corrigée
+
+**Constat (humain)** : "Source" s'affichait dans la taille du corps de texte, plus grosse que
+la pastille juste à côté — décalage visuel.
+
+**Fait (code)** : `src/pages/Dashboard.jsx` — "Source" passe dans un `<span className="etiquette-source">`
+au lieu d'un texte nu. `src/index.css` — `.etiquette-source` reprend la même taille de police
+(0.85rem) et la couleur discrète (`--color-text-muted`) que `.badge-source`. `npm run build` :
+OK (97 modules).
+
+**Vérifié en réel (Playwright, compte jetable)** : taille calculée identique entre les deux
+éléments (13.6px = 13.6px). Capture d'écran à l'appui.
+
+## 2026-09-08 — Branche `affichage-source-domaine` (suite) : domaine en pastille, lien isolé
+
+**Demande (humain), après test** : mettre le domaine dans une pastille colorée, lien
+uniquement sur elle — "Source" reste soit en texte hors du lien, soit remplacé par une icône
+(avec attention à l'accessibilité).
+
+**Avis donné** : "Source" en texte simple plutôt qu'une icône — une icône seule exige un
+étiquetage correct (`aria-hidden` + texte alternatif) pour un gain visuel marginal, alors que
+le mot est déjà court. Retenu par défaut, pas d'opposition de l'humain.
+
+**Fait (code)**
+- `src/index.css` : `.badge-source` — même gabarit que `.badge-score` (pastille arrondie),
+  gris neutre volontairement distinct des trois dominantes thème/métier/secteur (pour ne pas
+  laisser croire à un 4ᵉ type de catégorie).
+- `src/pages/Dashboard.jsx` : "Source" en texte simple hors du `<a>`, le lien (`.badge-source`)
+  n'entoure plus que le domaine. Repli : si `domaineSource` est absent (URL malformée), on
+  retombe sur l'ancien lien texte "Voir la source" sans le mot "Source" en double.
+- `npm run build` : OK (97 modules).
+
+**Vérifié en réel (Playwright, compte jetable, vraie donnée)** : le mot "Source" n'est plus
+dans le `<a>` (confirmé par inspection du DOM, `href` bien porté par la pastille seule).
+Capture d'écran à l'appui. Aucune erreur console.
+
+## 2026-09-08 — Branche `affichage-source-domaine` : "Voir la source" → "Source : nomdedomaine"
+
+**Demande (humain)** : afficher plus proprement la source de chaque sujet, plutôt qu'un
+lien générique "Voir la source".
+
+**Échange préalable** : proposition initiale d'utiliser `Sources.nom` (déjà chargé mais
+jamais affiché) — écartée par l'humain, qui a précisé que ce nom désigne le flux RSS/API de
+veille, pas forcément l'éditeur réel derrière le lien (un flux peut agréger plusieurs sites).
+Retenu à la place : extraire le domaine directement de l'URL de l'article, seule donnée
+fidèle à "vers où mène ce lien".
+
+**Fait (code)** — sur la branche `affichage-source-domaine` (pas fusionnée) :
+- `src/pages/Dashboard.jsx` : nouvelle fonction `domaineSource(url)` — `new URL(url).hostname`
+  sans le préfixe `www.`, `null` si l'URL est absente ou malformée (pas de plantage). Calculée
+  une fois par sujet à `charger()` (`sujet.domaineSource`), pas à chaque rendu. Le lien affiche
+  `Source : <domaine>` quand disponible, sinon retombe sur l'ancien texte générique
+  "Voir la source".
+- `npm run build` : OK (97 modules).
+
+**Vérifié en réel (Playwright, compte jetable, vraies données — 5 cartes réelles)** :
+domaines corrects et cohérents avec le contenu de chaque article (electrek.co pour un article
+Tesla, nber.org pour un papier de recherche, journaldunet.com, manualdousuario.net,
+cedarnews.net) — confirme au passage que le nom du flux n'aurait pas reflété ces domaines
+variés. Capture d'écran à l'appui. Aucune erreur console.
+
+**Limite connue, signalée à l'humain** : si un lien passe par une redirection/un agrégateur,
+le domaine affiché est celui de l'URL telle quelle, pas nécessairement celui de l'éditeur
+d'origine — pas de moyen fiable de le vérifier côté client (CORS). Pas de cas observé dans
+les 5 exemples réels testés.
+
+**Reste à faire** : branche non fusionnée — en attente de revue/test par l'humain.
+
 ## 2026-09-08 — Branche `navigation-historique` : le bouton "Précédent" reste dans l'app
 
 **Demande (humain)** : le réflexe du bouton "Précédent" du navigateur fait souvent sortir de

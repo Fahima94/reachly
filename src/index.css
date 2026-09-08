@@ -747,6 +747,34 @@ fieldset.chips input[type='radio'] {
   color: #475569;
 }
 
+/* Domaine de la source externe (carte du tableau de bord) : « Source » reste
+   du texte simple à côté, seule la pastille est le lien — gris neutre,
+   volontairement en dehors des trois dominantes thème/métier/secteur pour ne
+   pas laisser croire que c'est un quatrième type de catégorie. Même taille
+   que la pastille (sinon le mot "Source" hérite du corps de texte, plus
+   grand, et jure visuellement à côté d'elle). */
+.etiquette-source {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.badge-source {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: #f1f5f9;
+  color: #334155;
+  text-decoration: none;
+}
+
+.badge-source:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
 /* Statut d'une publication (écran "Mes publications") : même gabarit que
    le badge de score, couleur neutre pour Brouillon, progression vers le
    vert pour Publié — jamais la couleur seule (le mot reste toujours là). */

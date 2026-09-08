@@ -122,6 +122,20 @@ function resumer(texte) {
   return t.length > RESUME_MAX ? `${t.slice(0, RESUME_MAX).trimEnd()}…` : t
 }
 
+// Domaine du lien externe, pour l'affichage ("Source : lemonde.fr") — pas le
+// nom du flux/API de veille (`Sources.nom`), qui peut agréger plusieurs
+// éditeurs et ne reflète donc pas fidèlement vers où mène le lien. `null` si
+// l'URL est absente ou malformée : le rendu retombe alors sur un intitulé
+// générique plutôt que de planter.
+function domaineSource(url) {
+  if (!url) return null
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return null
+  }
+}
+
 export default function Dashboard({
   onAllerAccueil,
   onDeconnexionReussie,
@@ -295,18 +309,22 @@ export default function Dashboard({
         categoriesParInfo.set(lien.info_id, liste)
       }
 
-      const enrichis = retenus.map((c) => ({
-        id: c.id,
-        titre: c.titre_recomposé || '(Sans titre)',
-        resume: resumer(c.contenu || c.article),
-        lien: LIEN_VALIDE.test(c.lien ?? '') ? c.lien : null,
-        score: Math.round(c.score * 10),
-        anciennete: anciennete(c.created_at),
-        flammes: niveauFlammes(c.created_at),
-        categories: [...(categoriesParInfo.get(c.id) ?? [])].sort(comparerCategories),
-        source: nomSource.get(sourceParSujetVeille.get(c.sujet_veille_id)) ?? null,
-        horsPreferences: !infosDansPreferences.has(c.id),
-      }))
+      const enrichis = retenus.map((c) => {
+        const lien = LIEN_VALIDE.test(c.lien ?? '') ? c.lien : null
+        return {
+          id: c.id,
+          titre: c.titre_recomposé || '(Sans titre)',
+          resume: resumer(c.contenu || c.article),
+          lien,
+          domaineSource: domaineSource(lien),
+          score: Math.round(c.score * 10),
+          anciennete: anciennete(c.created_at),
+          flammes: niveauFlammes(c.created_at),
+          categories: [...(categoriesParInfo.get(c.id) ?? [])].sort(comparerCategories),
+          source: nomSource.get(sourceParSujetVeille.get(c.sujet_veille_id)) ?? null,
+          horsPreferences: !infosDansPreferences.has(c.id),
+        }
+      })
 
       // Catégories proposées dans le filtre : uniquement celles à la fois
       // choisies par la personne (tous types confondus) ET réellement portées
@@ -647,7 +665,20 @@ export default function Dashboard({
                         })}
                       </p>
                     )}
-                    {sujet.lien && (
+                    {sujet.lien && sujet.domaineSource && (
+                      <p>
+                        <span className="etiquette-source">Source</span>{' '}
+                        <a
+                          href={sujet.lien}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="badge-source"
+                        >
+                          {sujet.domaineSource}
+                        </a>
+                      </p>
+                    )}
+                    {sujet.lien && !sujet.domaineSource && (
                       <p>
                         <a href={sujet.lien} target="_blank" rel="noopener noreferrer">
                           Voir la source
