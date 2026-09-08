@@ -101,6 +101,7 @@ export default function Dashboard({
   onModifierPreferences,
   onOuvrirAdmin,
   onOuvrirPublications,
+  onOuvrirCompte,
 }) {
   // chargement | incomplet | pret | vide | erreur
   const [etat, setEtat] = useState('chargement')
@@ -459,8 +460,10 @@ export default function Dashboard({
                   type="button"
                   role="menuitem"
                   className="element-menu-profil"
-                  disabled
-                  title="Bientôt disponible"
+                  onClick={() => {
+                    setMenuProfilOuvert(false)
+                    onOuvrirCompte()
+                  }}
                 >
                   Mon compte
                 </button>

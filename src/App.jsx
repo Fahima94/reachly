@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Preferences from './pages/Preferences.jsx'
 import Admin from './pages/Admin.jsx'
 import MesPublications from './pages/MesPublications.jsx'
+import MonCompte from './pages/MonCompte.jsx'
 import Identite from './pages/onboarding/Identite.jsx'
 import MetiersSecteurs from './pages/onboarding/MetiersSecteurs.jsx'
 import CategoriesSources from './pages/onboarding/CategoriesSources.jsx'
@@ -82,6 +83,9 @@ export default function App() {
   if (ecran === 'publications') {
     return <MesPublications onRetour={() => setEcran('connecte')} />
   }
+  if (ecran === 'compte') {
+    return <MonCompte onRetour={() => setEcran('connecte')} />
+  }
   if (ecran === 'connecte') {
     return (
       <Dashboard
@@ -90,6 +94,7 @@ export default function App() {
         onModifierPreferences={() => setEcran('preferences')}
         onOuvrirAdmin={() => setEcran('admin')}
         onOuvrirPublications={() => setEcran('publications')}
+        onOuvrirCompte={() => setEcran('compte')}
       />
     )
   }

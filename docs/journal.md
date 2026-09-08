@@ -1,5 +1,39 @@
 # Journal
 
+## 2026-09-08 — Nouvel écran "Mon compte" (photo, identité en lecture seule, email, mot de passe)
+
+**Demande (humain)** : rendre fonctionnelle l'entrée "Mon compte" du menu du profil (laissée
+désactivée, faute de cadrage) — changement de photo, nom/prénom affichés mais non
+modifiables (ça se fait depuis l'onboarding), et une « demande de changement d'adresse
+email ».
+
+**Décision clarifiée avec l'humain** : le projet fonctionne « sans e-mail » en V1 (décision
+du 2026-09-03, quota Supabase plafonné, confirmations désactivées). Le changement d'email
+standard de Supabase envoie une confirmation par mail — risque de silencieusement ne rien
+faire dans ce contexte. Tranché : changement direct (`auth.updateUser({ email })`),
+appliqué immédiatement sans confirmation, cohérent avec le reste de l'auth V1. Risque
+assumé : une faute de frappe change l'adresse sans vérification préalable.
+
+**Fait (code)**
+- `src/pages/MonCompte.jsx` (nouveau) : quatre sections — photo de profil (même logique
+  d'upload que la pastille du tableau de bord, dupliquée), identité en lecture seule
+  (nom/prénom, avec la note qu'ils se modifient ailleurs), adresse email (formulaire séparé,
+  `auth.updateUser({ email })` direct), mot de passe (formulaire séparé, mêmes règles que
+  l'inscription — `passwordRules.js`, `BoutonAfficherMotDePasse` réutilisé, confirmation à
+  saisir deux fois).
+- `src/App.jsx`, `src/pages/Connexion.jsx` : nouvel écran câblé (routage local dupliqué dans
+  `Connexion.jsx`, même limite déjà notée au ticket 02).
+- `src/pages/Dashboard.jsx` : l'entrée "Mon compte" du menu du profil n'est plus désactivée.
+- `src/index.css` : séparateur entre sections (`main > section + section`).
+- `npm run build` : OK (96 modules).
+
+**Reste à faire / non vérifié**
+- Non testé en navigateur réel (upload de photo, changement d'email, changement de mot de
+  passe, persistance après rechargement).
+- Accessibilité non testée au clavier ni au lecteur d'écran.
+- Le changement de mot de passe ne redemande pas le mot de passe actuel (la session étant
+  déjà authentifiée, Supabase l'autorise) — pas creusé si c'est le niveau de friction voulu.
+
 ## 2026-09-08 — Nouvel écran "Mes publications" (liste + changement de statut)
 
 **Demande (humain)** : rendre fonctionnelle l'entrée "Mes publications" du menu du profil
