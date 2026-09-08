@@ -13,9 +13,9 @@ réglages par défaut, pas le design) :
 
 ## Statut
 
-🚧 **MVP en développement actif** — pas encore déployé publiquement.
+🚧 **MVP en développement actif** — premier déploiement en préproduction (branche `preprod`).
+Un premier essai sur Vercel a échoué ; hébergement basculé sur **Netlify**.
 Fonctionnel en local : inscription, onboarding, tableau de bord, génération et publication de post.
-Prochain jalon : stabilisation (accessibilité, tests) avant un premier déploiement.
 
 ![Tableau de bord Reachly : top 5 des sujets du jour, scorés et classés](docs/apercu-dashboard.png)
 
@@ -43,6 +43,7 @@ dans [`docs/cadrage.md`](docs/cadrage.md).
 ## Stack
 
 React + Vite, Supabase (auth et données), n8n pour la génération de post assistée par IA.
+Hébergement : Netlify (préproduction sur la branche `preprod`).
 
 ## Démarrer en local
 
