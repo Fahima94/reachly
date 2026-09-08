@@ -5,6 +5,7 @@ import Connexion from './pages/Connexion.jsx'
 import Dashboard from './pages/Dashboard.jsx'
 import Preferences from './pages/Preferences.jsx'
 import Admin from './pages/Admin.jsx'
+import MesPublications from './pages/MesPublications.jsx'
 import Identite from './pages/onboarding/Identite.jsx'
 import MetiersSecteurs from './pages/onboarding/MetiersSecteurs.jsx'
 import CategoriesSources from './pages/onboarding/CategoriesSources.jsx'
@@ -78,6 +79,9 @@ export default function App() {
   if (ecran === 'admin') {
     return <Admin onRetour={() => setEcran('connecte')} />
   }
+  if (ecran === 'publications') {
+    return <MesPublications onRetour={() => setEcran('connecte')} />
+  }
   if (ecran === 'connecte') {
     return (
       <Dashboard
@@ -85,6 +89,7 @@ export default function App() {
         onRelancerOnboarding={() => setEcran('onboarding-identite')}
         onModifierPreferences={() => setEcran('preferences')}
         onOuvrirAdmin={() => setEcran('admin')}
+        onOuvrirPublications={() => setEcran('publications')}
       />
     )
   }

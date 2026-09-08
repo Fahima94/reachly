@@ -100,6 +100,7 @@ export default function Dashboard({
   onRelancerOnboarding,
   onModifierPreferences,
   onOuvrirAdmin,
+  onOuvrirPublications,
 }) {
   // chargement | incomplet | pret | vide | erreur
   const [etat, setEtat] = useState('chargement')
@@ -115,11 +116,13 @@ export default function Dashboard({
   const [erreurAvatar, setErreurAvatar] = useState('')
   const [menuProfilOuvert, setMenuProfilOuvert] = useState(false)
   const menuProfilRef = useRef(null)
+  const [categoriesSelectionnees, setCategoriesSelectionnees] = useState(() => new Set())
   const [tonaliteLabel, setTonaliteLabel] = useState('')
   const [voixLabel, setVoixLabel] = useState('')
 
   const charger = useCallback(async () => {
     setEtat('chargement')
+    setCategoriesSelectionnees(new Set())
     try {
       const {
         data: { user },
@@ -366,6 +369,31 @@ export default function Dashboard({
     )
   }
 
+  // Filtre par catégorie (confort de lecture), en puces à bascule
+  // multi-sélection — purement côté client, sur les 5 sujets déjà chargés :
+  // les sujets qui ont au moins une catégorie sélectionnée remontent en
+  // tête, le reste garde son ordre (tri stable), pas de nouvel appel.
+  const categoriesDisponibles = [...new Set(sujets.flatMap((s) => s.categories))].sort((a, b) =>
+    a.localeCompare(b, 'fr'),
+  )
+  const correspondSelection = (sujet) =>
+    sujet.categories.some((c) => categoriesSelectionnees.has(c))
+  const sujetsAffiches =
+    categoriesSelectionnees.size > 0
+      ? [...sujets].sort(
+          (a, b) => Number(!correspondSelection(a)) - Number(!correspondSelection(b)),
+        )
+      : sujets
+
+  function basculerCategorieTri(categorie) {
+    setCategoriesSelectionnees((precedent) => {
+      const suivant = new Set(precedent)
+      if (suivant.has(categorie)) suivant.delete(categorie)
+      else suivant.add(categorie)
+      return suivant
+    })
+  }
+
   return (
     <main>
       <div className="barre-superieure">
@@ -409,8 +437,10 @@ export default function Dashboard({
                   type="button"
                   role="menuitem"
                   className="element-menu-profil"
-                  disabled
-                  title="Bientôt disponible"
+                  onClick={() => {
+                    setMenuProfilOuvert(false)
+                    onOuvrirPublications()
+                  }}
                 >
                   Mes publications
                 </button>
@@ -488,6 +518,33 @@ export default function Dashboard({
 
       {etat === 'pret' && (
         <>
+          {categoriesDisponibles.length > 1 && (
+            <details className="tri-sujets">
+              <summary>
+                Filtrer par catégorie
+                {categoriesSelectionnees.size > 0 && ` (${categoriesSelectionnees.size})`}
+              </summary>
+              <div className="tri-categories" role="group" aria-label="Filtrer par catégorie">
+                {categoriesDisponibles.map((categorie) => {
+                  const couleur = couleurCategorie(categorie)
+                  const selectionnee = categoriesSelectionnees.has(categorie)
+                  return (
+                    <button
+                      key={categorie}
+                      type="button"
+                      className="puce-tri-categorie"
+                      style={selectionnee ? { background: couleur.fond, color: couleur.texte } : undefined}
+                      aria-pressed={selectionnee}
+                      onClick={() => basculerCategorieTri(categorie)}
+                    >
+                      {categorie}
+                    </button>
+                  )
+                })}
+              </div>
+            </details>
+          )}
+
           {aucuneCorrespondance && (
             <div>
               <p role="status">
@@ -501,7 +558,7 @@ export default function Dashboard({
           )}
 
           <ol>
-            {sujets.map((sujet) => {
+            {sujetsAffiches.map((sujet) => {
               return (
                 <li key={sujet.id}>
                   <article>
@@ -532,7 +589,7 @@ export default function Dashboard({
                             <span
                               key={categorie}
                               className="etiquette-categorie"
-                              style={{ background: couleur.fond, color: couleur.texte, borderColor: 'transparent' }}
+                              style={{ background: couleur.fond, color: couleur.texte }}
                             >
                               {categorie}
                             </span>

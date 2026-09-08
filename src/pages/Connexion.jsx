@@ -3,6 +3,7 @@ import { definirSeSouvenir, supabase } from '../lib/supabase.js'
 import Dashboard from './Dashboard.jsx'
 import Preferences from './Preferences.jsx'
 import Admin from './Admin.jsx'
+import MesPublications from './MesPublications.jsx'
 import BasculeConnexionInscription from '../components/BasculeConnexionInscription.jsx'
 import BoutonAfficherMotDePasse from '../components/BoutonAfficherMotDePasse.jsx'
 import LogoReachly from '../components/LogoReachly.jsx'
@@ -19,6 +20,7 @@ export default function Connexion({
   const refMotDePasse = useRef(null)
   const [preferencesOuvertes, setPreferencesOuvertes] = useState(false)
   const [adminOuvert, setAdminOuvert] = useState(false)
+  const [publicationsOuvertes, setPublicationsOuvertes] = useState(false)
   const [statut, setStatut] = useState('idle') // idle | chargement | succes
   const [erreurGlobale, setErreurGlobale] = useState('')
   const [erreurEmail, setErreurEmail] = useState('')
@@ -82,6 +84,10 @@ export default function Connexion({
     return <Admin onRetour={() => setAdminOuvert(false)} />
   }
 
+  if (statut === 'succes' && publicationsOuvertes) {
+    return <MesPublications onRetour={() => setPublicationsOuvertes(false)} />
+  }
+
   if (statut === 'succes') {
     return (
       <Dashboard
@@ -89,6 +95,7 @@ export default function Connexion({
         onRelancerOnboarding={onRelancerOnboarding}
         onModifierPreferences={() => setPreferencesOuvertes(true)}
         onOuvrirAdmin={() => setAdminOuvert(true)}
+        onOuvrirPublications={() => setPublicationsOuvertes(true)}
       />
     )
   }

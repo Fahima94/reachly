@@ -1,5 +1,46 @@
 # Journal
 
+## 2026-09-08 — Nouvel écran "Mes publications" (liste + changement de statut)
+
+**Demande (humain)** : rendre fonctionnelle l'entrée "Mes publications" du menu du profil
+(laissée désactivée la veille, faute de cadrage) — afficher les posts générés/enregistrés,
+et permettre d'en changer le statut (Brouillon/Enregistré/Publié), avec une date de
+publication modifiable en passant à "Publié".
+
+**Fait (code)**
+- `src/pages/MesPublications.jsx` (nouveau) : liste les publications de la personne
+  connectée (`Publications`, filtrée `user_id`, triée par date de création décroissante).
+  Chaque ligne (`<details>`) affiche titre + badge de statut + date, et déplie le texte
+  complet au clic. Dans la ligne dépliée : un `<select>` pour changer le statut, et — si le
+  statut choisi est "Publié" — un champ date pré-rempli à aujourd'hui par défaut (si aucune
+  date déjà enregistrée), modifiable ensuite. Écriture directe en base
+  (`.update().eq('id', pub.id).select()` — le `.select()` est indispensable pour détecter un
+  blocage RLS silencieux, même motif que dans `Admin.jsx`).
+- `src/App.jsx`, `src/pages/Connexion.jsx` : nouvel écran câblé (le second a son propre
+  routage local, comme `Preferences`/`Admin` — limite architecturale déjà notée au ticket 02).
+- `src/pages/Dashboard.jsx` : l'entrée "Mes publications" du menu du profil n'est plus
+  désactivée.
+- `src/index.css` : `.liste-publications`/`.publication` (cartes), `.badge-statut-publication`
+  (3 couleurs), `.modifier-statut-publication` (statut + date côte à côte) ; `input[type=date]`
+  ajouté au style de champ commun (oublié jusqu'ici).
+- **Amendement même jour** : le texte de la publication, d'abord affiché en lecture seule,
+  devient modifiable (`<textarea>`, même principe que le texte généré sur le tableau de bord —
+  édition locale à chaque frappe, bouton « Enregistrer le texte » séparé pour l'écriture en
+  base, confirmation « Enregistré ! » 3 s).
+- `npm run build` : OK (95 modules).
+
+**Vérifié (lecture directe en base, compte réel)** : confirmé que `Publications` contient
+bien des lignes aux 3 statuts pour le compte utilisé en test, et que la policy RLS `UPDATE`
+(`auth.uid() = user_id`) autorise la modification depuis le client.
+
+**Reste à faire / non vérifié**
+- Non testé en navigateur réel (changement de statut, apparition du champ date, persistance
+  après rechargement).
+- Accessibilité non testée au clavier ni au lecteur d'écran.
+- Aucune confirmation visuelle après une mise à jour réussie (pas de "Enregistré !" comme
+  ailleurs dans l'app) — le changement se voit dans le badge/le champ lui-même, jugé
+  suffisant pour l'instant, à revoir si besoin.
+
 ## 2026-09-08 — Ticket 01 (amendement) : afficher / masquer le mot de passe (inscription + connexion)
 
 **Demande** : lors de la connexion et de l'inscription, pouvoir rendre le mot de passe
