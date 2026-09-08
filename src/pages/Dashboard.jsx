@@ -11,45 +11,78 @@ const RESUME_MAX = 220
 
 // Une couleur par catégorie, sur le tableau de bord uniquement — pour
 // distinguer les catégories d'un coup d'œil sur une carte qui en affiche
-// plusieurs. Assignation fixe pour les 12 catégories "thème" connues du
-// cadrage ; repli déterministe (hash du nom) pour toute catégorie ajoutée
-// depuis l'interface admin (ticket 14), afin qu'elle ait toujours une
-// couleur cohérente avec la palette plutôt que rien.
-const PALETTE_CATEGORIES = [
-  { fond: '#f3e8ff', texte: '#6b21a8' }, // mauve
-  { fond: '#e0f2fe', texte: '#075985' }, // bleu ciel
-  { fond: '#ecfccb', texte: '#3f6212' }, // vert clair
-  { fond: '#fee2e2', texte: '#991b1b' }, // rouge
+// plusieurs. Trois dominantes très différenciées, une par type (`thème` /
+// `métier` / `secteur`) — la teinte signale le type au premier coup d'œil,
+// la nuance précise distingue les catégories entre elles à l'intérieur d'un
+// même type. Assignation fixe pour les 12 catégories "thème" connues du
+// cadrage (nuances stables, pas de hash) ; repli déterministe (hash du nom
+// dans la palette de son type) pour métier/secteur et toute catégorie
+// ajoutée depuis l'interface admin (ticket 14).
+const PALETTE_THEME = [
   { fond: '#e0e7ff', texte: '#3730a3' }, // indigo
-  { fond: '#ccfbf1', texte: '#115e59' }, // turquoise
-  { fond: '#fef3c7', texte: '#92400e' }, // ambre
-  { fond: '#fae8ff', texte: '#86198f' }, // fuchsia
+  { fond: '#ede9fe', texte: '#5b21b6' }, // violet
+  { fond: '#dbeafe', texte: '#1e40af' }, // bleu
+  { fond: '#e0f2fe', texte: '#075985' }, // bleu ciel
   { fond: '#cffafe', texte: '#155e75' }, // cyan
-  { fond: '#fce7f3', texte: '#9d174d' }, // rose
-  { fond: '#ffedd5', texte: '#9a3412' }, // orange
-  { fond: '#e2e8f0', texte: '#334155' }, // ardoise
+  { fond: '#ddd6fe', texte: '#4c1d95' }, // violet profond
 ]
 
-const COULEUR_PAR_CATEGORIE = {
-  'Agents IA': PALETTE_CATEGORIES[0], // mauve
-  Automatisation: PALETTE_CATEGORIES[10], // orange
-  'Cas d’usage': PALETTE_CATEGORIES[9], // rose
-  Cloud: PALETTE_CATEGORIES[1], // bleu ciel
-  Cybersécurité: PALETTE_CATEGORIES[3], // rouge
-  Data: PALETTE_CATEGORIES[4], // indigo
-  Développement: PALETTE_CATEGORIES[5], // turquoise
-  'Emploi Tech': PALETTE_CATEGORIES[6], // ambre
-  'IA générative': PALETTE_CATEGORIES[7], // fuchsia
-  'Outils IA': PALETTE_CATEGORIES[8], // cyan
-  Productivité: PALETTE_CATEGORIES[2], // vert clair
-  'Régulation IA': PALETTE_CATEGORIES[11], // ardoise
+const PALETTE_METIER = [
+  { fond: '#dcfce7', texte: '#166534' }, // vert
+  { fond: '#d1fae5', texte: '#065f46' }, // émeraude
+  { fond: '#ccfbf1', texte: '#115e59' }, // turquoise
+  { fond: '#ecfccb', texte: '#3f6212' }, // lime
+  { fond: '#a7f3d0', texte: '#065f46' }, // vert menthe
+  { fond: '#bbf7d0', texte: '#14532d' }, // vert foncé
+]
+
+const PALETTE_SECTEUR = [
+  { fond: '#ffedd5', texte: '#9a3412' }, // orange
+  { fond: '#fef3c7', texte: '#92400e' }, // ambre
+  { fond: '#fee2e2', texte: '#991b1b' }, // rouge
+  { fond: '#fed7aa', texte: '#7c2d12' }, // terracotta
+  { fond: '#fecaca', texte: '#7f1d1d' }, // rouge foncé
+  { fond: '#fde68a', texte: '#78350f' }, // doré foncé
+]
+
+const COULEUR_PAR_CATEGORIE_THEME = {
+  'Agents IA': PALETTE_THEME[0],
+  Automatisation: PALETTE_THEME[1],
+  'Cas d’usage': PALETTE_THEME[2],
+  Cloud: PALETTE_THEME[3],
+  Cybersécurité: PALETTE_THEME[4],
+  Data: PALETTE_THEME[5],
+  Développement: PALETTE_THEME[0],
+  'Emploi Tech': PALETTE_THEME[1],
+  'IA générative': PALETTE_THEME[2],
+  'Outils IA': PALETTE_THEME[3],
+  Productivité: PALETTE_THEME[4],
+  'Régulation IA': PALETTE_THEME[5],
 }
 
-function couleurCategorie(nom) {
-  if (COULEUR_PAR_CATEGORIE[nom]) return COULEUR_PAR_CATEGORIE[nom]
+function hashPalette(nom, palette) {
   let hash = 0
   for (let i = 0; i < nom.length; i++) hash = (hash * 31 + nom.charCodeAt(i)) >>> 0
-  return PALETTE_CATEGORIES[hash % PALETTE_CATEGORIES.length]
+  return palette[hash % palette.length]
+}
+
+function couleurCategorie(nom, type) {
+  if (type === 'métier') return hashPalette(nom, PALETTE_METIER)
+  if (type === 'secteur') return hashPalette(nom, PALETTE_SECTEUR)
+  // thème, ou type absent/inconnu : la dominante thème reste le repli par défaut.
+  return COULEUR_PAR_CATEGORIE_THEME[nom] ?? hashPalette(nom, PALETTE_THEME)
+}
+
+// Regroupe les catégories par type (thème d'abord, puis métier, puis
+// secteur) — cohérent avec les trois dominantes de couleur : les étiquettes
+// d'une même couleur se retrouvent groupées, pas mélangées au hasard de
+// l'ordre renvoyé par la base.
+const ORDRE_TYPES = { thème: 0, métier: 1, secteur: 2 }
+function comparerCategories(a, b) {
+  const ordreA = ORDRE_TYPES[a.type] ?? 3
+  const ordreB = ORDRE_TYPES[b.type] ?? 3
+  if (ordreA !== ordreB) return ordreA - ordreB
+  return a.nom.localeCompare(b.nom, 'fr')
 }
 
 function classeScore(score) {
@@ -115,10 +148,12 @@ export default function Dashboard({
   const [tonalites, setTonalites] = useState([])
   const [tonaliteId, setTonaliteId] = useState(null)
   const [voixCode, setVoixCode] = useState('')
+  const [categoriesFiltrables, setCategoriesFiltrables] = useState([])
 
   const charger = useCallback(async () => {
     setEtat('chargement')
     setCategoriesSelectionnees(new Set())
+    setCategoriesFiltrables([])
     try {
       const {
         data: { user },
@@ -229,12 +264,12 @@ export default function Dashboard({
       ]
 
       const [categories, sources] = await Promise.all([
-        // `type = 'thème'` : la veille (n8n) tague aussi les sujets par métier et
-        // secteur via `infos_categories`, mais le tableau de bord n'affiche et ne
-        // filtre que sur les catégories thématiques (mêmes choisies à
-        // l'onboarding — cf. CategoriesSources.jsx, Preferences.jsx).
+        // Toutes les catégories liées (thème, métier, secteur confondus) : les
+        // cartes affichent tout ce qui est réellement tagué en base, plutôt que
+        // de risquer de n'afficher aucune catégorie sur des sujets qui n'ont
+        // jamais reçu de catégorie thème par la veille.
         idsCategories.length
-          ? supabase.from('Catégories').select('id, nom').eq('type', 'thème').in('id', idsCategories)
+          ? supabase.from('Catégories').select('id, nom, type').in('id', idsCategories)
           : Promise.resolve({ data: [], error: null }),
         idsSources.length
           ? supabase.from('Sources').select('id, nom').in('id', idsSources)
@@ -246,6 +281,7 @@ export default function Dashboard({
       }
 
       const nomCategorie = new Map((categories.data ?? []).map((c) => [c.id, c.nom]))
+      const typeCategorie = new Map((categories.data ?? []).map((c) => [c.id, c.type]))
       const sourceParSujetVeille = new Map(
         (sujetsVeille.data ?? []).map((s) => [s.id, s.source_id]),
       )
@@ -254,7 +290,7 @@ export default function Dashboard({
       for (const lien of liensCat.data ?? []) {
         const liste = categoriesParInfo.get(lien.info_id) ?? []
         const nom = nomCategorie.get(lien.category_id)
-        if (nom) liste.push(nom)
+        if (nom) liste.push({ nom, type: typeCategorie.get(lien.category_id) })
         categoriesParInfo.set(lien.info_id, liste)
       }
 
@@ -266,12 +302,25 @@ export default function Dashboard({
         score: Math.round(c.score * 10),
         anciennete: anciennete(c.created_at),
         flammes: niveauFlammes(c.created_at),
-        categories: categoriesParInfo.get(c.id) ?? [],
+        categories: [...(categoriesParInfo.get(c.id) ?? [])].sort(comparerCategories),
         source: nomSource.get(sourceParSujetVeille.get(c.sujet_veille_id)) ?? null,
         horsPreferences: !infosDansPreferences.has(c.id),
       }))
 
+      // Catégories proposées dans le filtre : uniquement celles à la fois
+      // choisies par la personne (tous types confondus) ET réellement portées
+      // par au moins un des sujets affichés — pas de puce pour une préférence
+      // absente des sujets du jour, ni pour une catégorie des sujets que la
+      // personne n'a pas choisie.
+      const idUtilisateurEtSujets = idsCategories.filter((id) => categoriesUtilisateur.includes(id))
+      const nomsVus = new Set()
+      const filtrables = idUtilisateurEtSujets
+        .map((id) => ({ nom: nomCategorie.get(id), type: typeCategorie.get(id) }))
+        .filter((c) => c.nom && !nomsVus.has(c.nom) && nomsVus.add(c.nom))
+        .sort(comparerCategories)
+
       setSujets(enrichis)
+      setCategoriesFiltrables(filtrables)
       setAucuneCorrespondance(dans.length === 0)
       setEtat('pret')
     } catch {
@@ -370,11 +419,12 @@ export default function Dashboard({
   // multi-sélection — purement côté client, sur les 5 sujets déjà chargés :
   // les sujets qui ont au moins une catégorie sélectionnée remontent en
   // tête, le reste garde son ordre (tri stable), pas de nouvel appel.
-  const categoriesDisponibles = [...new Set(sujets.flatMap((s) => s.categories))].sort((a, b) =>
-    a.localeCompare(b, 'fr'),
-  )
+  // Options du filtre calculées à `charger()` (voir `categoriesFiltrables`) :
+  // uniquement les catégories choisies par la personne ET présentes parmi
+  // les sujets affichés.
+  const categoriesDisponibles = categoriesFiltrables
   const correspondSelection = (sujet) =>
-    sujet.categories.some((c) => categoriesSelectionnees.has(c))
+    sujet.categories.some((c) => categoriesSelectionnees.has(c.nom))
   const sujetsAffiches =
     categoriesSelectionnees.size > 0
       ? [...sujets].sort(
@@ -520,23 +570,23 @@ export default function Dashboard({
           {categoriesDisponibles.length > 1 && (
             <details className="tri-sujets">
               <summary>
-                Filtrer par catégorie
+                Filtrer
                 {categoriesSelectionnees.size > 0 && ` (${categoriesSelectionnees.size})`}
               </summary>
-              <div className="tri-categories" role="group" aria-label="Filtrer par catégorie">
+              <div className="tri-categories" role="group" aria-label="Filtrer">
                 {categoriesDisponibles.map((categorie) => {
-                  const couleur = couleurCategorie(categorie)
-                  const selectionnee = categoriesSelectionnees.has(categorie)
+                  const couleur = couleurCategorie(categorie.nom, categorie.type)
+                  const selectionnee = categoriesSelectionnees.has(categorie.nom)
                   return (
                     <button
-                      key={categorie}
+                      key={categorie.nom}
                       type="button"
                       className="puce-tri-categorie"
                       style={selectionnee ? { background: couleur.fond, color: couleur.texte } : undefined}
                       aria-pressed={selectionnee}
-                      onClick={() => basculerCategorieTri(categorie)}
+                      onClick={() => basculerCategorieTri(categorie.nom)}
                     >
-                      {categorie}
+                      {categorie.nom}
                     </button>
                   )
                 })}
@@ -583,14 +633,14 @@ export default function Dashboard({
                     {sujet.categories.length > 0 && (
                       <p className="etiquettes-categories">
                         {sujet.categories.map((categorie) => {
-                          const couleur = couleurCategorie(categorie)
+                          const couleur = couleurCategorie(categorie.nom, categorie.type)
                           return (
                             <span
-                              key={categorie}
+                              key={categorie.nom}
                               className="etiquette-categorie"
-                              style={{ background: couleur.fond, color: couleur.texte }}
+                              style={{ '--pastille-couleur': couleur.texte }}
                             >
-                              {categorie}
+                              {categorie.nom}
                             </span>
                           )
                         })}

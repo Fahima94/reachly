@@ -25,6 +25,137 @@ app annoncé comme prochaine étape.
   vérification que le texte produit change bien de ton/voix).
 - Accessibilité non testée au clavier ni au lecteur d'écran sur les deux nouveaux `<select>`.
 
+## 2026-09-08 — Libellé du filtre : "Filtrer par catégorie" → "Filtrer"
+
+**Échange (humain)** : demande de raccourcir en "Filtrer". Avis donné avant modification —
+risque d'accessibilité (WCAG 2.4.6, un `<summary>` moins descriptif) et de perte de
+prévisibilité. L'humain a alors précisé le vrai motif : "catégorie" a un sens déjà établi
+ailleurs dans l'app (l'étape "Vos catégories" de l'onboarding ne couvre que le type thème —
+métier et secteur sont nommés séparément), donc "Filtrer par catégorie" est désormais
+**inexact** depuis que le filtre couvre aussi métier/secteur, pas seulement imprécis. Avis
+révisé en conséquence : en l'absence d'un terme générique déjà établi dans l'app pour les
+trois types, "Filtrer" reste le choix le plus honnête.
+
+**Fait (code)** : `src/pages/Dashboard.jsx` — texte du `<summary>` et `aria-label` du groupe
+de puces passés de "Filtrer par catégorie" à "Filtrer". `npm run build` : OK (96 modules).
+
+**Vérifié en réel (Playwright, compte jetable)** : texte du résumé confirmé "Filtrer" avec
+plusieurs catégories sélectionnables.
+
+## 2026-09-08 — Catégories regroupées par type (cartes et filtre)
+
+**Demande (humain)** : regrouper les catégories par type, à la suite de l'ajout des trois
+dominantes de couleur.
+
+**Fait (code)** : `src/pages/Dashboard.jsx` — nouvelle fonction `comparerCategories` (ordre
+thème → métier → secteur, puis alphabétique au sein d'un même type). Appliquée à la liste de
+catégories de chaque sujet (`enrichis[].categories`) et à la liste du filtre
+(`categoriesFiltrables`) — les étiquettes de même couleur se retrouvent visuellement groupées
+sur la carte, plus mélangées dans l'ordre renvoyé par la base. `npm run build` : OK (96 modules).
+
+**Vérifié en réel (Playwright, compte jetable, vraies données)** : ordre confirmé sur 5 cartes
+réelles — ex. Direction/Innovation/IT/Produit (métier, vert) groupés avant Tech (secteur,
+rouge) ; Cas d'usage/Emploi Tech (thème) avant Opérations (métier) avant
+Automobile/Énergie/Industrie/Tech (secteur, triés alphabétiquement entre eux). Capture d'écran
+à l'appui, aucune erreur console.
+
+## 2026-09-08 — Trois dominantes de couleur par type de catégorie
+
+**Demande (humain)** : après avoir demandé "à quoi correspondent les couleurs ?" et appris
+qu'elles étaient assignées par nom de catégorie sans lien avec le type — garder ce
+fonctionnement mais avec des nuances plus marquées, et une dominante de couleur nettement
+différenciée par type (thème / métier / secteur).
+
+**Fait (code)**
+- `src/pages/Dashboard.jsx` : remplacement de la palette unique à 12 couleurs par trois
+  palettes de 6 nuances chacune — bleu/indigo/violet pour `thème`, vert/émeraude/turquoise
+  pour `métier`, orange/rouge/ambre pour `secteur`. `couleurCategorie(nom, type)` choisit
+  d'abord la palette du type, puis une nuance : fixe pour les 12 thèmes connus (repris dans
+  la nouvelle palette thème, stable), déterministe par hash du nom sinon (métier, secteur, ou
+  toute catégorie ajoutée depuis l'admin).
+- Propagation du `type` jusqu'au rendu : la requête `Catégories` récupère de nouveau `type`
+  (retiré par erreur d'un tour précédent), `categoriesParInfo`/`sujet.categories` et
+  `categoriesFiltrables` portent désormais des objets `{ nom, type }` plutôt que de simples
+  chaînes — cartes et puces du filtre calculent leur couleur avec le type correct.
+- `npm run build` : OK (96 modules).
+
+**Vérifié en réel (Playwright, compte jetable, vraies données)**
+- Couleur de puce (`--pastille-couleur`) lue directement dans le DOM pour chaque étiquette :
+  "Tech"/"Industrie"/"Automobile"/"Énergie" (secteur) en rouge/orange/terracotta ; "Produit"/
+  "Innovation"/"IT"/"Direction"/"Opérations" (métier) en vert/émeraude ; "Cas d'usage"/
+  "Emploi Tech"/"Automatisation" (thème) en bleu/violet — trois familles nettement séparées,
+  jamais mélangées.
+- Capture d'écran : confirmation visuelle sur plusieurs cartes réelles, y compris l'article
+  Mistral signalé par l'humain plus tôt.
+- Une même catégorie garde toujours la même couleur d'une carte à l'autre (déterministe).
+
+## 2026-09-08 — Régression corrigée : catégories manquantes sur les cartes (tableau de bord)
+
+**Constat (humain)** : sur certains sujets, plus aucune catégorie affichée du tout — alors
+qu'une version antérieure de l'app les montrait (ex. "Mistral lève 3 milliards..." affichait
+Tech/Produit/Innovation/IT/Direction, désormais rien).
+
+**Diagnostic (vérifié en réel, requêtes authentifiées sur la vraie base)** : pas un bug de
+rendu — chaque carte affichait déjà fidèlement tout ce qui était lié en base. La cause :
+le correctif du tour précédent (restriction de l'affichage aux catégories `type = 'thème'`,
+pour ne plus montrer "Automobile" dans le filtre) avait aussi supprimé l'affichage des
+catégories métier/secteur sur les cartes. Or **8 sujets réels sur 19** dans la fenêtre de
+24 h n'ont *aucune* catégorie thème liée en base (lacune de la veille n8n, en amont) — ces
+sujets-là n'affichaient donc plus rien, alors qu'ils portent souvent des catégories
+métier/secteur pertinentes.
+
+**Décision (humain)** : cartes et filtre traités différemment.
+- **Cartes** : affichent désormais toutes les catégories liées, tous types confondus
+  (thème, métier, secteur).
+- **Filtre** (cliquable, en tête d'écran) : reste restreint — uniquement les catégories à la
+  fois choisies par la personne (tous types, `profils_categories`) **et** réellement portées
+  par au moins un des sujets affichés. Une catégorie de carte que la personne n'a pas
+  sélectionnée n'apparaît jamais comme puce de filtre.
+
+**Fait (code)**
+- `src/pages/Dashboard.jsx` : requête `Catégories` pour les étiquettes de carte — retrait du
+  filtre `.eq('type', 'thème')`. Nouveau calcul `categoriesFiltrables` (intersection
+  `idsCategories` du lot affiché ∩ `categoriesUtilisateur` du profil), stocké en state et
+  utilisé à la place de l'ancienne dérivation purement côté cartes.
+- `npm run build` : OK (96 modules).
+
+**Vérifié en réel (Playwright, comptes jetables, vraie base)**
+- Préférences larges (tout coché) : la carte "Mistral lève 3 milliards..." affiche de nouveau
+  ses 5 catégories métier/secteur (Tech, Produit, Innovation, IT, Direction) — régression
+  corrigée, confirmé avec le même article que celui signalé par l'humain.
+- Préférences restreintes (2 catégories thème choisies, aucun métier/secteur) : 16 catégories
+  visibles cumulées sur les cartes (tous types), mais le filtre ne propose que les 2
+  catégories réellement choisies par la personne — intersection confirmée, pas de fuite des
+  14 autres catégories non choisies vers le filtre.
+- Cas à une seule catégorie filtrable : le filtre reste masqué (règle d'affichage
+  préexistante, `categoriesDisponibles.length > 1`), comportement inchangé et cohérent.
+
+## 2026-09-08 — Catégories des cartes : distinction visuelle avec le filtre cliquable
+
+**Demande (humain)** : les catégories affichées sur chaque carte du tableau de bord ne doivent
+pas prêter à confusion avec des éléments cliquables.
+
+**Constat** : les catégories étaient déjà affichées par carte (`.etiquette-categorie`, un
+`<span>` non interactif), mais avec un fond plein coloré en forme de pilule — visuellement
+presque identique aux puces de filtre juste au-dessus (`.puce-tri-categorie`, elles vraiment
+cliquables), qui partagent la même palette de couleurs. Confirmé par capture d'écran avant
+correctif.
+
+**Fait (code)**
+- `src/index.css` : `.etiquette-categorie` n'a plus de fond ni de bordure — texte gris discret
+  + petite puce ronde colorée (8px, via `::before`) qui porte seule la couleur de la
+  catégorie. `.etiquettes-categories` en `color: var(--color-text-muted)`, plus de gap
+  horizontal entre catégories.
+- `src/pages/Dashboard.jsx` : la couleur passe en variable CSS (`--pastille-couleur`) au lieu
+  de `background`/`color` inline sur l'élément.
+- `npm run build` : OK (96 modules).
+
+**Vérifié en réel (Playwright, compte jetable, vraies données — 5 cartes réelles disponibles)**
+- Style calculé de l'étiquette : fond transparent, pas de bordure, curseur normal (`auto`, pas
+  `pointer`) — confirmé non interactif au niveau navigateur, pas seulement visuellement.
+- Capture d'écran : catégories ("Cas d'usage", "Emploi Tech"...) nettement distinctes des
+  puces de filtre au-dessus, plus aucune ambiguïté de forme ni de couleur pleine.
+
 ## 2026-09-08 — Bug : catégories métier/secteur mélangées aux thèmes sur le tableau de bord
 
 **Constat (humain)** : "Automobile" apparaît dans les étiquettes de catégorie et le filtre

@@ -828,21 +828,32 @@ fieldset.chips input[type='radio'] {
    pas de bordure), pour ne pas ressembler aux puces cliquables
    (`fieldset.chips label`, elles en forme de pilule) utilisées ailleurs
    dans l'app et créer une fausse impression qu'on peut cliquer dessus. */
+/* Catégories d'un sujet (carte du tableau de bord) : texte simple + puce de
+   couleur, jamais un fond plein en forme de pilule — ça ressemblerait trop
+   aux puces de filtre cliquables juste au-dessus (mêmes couleurs, forme
+   arrondie). Ici, purement informatif : pas de fond, pas de bordure, pas de
+   curseur pointeur. */
 .etiquettes-categories {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1);
+  gap: var(--space-1) var(--space-3);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }
 
 .etiquette-categorie {
   display: inline-flex;
   align-items: center;
-  padding: 2px var(--space-2);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
-  font-weight: 500;
+  gap: 6px;
+}
+
+.etiquette-categorie::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--pastille-couleur, currentColor);
+  flex-shrink: 0;
 }
 
 /* Liste ordonnée du top 5 (tableau de bord) */
