@@ -82,7 +82,8 @@ export default function Connexion({
   if (statut === 'succes' && preferencesOuvertes) {
     return (
       <Preferences
-        onAllerAccueil={onAllerAccueil}
+        onNaviguer={onChangerMode}
+        onDeconnexionReussie={onDeconnexionReussie}
         onRetour={() => setPreferencesOuvertes(false)}
       />
     )
@@ -95,14 +96,21 @@ export default function Connexion({
   if (statut === 'succes' && publicationsOuvertes) {
     return (
       <MesPublications
-        onAllerAccueil={onAllerAccueil}
+        onNaviguer={onChangerMode}
+        onDeconnexionReussie={onDeconnexionReussie}
         onRetour={() => setPublicationsOuvertes(false)}
       />
     )
   }
 
   if (statut === 'succes' && compteOuvert) {
-    return <MonCompte onAllerAccueil={onAllerAccueil} onRetour={() => setCompteOuvert(false)} />
+    return (
+      <MonCompte
+        onNaviguer={onChangerMode}
+        onDeconnexionReussie={onDeconnexionReussie}
+        onRetour={() => setCompteOuvert(false)}
+      />
+    )
   }
 
   if (statut === 'succes') {

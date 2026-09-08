@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import { PASSWORD_RULES, passwordRespecteLesRegles } from '../lib/passwordRules.js'
 import BoutonAfficherMotDePasse from '../components/BoutonAfficherMotDePasse.jsx'
-import LogoReachly from '../components/LogoReachly.jsx'
+import EnteteConnecte from '../components/EnteteConnecte.jsx'
 
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-export default function MonCompte({ onAllerAccueil, onRetour }) {
+export default function MonCompte({ onNaviguer, onDeconnexionReussie, onRetour }) {
   // chargement | erreur | pret
   const [etat, setEtat] = useState('chargement')
   const [userId, setUserId] = useState(null)
@@ -209,7 +209,7 @@ export default function MonCompte({ onAllerAccueil, onRetour }) {
 
   return (
     <main>
-      <LogoReachly onNaviguer={onAllerAccueil} />
+      <EnteteConnecte onNaviguer={onNaviguer} onDeconnexionReussie={onDeconnexionReussie} />
       <header>
         <h1>Mon compte</h1>
         <button type="button" onClick={onRetour}>

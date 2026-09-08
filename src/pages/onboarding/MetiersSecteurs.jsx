@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
-import LogoReachly from '../../components/LogoReachly.jsx'
+import EnteteConnecte from '../../components/EnteteConnecte.jsx'
 
-export default function MetiersSecteurs({ onAllerAccueil, onEtapeSuivante }) {
+export default function MetiersSecteurs({ onNaviguer, onDeconnexionReussie, onEtapeSuivante }) {
   const [metiers, setMetiers] = useState([])
   const [secteurs, setSecteurs] = useState([])
   const [selection, setSelection] = useState(new Set())
@@ -153,7 +153,7 @@ export default function MetiersSecteurs({ onAllerAccueil, onEtapeSuivante }) {
 
   return (
     <main>
-      <LogoReachly onNaviguer={onAllerAccueil} />
+      <EnteteConnecte onNaviguer={onNaviguer} onDeconnexionReussie={onDeconnexionReussie} />
       <ProgressionOnboarding etape={3} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Vos métiers et secteurs d'activité</h1>

@@ -1,5 +1,54 @@
 # Journal
 
+## 2026-09-08 — Pastille de profil sur tous les écrans connectés (hors tableau de bord)
+
+**Demande** : rajouter la pastille de profil (avatar + « + » photo + menu + « Se
+déconnecter ») en haut à droite de Mes préférences, Mes publications, Mon compte et des
+cinq écrans d'onboarding — comme sur le tableau de bord.
+
+**Décisions (réponses de l'humain)** : menu complet (identique au tableau de bord) ; oui
+sur les cinq étapes d'onboarding ; **ne pas** refactoriser le tableau de bord — il garde
+sa version en dur, un composant partagé est créé à part.
+
+**Fait**
+- `src/components/EnteteConnecte.jsx` (nouveau) : barre supérieure des écrans connectés —
+  `<LogoReachly>` à gauche, pastille à droite. Charge lui-même le profil (`auth.getUser` +
+  `profiles.select('prenom, nom, avatar_url')`), gère l'upload de photo (bucket `avatars`,
+  chemin `{userId}/avatar-<horodatage>.<ext>`, `update profiles.avatar_url` — copié du
+  tableau de bord), le menu (Mes publications / Mes préférences / Mon compte / [admin]
+  Relancer l'onboarding, fermeture au clic extérieur + Échap) et `<BoutonDeconnexion>`.
+  Props : `onNaviguer` (= `naviguerVers` de l'app), `onDeconnexionReussie`. Réutilise les
+  classes CSS existantes — aucun changement `index.css`.
+- `src/pages/Preferences.jsx`, `src/pages/MesPublications.jsx`, `src/pages/MonCompte.jsx` :
+  `<LogoReachly>` remplacé par `<EnteteConnecte>`.
+- `src/pages/onboarding/` (Identite, CategoriesSources, MetiersSecteurs, Tonalite,
+  LinkedinPosts) : `<EnteteConnecte>` au-dessus de `<ProgressionOnboarding>`.
+- `src/App.jsx` : `onNaviguer={naviguerVers}` + `onDeconnexionReussie` (nouveau helper
+  `deconnecter`) passés à ces 8 écrans (remplacent `onAllerAccueil`). `src/pages/
+  Connexion.jsx` : ses rendus internes post-connexion (Préférences / Mes publications /
+  Mon compte) reçoivent `onNaviguer={onChangerMode}` + `onDeconnexionReussie`.
+
+**À noter / non couvert**
+- **Deux implémentations** de la pastille (tableau de bord en dur + `EnteteConnecte`) à
+  garder en phase — choix assumé.
+- **Mon compte** garde son éditeur d'avatar dans le corps de page : il y a donc la pastille
+  en haut **et** cet éditeur plus bas (deux `<input type="file">` écrivant tous deux
+  `profiles.avatar_url`). Corps non touché (hors périmètre). À nettoyer si ça gêne.
+- Menu affiché à l'identique du tableau de bord : l'entrée de l'écran courant reste
+  visible (clic = re-navigation sans effet).
+- Depuis les rendus internes de `Connexion.jsx`, cliquer une entrée du menu fait remonter
+  la navigation vers `App.jsx` (l'écran cible se monte au niveau racine).
+- Pas de ticket dédié (comme pour le logo cliquable).
+
+**Vérifié**
+- `npm run build` passe (98 modules) ; serveur de dev : les modules touchés se transforment
+  sans erreur ; plus aucune référence à `LogoReachly` / `onAllerAccueil` dans les pages
+  reprises.
+
+**Non vérifié**
+- Rendu et interactions réels en navigateur (menu, upload photo, déconnexion depuis ces
+  écrans) — pas d'outil disponible.
+
 ## 2026-09-08 — Branche `navigation-historique` : le bouton "Précédent" reste dans l'app
 
 **Demande (humain)** : le réflexe du bouton "Précédent" du navigateur fait souvent sortir de

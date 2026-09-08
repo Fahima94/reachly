@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
 import { formaterProfilEditorial } from '../../lib/formaterProfilEditorial.jsx'
-import LogoReachly from '../../components/LogoReachly.jsx'
+import EnteteConnecte from '../../components/EnteteConnecte.jsx'
 
 async function analyserLeStyle(postsPourAnalyse) {
   const reponse = await fetch(import.meta.env.VITE_N8N_WEBHOOK_PROFIL_EDITORIAL, {
@@ -23,7 +23,7 @@ async function analyserLeStyle(postsPourAnalyse) {
   return donnees.profil_editorial
 }
 
-export default function LinkedinPosts({ onAllerAccueil, onEtapeSuivante }) {
+export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtapeSuivante }) {
   const [linkedin, setLinkedin] = useState('')
   const [posts, setPosts] = useState([''])
   const [profilEditorial, setProfilEditorial] = useState('')
@@ -229,7 +229,7 @@ export default function LinkedinPosts({ onAllerAccueil, onEtapeSuivante }) {
 
   return (
     <main>
-      <LogoReachly onNaviguer={onAllerAccueil} />
+      <EnteteConnecte onNaviguer={onNaviguer} onDeconnexionReussie={onDeconnexionReussie} />
       <ProgressionOnboarding etape={5} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>LinkedIn et posts existants</h1>

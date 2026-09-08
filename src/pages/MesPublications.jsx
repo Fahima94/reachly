@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
-import LogoReachly from '../components/LogoReachly.jsx'
+import EnteteConnecte from '../components/EnteteConnecte.jsx'
 
 function formaterDate(date) {
   if (!date) return null
@@ -9,7 +9,7 @@ function formaterDate(date) {
 
 const STATUTS = ['Brouillon', 'Enregistré', 'Publié']
 
-export default function MesPublications({ onAllerAccueil, onRetour }) {
+export default function MesPublications({ onNaviguer, onDeconnexionReussie, onRetour }) {
   // chargement | erreur | pret
   const [etat, setEtat] = useState('chargement')
   const [publications, setPublications] = useState([])
@@ -121,7 +121,7 @@ export default function MesPublications({ onAllerAccueil, onRetour }) {
 
   return (
     <main>
-      <LogoReachly onNaviguer={onAllerAccueil} />
+      <EnteteConnecte onNaviguer={onNaviguer} onDeconnexionReussie={onDeconnexionReussie} />
       <header>
         <h1>Mes publications</h1>
         <button type="button" onClick={onRetour}>

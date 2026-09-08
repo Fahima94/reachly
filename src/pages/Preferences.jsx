@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
-import LogoReachly from '../components/LogoReachly.jsx'
+import EnteteConnecte from '../components/EnteteConnecte.jsx'
 import { formaterProfilEditorial } from '../lib/formaterProfilEditorial.jsx'
 
 const VOIX_NARRATIVES = [
@@ -30,7 +30,7 @@ async function analyserLeStyle(postsPourAnalyse) {
   return donnees.profil_editorial
 }
 
-export default function Preferences({ onAllerAccueil, onRetour }) {
+export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour }) {
   const [metiers, setMetiers] = useState([])
   const [secteurs, setSecteurs] = useState([])
   const [categories, setCategories] = useState([])
@@ -335,7 +335,7 @@ export default function Preferences({ onAllerAccueil, onRetour }) {
 
   return (
     <main>
-      <LogoReachly onNaviguer={onAllerAccueil} />
+      <EnteteConnecte onNaviguer={onNaviguer} onDeconnexionReussie={onDeconnexionReussie} />
       <header>
         <h1>Mes préférences</h1>
         <button type="button" onClick={onRetour} disabled={enCours}>

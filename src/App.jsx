@@ -85,6 +85,9 @@ export default function App() {
   // Ticket 16 (amendement) : le logo Reachly ramène toujours à l'accueil,
   // sur tous les écrans.
   const allerAccueil = () => naviguerVers('accueil')
+  // Déconnexion : on remplace l'entrée d'historique (revenir en arrière ne
+  // doit pas ramener sur un écran protégé).
+  const deconnecter = () => naviguerVers('connexion', { remplacer: true })
 
   if (ecran === 'accueil') {
     return (
@@ -107,7 +110,8 @@ export default function App() {
   if (ecran === 'onboarding-identite') {
     return (
       <Identite
-        onAllerAccueil={allerAccueil}
+        onNaviguer={naviguerVers}
+        onDeconnexionReussie={deconnecter}
         onEtapeSuivante={() => naviguerVers('onboarding-categories-sources')}
       />
     )
@@ -118,7 +122,8 @@ export default function App() {
   if (ecran === 'onboarding-categories-sources') {
     return (
       <CategoriesSources
-        onAllerAccueil={allerAccueil}
+        onNaviguer={naviguerVers}
+        onDeconnexionReussie={deconnecter}
         onEtapeSuivante={() => naviguerVers('onboarding-metiers-secteurs')}
       />
     )
@@ -126,7 +131,8 @@ export default function App() {
   if (ecran === 'onboarding-metiers-secteurs') {
     return (
       <MetiersSecteurs
-        onAllerAccueil={allerAccueil}
+        onNaviguer={naviguerVers}
+        onDeconnexionReussie={deconnecter}
         onEtapeSuivante={() => naviguerVers('onboarding-tonalite')}
       />
     )
@@ -134,7 +140,8 @@ export default function App() {
   if (ecran === 'onboarding-tonalite') {
     return (
       <Tonalite
-        onAllerAccueil={allerAccueil}
+        onNaviguer={naviguerVers}
+        onDeconnexionReussie={deconnecter}
         onEtapeSuivante={() => naviguerVers('onboarding-linkedin-posts')}
       />
     )
@@ -142,24 +149,41 @@ export default function App() {
   if (ecran === 'onboarding-linkedin-posts') {
     return (
       <LinkedinPosts
-        onAllerAccueil={allerAccueil}
+        onNaviguer={naviguerVers}
+        onDeconnexionReussie={deconnecter}
         onEtapeSuivante={() => naviguerVers('connecte')}
       />
     )
   }
   if (ecran === 'preferences') {
-    return <Preferences onAllerAccueil={allerAccueil} onRetour={() => naviguerVers('connecte')} />
+    return (
+      <Preferences
+        onNaviguer={naviguerVers}
+        onDeconnexionReussie={deconnecter}
+        onRetour={() => naviguerVers('connecte')}
+      />
+    )
   }
   if (ecran === 'admin') {
     return <Admin onAllerAccueil={allerAccueil} onRetour={() => naviguerVers('connecte')} />
   }
   if (ecran === 'publications') {
     return (
-      <MesPublications onAllerAccueil={allerAccueil} onRetour={() => naviguerVers('connecte')} />
+      <MesPublications
+        onNaviguer={naviguerVers}
+        onDeconnexionReussie={deconnecter}
+        onRetour={() => naviguerVers('connecte')}
+      />
     )
   }
   if (ecran === 'compte') {
-    return <MonCompte onAllerAccueil={allerAccueil} onRetour={() => naviguerVers('connecte')} />
+    return (
+      <MonCompte
+        onNaviguer={naviguerVers}
+        onDeconnexionReussie={deconnecter}
+        onRetour={() => naviguerVers('connecte')}
+      />
+    )
   }
   if (ecran === 'connecte') {
     return (
