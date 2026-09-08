@@ -750,7 +750,14 @@ fieldset.chips input[type='radio'] {
 /* Domaine de la source externe (carte du tableau de bord) : « Source » reste
    du texte simple à côté, seule la pastille est le lien — gris neutre,
    volontairement en dehors des trois dominantes thème/métier/secteur pour ne
-   pas laisser croire que c'est un quatrième type de catégorie. */
+   pas laisser croire que c'est un quatrième type de catégorie. Même taille
+   que la pastille (sinon le mot "Source" hérite du corps de texte, plus
+   grand, et jure visuellement à côté d'elle). */
+.etiquette-source {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
 .badge-source {
   display: inline-flex;
   align-items: center;

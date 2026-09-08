@@ -667,7 +667,7 @@ export default function Dashboard({
                     )}
                     {sujet.lien && sujet.domaineSource && (
                       <p>
-                        Source{' '}
+                        <span className="etiquette-source">Source</span>{' '}
                         <a
                           href={sujet.lien}
                           target="_blank"

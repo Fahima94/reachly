@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-09-08 — Branche `affichage-source-domaine` (suite) : taille du mot "Source" corrigée
+
+**Constat (humain)** : "Source" s'affichait dans la taille du corps de texte, plus grosse que
+la pastille juste à côté — décalage visuel.
+
+**Fait (code)** : `src/pages/Dashboard.jsx` — "Source" passe dans un `<span className="etiquette-source">`
+au lieu d'un texte nu. `src/index.css` — `.etiquette-source` reprend la même taille de police
+(0.85rem) et la couleur discrète (`--color-text-muted`) que `.badge-source`. `npm run build` :
+OK (97 modules).
+
+**Vérifié en réel (Playwright, compte jetable)** : taille calculée identique entre les deux
+éléments (13.6px = 13.6px). Capture d'écran à l'appui.
+
 ## 2026-09-08 — Branche `affichage-source-domaine` (suite) : domaine en pastille, lien isolé
 
 **Demande (humain), après test** : mettre le domaine dans une pastille colorée, lien
