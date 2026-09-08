@@ -462,6 +462,10 @@ select {
 textarea {
   max-width: 100%;
   font-family: inherit;
+  /* Extensible en hauteur seulement — jamais dans la marge (le
+     redimensionnement natif du navigateur permet aussi la largeur par
+     défaut). */
+  resize: vertical;
 }
 
 input:focus-visible,
@@ -501,6 +505,22 @@ input[type='radio'] {
   height: 20px;
   accent-color: var(--color-primary);
   flex-shrink: 0;
+}
+
+/* Connexion / Inscription : les champs et le bouton principal partagent la
+   même largeur, celle du conteneur — sans ça, le plafond de 480px sur les
+   champs les désalignait du bouton (auto-largeur, plus étroit). */
+.formulaire-auth input[type='email'],
+.formulaire-auth input[type='password'] {
+  max-width: none;
+}
+
+.formulaire-auth .champ-mot-de-passe {
+  max-width: none;
+}
+
+.formulaire-auth button[type='submit'] {
+  width: 100%;
 }
 
 /* Case d'acceptation des conditions à l'inscription : la case et son
@@ -616,71 +636,18 @@ fieldset.chips input[type='radio'] {
   margin: var(--space-1) 0 0;
 }
 
-/* Voix narrative : cartes avec icône, choix unique. Même principe
-   d'accessibilité que .chips (vrai <input>, juste masqué visuellement). */
-fieldset.choix-icones {
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-
-fieldset.choix-icones label {
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-  min-width: 96px;
-  padding: var(--space-3);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius);
-  cursor: pointer;
-  text-align: center;
-  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
-}
-
-fieldset.choix-icones label:hover {
-  border-color: var(--color-primary);
-}
-
-fieldset.choix-icones label:has(input:checked) {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: var(--color-primary-text);
-  box-shadow: var(--shadow);
-}
-
-fieldset.choix-icones label:has(input:focus-visible) {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-}
-
-fieldset.choix-icones input[type='radio'] {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* Empreinte éditoriale (profil éditorial) : lecture seule, résumée — pas un
-   champ de saisie. "Régénérer" reste la seule façon de la faire évoluer. */
-.empreinte-editoriale {
-  padding: var(--space-4);
-  background: var(--color-bg);
+/* Profil éditorial formaté (tickets 09/12) : texte affiché en lecture
+   seule une fois généré (plus un <textarea> modifiable), avant le bouton
+   Régénérer. */
+.profil-editorial-formate {
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius);
+  background: var(--color-bg);
 }
 
-.etiquette-empreinte {
-  color: var(--color-text-muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: var(--space-1);
+.profil-editorial-formate > *:last-child {
+  margin-bottom: 0;
 }
 
 /* Messages d'état */

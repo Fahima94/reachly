@@ -119,7 +119,7 @@ export default function Inscription({ onChangerMode, onInscriptionReussie }) {
       <LogoReachly />
       <BasculeConnexionInscription modeActif="inscription" onChangerMode={onChangerMode} />
       <h1>Créer un compte</h1>
-      <form onSubmit={gererEnvoi} noValidate>
+      <form className="formulaire-auth" onSubmit={gererEnvoi} noValidate>
         {erreurGlobale && (
           <p role="alert" className="erreur-globale">
             {erreurGlobale}

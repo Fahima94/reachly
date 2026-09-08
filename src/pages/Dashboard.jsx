@@ -12,7 +12,9 @@ const RESUME_MAX = 220
 const VOIX_NARRATIVES = [
   { valeur: 'je_masculin', libelle: 'Je (masculin)' },
   { valeur: 'je_feminin', libelle: 'Je (féminin)' },
-  { valeur: 'nous', libelle: 'Nous (1ʳᵉ personne du pluriel)' },
+  { valeur: 'nous_masculin', libelle: 'Nous (masculin pluriel)' },
+  { valeur: 'nous_feminin', libelle: 'Nous (féminin pluriel)' },
+  { valeur: 'nous_inclusif', libelle: 'Nous (pluriel inclusif)' },
 ]
 
 // Une couleur par catégorie, sur le tableau de bord uniquement — pour

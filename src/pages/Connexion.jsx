@@ -112,7 +112,7 @@ export default function Connexion({
       <LogoReachly />
       <BasculeConnexionInscription modeActif="connexion" onChangerMode={onChangerMode} />
       <h1>Se connecter</h1>
-      <form onSubmit={gererEnvoi} noValidate>
+      <form className="formulaire-auth" onSubmit={gererEnvoi} noValidate>
         {erreurGlobale && (
           <p role="alert" className="erreur-globale">
             {erreurGlobale}

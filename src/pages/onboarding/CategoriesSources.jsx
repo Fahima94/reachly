@@ -154,7 +154,7 @@ export default function CategoriesSources({ onEtapeSuivante }) {
 
   return (
     <main>
-      <ProgressionOnboarding etape={3} total={5} />
+      <ProgressionOnboarding etape={2} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Vos catégories</h1>
 

@@ -152,7 +152,7 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
 
   return (
     <main>
-      <ProgressionOnboarding etape={2} total={5} />
+      <ProgressionOnboarding etape={3} total={5} />
       <p>Ces informations nous aident à mieux orienter votre veille et vos posts.</p>
       <h1>Vos métiers et secteurs d'activité</h1>
 
@@ -178,7 +178,7 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
           )}
 
           <fieldset className="chips">
-            <legend>Vos métiers</legend>
+            <legend>Vos métiers (facultatif)</legend>
             {metiers.map((metier) => (
               <label key={metier.id}>
                 <input
@@ -192,7 +192,7 @@ export default function MetiersSecteurs({ onEtapeSuivante }) {
           </fieldset>
 
           <fieldset className="chips">
-            <legend>Vos secteurs d'activité</legend>
+            <legend>Vos secteurs d'activité (facultatif)</legend>
             {secteurs.map((secteur) => (
               <label key={secteur.id}>
                 <input

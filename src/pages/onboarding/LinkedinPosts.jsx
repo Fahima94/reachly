@@ -1,15 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
-
-const RESUME_PROFIL_MAX = 180
-
-// Affiché en lecture seule (« empreinte éditoriale ») plutôt qu'en entier —
-// le texte complet reste enregistré tel quel, seul l'affichage est tronqué.
-function resumerProfilEditorial(texte) {
-  const t = (texte ?? '').trim()
-  return t.length > RESUME_PROFIL_MAX ? `${t.slice(0, RESUME_PROFIL_MAX).trimEnd()}…` : t
-}
+import { formaterProfilEditorial } from '../../lib/formaterProfilEditorial.jsx'
 
 async function analyserLeStyle(postsPourAnalyse) {
   const reponse = await fetch(import.meta.env.VITE_N8N_WEBHOOK_PROFIL_EDITORIAL, {
@@ -124,7 +116,8 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
   }
 
   const postsNonVidesActuels = posts.map((p) => p.trim()).filter(Boolean)
-  const afficherSectionProfil = postsNonVidesActuels.length > 0 || profilEditorial.trim() !== ''
+  const profilGenere = profilEditorial.trim() !== ''
+  const afficherSectionProfil = postsNonVidesActuels.length > 0 || profilGenere
 
   // Enregistre uniquement LinkedIn + les posts, sans toucher au reste du
   // profil ni déclencher l'analyse du profil éditorial.
@@ -194,22 +187,10 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
 
     setStatut('chargement')
     try {
-      let profilAEnregistrer = profilTrim
-
-      // Première analyse automatique : aucun profil encore enregistré, mais
-      // des posts à analyser. Les relances suivantes n'appellent jamais ceci
-      // automatiquement — seul le bouton "Régénérer" le fait.
-      if (!profilTrim && postsNonVides.length > 0) {
-        try {
-          profilAEnregistrer = await analyserLeStyle(postsNonVides)
-          setProfilEditorial(profilAEnregistrer)
-        } catch {
-          setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
-          setStatut('idle')
-          return
-        }
-      }
-
+      // Le profil éditorial n'est plus jamais généré automatiquement à la
+      // validation — uniquement via le bouton "Générer à partir de mes
+      // posts" / "Régénérer", qui met déjà `profilEditorial` à jour avant
+      // qu'on arrive ici. On enregistre donc simplement sa valeur actuelle.
       const {
         data: { user },
         error: erreurUtilisateur,
@@ -225,7 +206,7 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
         id: user.id,
         linkedin: linkedinTrim || null,
         posts_exemples: postsNonVides,
-        profil_editorial: profilAEnregistrer || null,
+        profil_editorial: profilTrim || null,
       })
 
       if (error) {
@@ -317,18 +298,26 @@ export default function LinkedinPosts({ onEtapeSuivante }) {
           </p>
 
           {afficherSectionProfil && (
-            <div className="empreinte-editoriale">
-              <p className="etiquette-empreinte">Empreinte éditoriale</p>
-              <p>{resumerProfilEditorial(profilEditorial) || 'Pas encore de profil détecté.'}</p>
+            <fieldset>
+              <legend>Profil éditorial</legend>
+              {profilGenere && (
+                <div className="profil-editorial-formate">
+                  {formaterProfilEditorial(profilEditorial)}
+                </div>
+              )}
               {erreurAnalyse && <p role="alert">{erreurAnalyse}</p>}
               <button
                 type="button"
                 onClick={gererRegenerer}
                 disabled={analyseEnCours || enCours || postsNonVidesActuels.length === 0}
               >
-                {analyseEnCours ? 'Analyse en cours…' : 'Régénérer à partir de mes posts'}
+                {analyseEnCours
+                  ? 'Analyse en cours…'
+                  : profilGenere
+                    ? 'Régénérer'
+                    : 'Générer à partir de mes posts'}
               </button>
-            </div>
+            </fieldset>
           )}
 
           <button type="submit" disabled={enCours} aria-busy={enCours}>

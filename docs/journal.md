@@ -75,6 +75,59 @@ bien des lignes aux 3 statuts pour le compte utilisé en test, et que la policy 
   ailleurs dans l'app) — le changement se voit dans le badge/le champ lui-même, jugé
   suffisant pour l'instant, à revoir si besoin.
 
+## 2026-09-08 — Tickets 01/06/07/08/09/12 (amendements) : refonte onboarding/préférences
+
+**Demande (humain), plusieurs points groupés en un tour :**
+1. Aligner la largeur des champs de connexion/inscription sur celle du bouton (100 % du conteneur).
+2. Indiquer le caractère facultatif de « Vos métiers » et « Vos secteurs ».
+3. Passer « Catégories » avant « Métiers et secteurs » (onboarding + préférences).
+4. Ajouter le féminin pluriel et le pluriel inclusif aux voix narratives.
+5. Retirer les pictogrammes de la voix narrative, aligner les boutons dans leur conteneur.
+6. Les champs de texte modifiables ne doivent s'étendre qu'en hauteur, jamais en largeur/marge.
+7. Le profil éditorial doit être parsé en texte mis en forme, invisible tant qu'il n'est pas généré (bouton « Générer à partir de mes posts » puis « Régénérer »).
+
+**Fait (code)**
+- `src/index.css` : `.formulaire-auth` (champs + bouton à largeur égale, plus de plafond 480px) ; `textarea { resize: vertical }` global (plus de redimensionnement horizontal possible, nulle part) ; `.choix-icones` retirée (dead code), remplacée par `.profil-editorial-formate` (encadré de lecture du profil généré).
+- `src/pages/Connexion.jsx`, `src/pages/Inscription.jsx` : `<form className="formulaire-auth">`.
+- `src/pages/onboarding/CategoriesSources.jsx` (étape 2), `src/pages/onboarding/MetiersSecteurs.jsx` (étape 3, légendes « (facultatif) ») : ordre inversé.
+- `src/App.jsx` : navigation onboarding réordonnée en conséquence.
+- `src/components/IconeVoixNarrative.jsx` : supprimé (plus référencé nulle part).
+- `src/pages/onboarding/Tonalite.jsx`, `src/pages/Preferences.jsx`, `src/pages/Dashboard.jsx` (3 copies dupliquées, cohérent avec le reste du code) : `VOIX_NARRATIVES` passe à 5 entrées, fieldset en `.chips` (plus `.choix-icones`), icônes retirées.
+- `src/lib/formaterProfilEditorial.jsx` (nouveau, partagé) : parse le markdown simple du profil (listes à puces, `**gras**`) en éléments React — jamais de `dangerouslySetInnerHTML`, rien à assainir.
+- `src/pages/onboarding/LinkedinPosts.jsx`, `src/pages/Preferences.jsx` : section Profil éditorial reconstruite — plus de `<textarea>` modifiable ; avant génération, seul le bouton « Générer à partir de mes posts » ; après génération, texte formaté en lecture seule + bouton « Régénérer ». **La génération automatique et silencieuse au premier enregistrement (ticket 09) est retirée** — elle n'a plus de sens face à un bouton explicite, et supprime au passage le risque qu'elle écrase une régénération en cours.
+- `npm run build` : OK (94 modules).
+
+**Correction de cap en cours de route (humain) :** l'ancienne valeur `voix_narrative = 'nous'` restait à côté de `nous_feminin`/`nous_inclusif`, sans marquer explicitement le genre — incohérent avec `je_masculin`/`je_feminin`. Renommée en `nous_masculin` (libellé « Nous (masculin pluriel) ») dans les 3 fichiers.
+
+**Migration Supabase (exécutée par l'humain, je n'ai pas d'accès à cette base) :**
+```sql
+ALTER TABLE profiles DROP CONSTRAINT profiles_voix_narrative_check;
+UPDATE profiles SET voix_narrative = 'nous_masculin' WHERE voix_narrative = 'nous';
+ALTER TABLE profiles ADD CONSTRAINT profiles_voix_narrative_check
+  CHECK (voix_narrative IN ('je_masculin', 'je_feminin', 'nous_masculin', 'nous_feminin', 'nous_inclusif'));
+```
+Erreur de séquencement au premier essai : `UPDATE` placé avant le `DROP CONSTRAINT` violait l'ancienne contrainte (qui n'autorisait pas encore `nous_masculin`) — corrigé en retirant la contrainte avant de toucher aux données, puis rejoué avec succès par l'humain.
+
+**Vérifié en réel (Playwright, comptes jetables, vraie base)**
+- Connexion/Inscription : largeur du champ email = largeur du bouton (528px = 528px dans les deux écrans).
+- Onboarding : « Vos catégories » bien en étape 2, « Vos métiers et secteurs d'activité » en étape 3, légendes « (facultatif) » présentes.
+- Voix narrative : 5 options affichées, aucune icône SVG restante, alignement en puces cohérent avec le reste.
+- Profil éditorial : encadré formaté absent tant qu'aucun post n'a été analysé ; bouton « Générer à partir de mes posts » avant génération ; après un appel réel au webhook n8n, bascule vers texte formaté + bouton « Régénérer ».
+- Après la migration : sélection et enregistrement de « Nous (féminin pluriel) » réussis sans erreur (vérifié à nouveau après le correctif de séquencement), libellés corrects après relance de session.
+- Aucune erreur console sur l'ensemble de ces parcours.
+
+**Reste à faire / non vérifié**
+- Rendu visuel du redimensionnement vertical-only des textareas vérifié par capture d'écran (poignée de redimensionnement visible, verticale uniquement) mais pas testé activement (glisser-déposer).
+- Navigation clavier et lecteur d'écran non retestés après ces changements.
+- Le retrait de l'édition manuelle du profil éditorial est un changement de comportement par rapport à la décision prise au ticket 09 (« profil modifiable à la main ») — fait sur demande explicite de ce tour, signalé à l'humain pour confirmation.
+
+**Amendement (même tour) : ligne « Profil éditorial : » retirée de l'affichage**
+- Demande : la ligne d'en-tête « Profil éditorial : » que le LLM ajoute toujours en tête du texte fait doublon avec le titre de la rubrique à l'affichage — mais elle reste nécessaire dans le texte réellement enregistré (et donc envoyé au prompt de génération de post), où elle sert d'amorce au LLM.
+- `src/lib/formaterProfilEditorial.jsx` : la fonction de mise en forme retire ce préfixe uniquement de ce qu'elle affiche (regex sur la première ligne seulement) — la valeur enregistrée en base (`profiles.profil_editorial`) n'est jamais modifiée, donc le prompt de génération continue de le recevoir intact.
+- Vérifié en réel : logique de retrait du préfixe testée isolément (cas « aucun » et cas liste à puces), puis confirmée en navigateur réel — génération d'un profil affiche « aucun » au lieu de « Profil éditorial : aucun ».
+
+**Conflit de fusion avec un travail parallèle (Fahima)** : au moment de pousser, `LinkedinPosts.jsx`/`Preferences.jsx` avaient été modifiés en parallèle avec une approche différente pour le même besoin — une « empreinte éditoriale » toujours visible (résumé tronqué à 180 caractères, y compris avant génération avec le texte « Pas encore de profil détecté. »), bouton toujours « Régénérer à partir de mes posts ». Résolu en gardant la version de ce tour (texte formaté complet, section invisible avant génération, libellé de bouton qui change) — elle correspond exactement à une demande explicite et détaillée de l'humain, plus récente. `resumerProfilEditorial`/`RESUME_PROFIL_MAX`/`.empreinte-editoriale`/`.etiquette-empreinte` retirés (devenus sans utilisation). À signaler à Fahima si elle n'a pas suivi ce fil.
+
 ## 2026-09-08 — Ticket 01 (amendement) : afficher / masquer le mot de passe (inscription + connexion)
 
 **Demande** : lors de la connexion et de l'inscription, pouvoir rendre le mot de passe

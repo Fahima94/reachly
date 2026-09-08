@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
-import IconeVoixNarrative from '../../components/IconeVoixNarrative.jsx'
 
 const VOIX_NARRATIVES = [
   { valeur: 'je_masculin', libelle: 'Je (masculin)' },
   { valeur: 'je_feminin', libelle: 'Je (féminin)' },
-  { valeur: 'nous', libelle: 'Nous (1ʳᵉ personne du pluriel)' },
+  { valeur: 'nous_masculin', libelle: 'Nous (masculin pluriel)' },
+  { valeur: 'nous_feminin', libelle: 'Nous (féminin pluriel)' },
+  { valeur: 'nous_inclusif', libelle: 'Nous (pluriel inclusif)' },
 ]
 
 export default function Tonalite({ onEtapeSuivante }) {
@@ -191,7 +192,7 @@ export default function Tonalite({ onEtapeSuivante }) {
             )}
           </fieldset>
 
-          <fieldset className="choix-icones" aria-describedby={erreurVoix ? 'voix-erreur' : undefined}>
+          <fieldset className="chips" aria-describedby={erreurVoix ? 'voix-erreur' : undefined}>
             <legend>Voix narrative</legend>
             {erreurVoix && (
               <p id="voix-erreur" role="alert">
@@ -207,7 +208,6 @@ export default function Tonalite({ onEtapeSuivante }) {
                   checked={voixChoisie === voix.valeur}
                   onChange={() => setVoixChoisie(voix.valeur)}
                 />
-                <IconeVoixNarrative valeur={voix.valeur} />
                 {voix.libelle}
               </label>
             ))}

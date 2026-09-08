@@ -60,13 +60,16 @@ export default function App() {
     )
   }
   if (ecran === 'onboarding-identite') {
-    return <Identite onEtapeSuivante={() => setEcran('onboarding-metiers-secteurs')} />
+    return <Identite onEtapeSuivante={() => setEcran('onboarding-categories-sources')} />
+  }
+  // Catégories avant Métiers/secteurs : c'est ce qui sert vraiment au
+  // classement du tableau de bord (ticket 11), les métiers/secteurs restent
+  // facultatifs.
+  if (ecran === 'onboarding-categories-sources') {
+    return <CategoriesSources onEtapeSuivante={() => setEcran('onboarding-metiers-secteurs')} />
   }
   if (ecran === 'onboarding-metiers-secteurs') {
-    return <MetiersSecteurs onEtapeSuivante={() => setEcran('onboarding-categories-sources')} />
-  }
-  if (ecran === 'onboarding-categories-sources') {
-    return <CategoriesSources onEtapeSuivante={() => setEcran('onboarding-tonalite')} />
+    return <MetiersSecteurs onEtapeSuivante={() => setEcran('onboarding-tonalite')} />
   }
   if (ecran === 'onboarding-tonalite') {
     return <Tonalite onEtapeSuivante={() => setEcran('onboarding-linkedin-posts')} />
