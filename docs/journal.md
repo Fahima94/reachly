@@ -1,5 +1,25 @@
 # Journal
 
+## 2026-09-08 — Bug : catégories métier/secteur mélangées aux thèmes sur le tableau de bord
+
+**Constat (humain)** : "Automobile" apparaît dans les étiquettes de catégorie et le filtre
+du tableau de bord — n'a rien à faire là.
+
+**Diagnostic (vérifié en base, Supabase)** : la veille (workflow n8n) tague chaque sujet
+avec trois types de catégories via `infos_categories` (métier, secteur, thème — ex.
+"Automobile" est un secteur). `Dashboard.jsx` récupérait les noms de catégories sans filtrer
+sur `type`, contrairement au reste de l'app (`CategoriesSources.jsx` et `Preferences.jsx`
+filtrent déjà `type === 'thème'` pour les catégories proposées à l'utilisateur). Sur les
+dernières 24 h : 24 liens "thème" (11 catégories), mais aussi 20 liens "secteur" et 19
+"métier" mélangés dans l'affichage.
+
+**Fait (code)** : `src/pages/Dashboard.jsx` — `.eq('type', 'thème')` ajouté à la requête
+`Catégories`. N'affecte pas le calcul « dans mes préférences / hors préférences » (déjà
+correct : restreint par `profils_categories`, qui ne contient que des id de thèmes choisis
+à l'onboarding). `npm run build` : OK (96 modules).
+
+**Non vérifié** : rendu réel en navigateur après correctif.
+
 ## 2026-09-08 — Nouvel écran "Mon compte" (photo, identité en lecture seule, email, mot de passe)
 
 **Demande (humain)** : rendre fonctionnelle l'entrée "Mon compte" du menu du profil (laissée

@@ -239,8 +239,12 @@ export default function Dashboard({
       ]
 
       const [categories, sources] = await Promise.all([
+        // `type = 'thème'` : la veille (n8n) tague aussi les sujets par métier et
+        // secteur via `infos_categories`, mais le tableau de bord n'affiche et ne
+        // filtre que sur les catégories thématiques (mêmes choisies à
+        // l'onboarding — cf. CategoriesSources.jsx, Preferences.jsx).
         idsCategories.length
-          ? supabase.from('Catégories').select('id, nom').in('id', idsCategories)
+          ? supabase.from('Catégories').select('id, nom').eq('type', 'thème').in('id', idsCategories)
           : Promise.resolve({ data: [], error: null }),
         idsSources.length
           ? supabase.from('Sources').select('id, nom').in('id', idsSources)
