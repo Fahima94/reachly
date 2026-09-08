@@ -67,17 +67,17 @@ function anciennete(dateIso) {
 
 // Fraîcheur en dégradé (0 à 3 flammes) plutôt qu'un simple seuil — la
 // fraîcheur pèse 30 % du score (cadrage), ça mérite un signal visuel qui
-// suit vraiment la récence : < 2 h (3), < 6 h (2), < 12 h (1), sinon rien.
+// suit vraiment la récence : < 3 h (3), < 6 h (2), < 12 h (1), sinon rien.
 function niveauFlammes(dateIso) {
   const heuresEcoulees = (Date.now() - new Date(dateIso).getTime()) / 3600000
-  if (heuresEcoulees < 2) return 3
+  if (heuresEcoulees < 3) return 3
   if (heuresEcoulees < 6) return 2
   if (heuresEcoulees < 12) return 1
   return 0
 }
 
 const LIBELLE_FLAMMES = {
-  3: 'Sujet très frais, moins de 2 h',
+  3: 'Sujet très frais, moins de 3 h',
   2: 'Sujet frais, moins de 6 h',
   1: 'Sujet récent, moins de 12 h',
 }
@@ -353,7 +353,7 @@ export default function Dashboard({
       {erreurAvatar && <p role="alert">{erreurAvatar}</p>}
       <header>
         <button type="button" className="bouton-primaire" onClick={onModifierPreferences}>
-          Modifier mes préférences
+          Mes préférences
         </button>
         {/* Réservé aux 3 comptes admin (lib/admin.js) — "Relancer l'onboarding"
             reste utile pour les tests, mais n'a plus sa place dans les actions
