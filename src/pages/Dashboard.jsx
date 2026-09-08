@@ -665,10 +665,23 @@ export default function Dashboard({
                         })}
                       </p>
                     )}
-                    {sujet.lien && (
+                    {sujet.lien && sujet.domaineSource && (
+                      <p>
+                        Source{' '}
+                        <a
+                          href={sujet.lien}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="badge-source"
+                        >
+                          {sujet.domaineSource}
+                        </a>
+                      </p>
+                    )}
+                    {sujet.lien && !sujet.domaineSource && (
                       <p>
                         <a href={sujet.lien} target="_blank" rel="noopener noreferrer">
-                          {sujet.domaineSource ? `Source : ${sujet.domaineSource}` : 'Voir la source'}
+                          Voir la source
                         </a>
                       </p>
                     )}

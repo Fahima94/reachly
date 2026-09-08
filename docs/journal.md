@@ -1,5 +1,28 @@
 # Journal
 
+## 2026-09-08 — Branche `affichage-source-domaine` (suite) : domaine en pastille, lien isolé
+
+**Demande (humain), après test** : mettre le domaine dans une pastille colorée, lien
+uniquement sur elle — "Source" reste soit en texte hors du lien, soit remplacé par une icône
+(avec attention à l'accessibilité).
+
+**Avis donné** : "Source" en texte simple plutôt qu'une icône — une icône seule exige un
+étiquetage correct (`aria-hidden` + texte alternatif) pour un gain visuel marginal, alors que
+le mot est déjà court. Retenu par défaut, pas d'opposition de l'humain.
+
+**Fait (code)**
+- `src/index.css` : `.badge-source` — même gabarit que `.badge-score` (pastille arrondie),
+  gris neutre volontairement distinct des trois dominantes thème/métier/secteur (pour ne pas
+  laisser croire à un 4ᵉ type de catégorie).
+- `src/pages/Dashboard.jsx` : "Source" en texte simple hors du `<a>`, le lien (`.badge-source`)
+  n'entoure plus que le domaine. Repli : si `domaineSource` est absent (URL malformée), on
+  retombe sur l'ancien lien texte "Voir la source" sans le mot "Source" en double.
+- `npm run build` : OK (97 modules).
+
+**Vérifié en réel (Playwright, compte jetable, vraie donnée)** : le mot "Source" n'est plus
+dans le `<a>` (confirmé par inspection du DOM, `href` bien porté par la pastille seule).
+Capture d'écran à l'appui. Aucune erreur console.
+
 ## 2026-09-08 — Branche `affichage-source-domaine` : "Voir la source" → "Source : nomdedomaine"
 
 **Demande (humain)** : afficher plus proprement la source de chaque sujet, plutôt qu'un
