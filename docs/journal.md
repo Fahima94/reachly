@@ -1,5 +1,37 @@
 # Journal
 
+## 2026-09-09 — Tableau de bord : date réelle de publication (au lieu de la date de veille)
+
+**Constat (humain)** : « il y a X h » affiché sur les cartes ne correspond pas à la
+date réelle de publication de l'article source, mais au moment où la veille n8n l'a
+traité — parfois des heures plus tard.
+
+**Fait**
+- Investigation du workflow n8n « Reachly Veille CC » : le `pubDate` d'origine (RSS)
+  ou `created_at` (API Algolia HN) est bien capturé tôt dans le pipeline et persisté
+  dans `Sujets_veille.date_publication_source` (horodatage complet, fuseau explicite
+  `+00:00`) — mais `Infos.created_at` (utilisé jusqu'ici pour l'affichage) ne reflète
+  que l'instant du traitement par la veille, pas la publication réelle.
+- `src/pages/Dashboard.jsx` : la requête sur `Sujets_veille` sélectionne désormais
+  aussi `date_publication_source` ; une Map `datePublicationParSujetVeille` fait le
+  lien `sujet_veille_id → date_publication_source` ; dans `enrichis`, `anciennete()`
+  et `niveauFlammes()` (flammes de fraîcheur) utilisent cette date réelle quand elle
+  est disponible, avec repli sur `c.created_at` sinon (jamais d'affichage vide).
+
+**Vérifié en réel**
+- `npm run build` : OK.
+- Compte de test créé via Playwright, onboarding complété, tableau de bord affiché :
+  anciennetés variées et cohérentes (`il y a 19 h`, `22 h`, `22 h`, `21 h`, `1 h`) —
+  fini les valeurs identiques qui trahissaient un horodatage de traitement par lot ;
+  aucune erreur console.
+
+**Reste à faire**
+- Pas de comparaison chiffrée automatisée entre l'ancien et le nouvel affichage pour
+  ces mêmes articles (vérification visuelle seulement).
+- `Infos.date_publication` (colonne typée `date`, sans heure) reste inutilisée pour
+  l'affichage — c'est bien `Sujets_veille.date_publication_source` qui porte la
+  précision ; un futur nettoyage de schéma pourrait clarifier ce doublon.
+
 ## 2026-09-09 — Ticket 16 (amendement) : le logo Reachly dépend de l'état de session
 
 **Demande (humain)** : le clic sur le logo Reachly doit avoir deux comportements —

@@ -264,8 +264,15 @@ export default function Dashboard({
       // Catégories et source des sujets retenus (requêtes séparées, pas d'embed).
       const [liensCat, sujetsVeille] = await Promise.all([
         supabase.from('infos_categories').select('info_id, category_id').in('info_id', idsRetenus),
+        // `date_publication_source` : date + heure d'origine (RSS/API), avec
+        // fuseau — bien plus fiable que `Infos.created_at` (qui ne reflète
+        // que le moment où la veille a traité l'article, parfois des heures
+        // après sa publication réelle).
         idsSujetsVeille.length
-          ? supabase.from('Sujets_veille').select('id, source_id').in('id', idsSujetsVeille)
+          ? supabase
+              .from('Sujets_veille')
+              .select('id, source_id, date_publication_source')
+              .in('id', idsSujetsVeille)
           : Promise.resolve({ data: [], error: null }),
       ])
       if (liensCat.error || sujetsVeille.error) {
@@ -300,6 +307,9 @@ export default function Dashboard({
       const sourceParSujetVeille = new Map(
         (sujetsVeille.data ?? []).map((s) => [s.id, s.source_id]),
       )
+      const datePublicationParSujetVeille = new Map(
+        (sujetsVeille.data ?? []).map((s) => [s.id, s.date_publication_source]),
+      )
       const nomSource = new Map((sources.data ?? []).map((s) => [s.id, s.nom]))
       const categoriesParInfo = new Map()
       for (const lien of liensCat.data ?? []) {
@@ -311,6 +321,10 @@ export default function Dashboard({
 
       const enrichis = retenus.map((c) => {
         const lien = LIEN_VALIDE.test(c.lien ?? '') ? c.lien : null
+        // Date réelle de publication si on l'a (via Sujets_veille), sinon
+        // repli sur la date de traitement par la veille — jamais un
+        // affichage vide.
+        const dateReelle = datePublicationParSujetVeille.get(c.sujet_veille_id) ?? c.created_at
         return {
           id: c.id,
           titre: c.titre_recomposé || '(Sans titre)',
@@ -318,8 +332,8 @@ export default function Dashboard({
           lien,
           domaineSource: domaineSource(lien),
           score: Math.round(c.score * 10),
-          anciennete: anciennete(c.created_at),
-          flammes: niveauFlammes(c.created_at),
+          anciennete: anciennete(dateReelle),
+          flammes: niveauFlammes(dateReelle),
           categories: [...(categoriesParInfo.get(c.id) ?? [])].sort(comparerCategories),
           source: nomSource.get(sourceParSujetVeille.get(c.sujet_veille_id)) ?? null,
           horsPreferences: !infosDansPreferences.has(c.id),
