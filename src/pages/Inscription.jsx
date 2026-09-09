@@ -20,7 +20,26 @@ export default function Inscription({ onAllerAccueil, onChangerMode, onInscripti
   const [erreurMotDePasse, setErreurMotDePasse] = useState('')
   const [erreurConditions, setErreurConditions] = useState('')
 
+  const [erreurLinkedin, setErreurLinkedin] = useState('')
+
   const enCours = statut === 'chargement'
+
+  // LinkedIn (OIDC, via Supabase) redirige le navigateur vers LinkedIn puis
+  // revient sur l'app avec une session déjà établie — pas de suite à gérer
+  // ici en cas de succès. Le consentement CGU (case ci-dessus, propre à ce
+  // formulaire) est redemandé après coup pour ce parcours, sur un écran
+  // dédié (App.jsx détecte la session LinkedIn sans consentement encore
+  // enregistré).
+  async function gererConnexionLinkedin() {
+    setErreurLinkedin('')
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'linkedin_oidc',
+      options: { redirectTo: window.location.origin },
+    })
+    if (error) {
+      setErreurLinkedin('La connexion via LinkedIn a échoué. Vérifiez votre connexion et réessayez.')
+    }
+  }
 
   async function gererEnvoi(evenement) {
     evenement.preventDefault()
@@ -215,6 +234,19 @@ export default function Inscription({ onAllerAccueil, onChangerMode, onInscripti
           {enCours ? 'Création en cours…' : 'Créer mon compte'}
         </button>
       </form>
+
+      <p className="separateur-ou" role="separator">
+        ou
+      </p>
+
+      {erreurLinkedin && (
+        <p role="alert" className="erreur-globale">
+          {erreurLinkedin}
+        </p>
+      )}
+      <button type="button" onClick={gererConnexionLinkedin}>
+        Continuer avec LinkedIn
+      </button>
     </main>
   )
 }

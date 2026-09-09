@@ -85,6 +85,49 @@ contenu ni de comportement.
 - Rendu réel en navigateur (pas d'outil disponible sur cette machine — Playwright
   incompatible macOS Darwin 21).
 
+## 2026-09-09 — Connexion via LinkedIn (OIDC), écran de consentement CGU dédié
+
+**Demande (humain)** : permettre de se connecter/s'inscrire via LinkedIn.
+
+**Décision clarifiée avec l'humain** : contrairement à la publication (hors périmètre du
+cadrage — "pas de publication automatique"), l'authentification via LinkedIn ne contredit
+aucune décision actée. Techniquement plus simple : Supabase Auth a un fournisseur
+`linkedin_oidc` intégré, pas besoin de backend maison (le `client_secret` LinkedIn vit dans
+le dashboard Supabase, jamais dans le code front). Le seul point à trancher : le
+consentement CGU (ticket 01, case obligatoire) n'a pas d'équivalent naturel dans un flux
+OAuth qui établit une session directement au retour. Tranché : écran de consentement
+intercalé, affiché une seule fois par compte, avant tout accès à l'onboarding/dashboard.
+
+**Fait (code)**
+- `src/pages/Connexion.jsx`, `src/pages/Inscription.jsx` : bouton "Continuer avec LinkedIn"
+  (`supabase.auth.signInWithOAuth({ provider: 'linkedin_oidc', options: { redirectTo:
+  window.location.origin } })`), sous un séparateur "ou".
+- `src/pages/ConsentementLinkedin.jsx` (nouveau) : case à cocher CGU identique à celle de
+  l'inscription classique ; à la validation, `supabase.auth.updateUser({ data: {
+  consentement_cgu: true } })` — stocké dans les métadonnées de l'utilisateur Supabase Auth
+  (`user_metadata`), pas de nouvelle colonne/migration sur `profiles`.
+- `src/App.jsx` : à la résolution de session, si le fournisseur est `linkedin_oidc` et que
+  `user_metadata.consentement_cgu` est absent → écran `consentement-linkedin` au lieu de
+  `connecte`. Une fois accepté, direction `connecte` normale (Dashboard.jsx redirige déjà
+  vers l'onboarding si le profil est incomplet — comportement inchangé, aucune bifurcation
+  spécifique à LinkedIn au-delà du consentement).
+- `src/index.css` : `.separateur-ou`.
+- `npm run build` : OK (100 modules).
+
+**Reste à faire, hors de portée depuis l'app**
+- **Rien ne fonctionnera tant que ce n'est pas configuré côté externe** : (1) une app
+  LinkedIn avec le produit "Sign In with LinkedIn using OpenID Connect" activé (nécessite une
+  Page LinkedIn d'entreprise), (2) son Client ID/Secret renseignés dans Supabase →
+  Authentication → Providers → LinkedIn (OIDC), (3) l'URL de callback fournie par Supabase
+  ajoutée dans les réglages de l'app LinkedIn. Aucun outil disponible depuis cette session
+  pour faire ces trois étapes (dashboards externes) — signalé à l'humain avant de coder.
+- Non testé en navigateur réel (impossible tant que le fournisseur n'est pas activé côté
+  Supabase).
+- Accessibilité non testée au clavier ni au lecteur d'écran sur le nouvel écran.
+- Pré-remplissage du nom/prénom à l'onboarding depuis les infos LinkedIn (disponibles dans
+  `user_metadata` après OIDC) : pas fait, l'onboarding actuel redemande tout — amélioration
+  possible mais non demandée ici.
+
 ## 2026-09-08 — Pastille de profil sur tous les écrans connectés (hors tableau de bord)
 
 **Demande** : rajouter la pastille de profil (avatar + « + » photo + menu + « Se
