@@ -122,8 +122,8 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
   const postsNonVidesActuels = posts.map((p) => p.trim()).filter(Boolean)
   const profilGenere = profilEditorial.trim() !== ''
 
-  // Enregistre uniquement LinkedIn + les posts, sans toucher au reste du
-  // profil ni déclencher l'analyse du profil éditorial. Renvoie un booléen
+  // Enregistre LinkedIn + posts + "À propos de vous" (les trois ingrédients du
+  // profil éditorial), sans déclencher son analyse. Renvoie un booléen
   // (plutôt que rien) pour que `sauvegarderEtAnalyser` sache si elle peut
   // enchaîner sur l'analyse.
   async function sauvegarderPosts() {
@@ -145,6 +145,7 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
         id: user.id,
         linkedin: linkedinValide(linkedin),
         posts_exemples: postsNonVidesActuels,
+        a_propos: aPropos.trim() || null,
       })
 
       if (error) {
@@ -285,14 +286,34 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
             />
           </div>
 
+          <p className="description-choix">
+            Les deux champs ci-dessous nourrissent votre profil éditorial — comment
+            Reachly rédige vos posts dans votre style, pas un style générique.
+          </p>
+
+          <div>
+            <label htmlFor="a-propos">À propos de vous</label>
+            <p id="a-propos-description" className="description-choix">
+              Qui vous êtes, ce que vous aimez faire, ce qui vous distingue — un court
+              texte libre.
+            </p>
+            <textarea
+              id="a-propos"
+              aria-describedby="a-propos-description"
+              value={aPropos}
+              onChange={(e) => setAPropos(e.target.value)}
+              placeholder="Ex. : développeuse full-stack passionnée par l'IA, j'aime vulgariser des sujets techniques…"
+              rows={4}
+            />
+          </div>
+
           <fieldset aria-describedby="exemples-style-description">
             <legend>Exemples pour définir votre style</legend>
             <p id="exemples-style-description" className="description-choix">
               Collez 1 à 3 posts que vous appréciez — les vôtres ou ceux d'autres
-              personnes — pour que Reachly écrive dans votre style, pas un style
-              générique.
+              personnes.
             </p>
-            {!profilGenere && postsNonVidesActuels.length === 0 && (
+            {!profilGenere && postsNonVidesActuels.length === 0 && aPropos.trim() === '' && (
               <p className="exemple-profil-editorial">
                 Exemple de résultat une fois analysé : « Style détecté : direct, orienté
                 résultats, peu d'emojis. »
@@ -328,24 +349,13 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
               {sauvegardePostsEnCours || analyseEnCours
                 ? 'Enregistrement…'
                 : postsNonVidesActuels.length === 0
-                  ? 'Enregistrer mes posts'
+                  ? 'Enregistrer'
                   : profilGenere
                     ? 'Enregistrer et régénérer mon profil'
                     : 'Enregistrer et analyser mon style'}
             </button>
             {confirmationSauvegardePosts && <span role="status"> Enregistré !</span>}
           </p>
-
-          <div>
-            <label htmlFor="a-propos">À propos de vous</label>
-            <textarea
-              id="a-propos"
-              value={aPropos}
-              onChange={(e) => setAPropos(e.target.value)}
-              placeholder="Qui vous êtes, ce que vous aimez faire — tout ce qui nous aide à mieux calibrer vos posts."
-              rows={4}
-            />
-          </div>
 
           {profilGenere && (
             <fieldset>

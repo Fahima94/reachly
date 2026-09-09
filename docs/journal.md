@@ -1,5 +1,42 @@
 # Journal
 
+## 2026-09-09 — Intégration et ergonomie du champ « À propos de vous »
+
+**Demande (humain)** : après la fusion avec le travail parallèle de Fahima (nouveau champ
+« À propos de vous »), améliorer son ergonomie et son intégration.
+
+**Constat** : le champ existait déjà (label + `textarea` + `placeholder`), mais trois
+points le rendaient moins cohérent avec le reste de l'écran :
+- Sa description n'existait que dans le `placeholder` (disparaît à la saisie, pas fiable
+  au lecteur d'écran) — même travers déjà corrigé pour « Exemples pour définir votre
+  style ».
+- Il était positionné **après** le bouton d'enregistrement des posts, mais **pas inclus**
+  dans cette sauvegarde : le remplir puis cliquer "Enregistrer..." ne l'enregistrait pas
+  réellement, seul le clic final ("Terminer"/"Enregistrer" du formulaire entier) le
+  faisait — décalage entre ce que le bouton semblait faire et ce qu'il faisait vraiment.
+- Il n'était pas relié visuellement à « Exemples pour définir votre style », alors que les
+  deux nourrissent le même profil éditorial.
+
+**Fait** (`src/pages/onboarding/LinkedinPosts.jsx` et `src/pages/Preferences.jsx`) :
+- Remonté juste après le champ LinkedIn, **avant** « Exemples pour définir votre style »
+  (ordre naturel : se décrire, puis donner des exemples), sous une phrase d'intro commune
+  aux deux champs.
+- Description visible sous le label (`aria-describedby`), `placeholder` reformulé en
+  exemple concret plutôt qu'en explication.
+- `sauvegarderPosts()` inclut désormais `a_propos` dans l'upsert — le bouton fusionné
+  ("Enregistrer" / "Enregistrer et analyser mon style") l'enregistre réellement. Libellé
+  du cas vide changé de "Enregistrer mes posts" à "Enregistrer" (peut désormais sauver
+  "À propos" seul, sans post).
+- L'exemple de résultat (aperçu du bénéfice) ne s'affiche plus si "À propos" est déjà
+  rempli, même sans post — il ne fait plus croire que rien n'a été fourni.
+
+**Vérifié en réel** : `npm run build` OK ; Playwright — ordre des champs, description
+visible, remplissage de "À propos" seul (aucun post) → bouton "Enregistrer" → confirmation
+→ re-fetch via l'écran Préférences confirme la persistance en base. Aucune erreur console.
+
+**Non câblé (hors scope frontend, noté par Fahima)** : l'analyse du profil éditorial
+(webhook n8n) ne reçoit encore que les posts, pas "À propos de vous".
+
 ## 2026-09-09 — « Posts inspirants » renommé + vouvoiement corrigé
 
 **Demande (humain)** : trouver un meilleur intitulé que « Posts inspirants » (utilité et
