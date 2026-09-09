@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase.js'
 import ProgressionOnboarding from '../../components/ProgressionOnboarding.jsx'
 import { formaterProfilEditorial } from '../../lib/formaterProfilEditorial.jsx'
+import { linkedinValide } from '../../lib/linkedin.js'
 import EnteteConnecte from '../../components/EnteteConnecte.jsx'
 
 async function analyserLeStyle(postsPourAnalyse) {
@@ -139,7 +140,7 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
 
       const { error } = await supabase.from('profiles').upsert({
         id: user.id,
-        linkedin: linkedin.trim() || null,
+        linkedin: linkedinValide(linkedin),
         posts_exemples: postsNonVidesActuels,
       })
 
@@ -176,7 +177,7 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
     evenement.preventDefault()
     setErreurGlobale('')
 
-    const linkedinTrim = linkedin.trim()
+    const linkedinTrim = linkedinValide(linkedin)
     const postsNonVides = posts.map((p) => p.trim()).filter(Boolean)
     const profilTrim = profilEditorial.trim()
 

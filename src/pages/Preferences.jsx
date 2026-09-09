@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import EnteteConnecte from '../components/EnteteConnecte.jsx'
 import { formaterProfilEditorial } from '../lib/formaterProfilEditorial.jsx'
+import { linkedinValide } from '../lib/linkedin.js'
 
 const VOIX_NARRATIVES = [
   { valeur: 'je_masculin', libelle: 'Je (masculin)' },
@@ -204,7 +205,7 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
 
       const { error } = await supabase.from('profiles').upsert({
         id: user.id,
-        linkedin: linkedin.trim() || null,
+        linkedin: linkedinValide(linkedin),
         posts_exemples: postsNonVidesActuels,
       })
 
@@ -303,7 +304,6 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
         }
       }
 
-      const linkedinTrim = linkedin.trim()
       const postsNonVides = posts.map((p) => p.trim()).filter(Boolean)
       const profilTrim = profilEditorial.trim()
 
@@ -315,7 +315,7 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
         id: user.id,
         Tonalité_défaut: tonaliteChoisie,
         voix_narrative: voixChoisie,
-        linkedin: linkedinTrim || null,
+        linkedin: linkedinValide(linkedin),
         posts_exemples: postsNonVides,
         profil_editorial: profilTrim || null,
       })
