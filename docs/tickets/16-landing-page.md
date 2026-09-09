@@ -161,7 +161,7 @@ gauche, au-dessus de la barre de progression).
   l'accueil">` ; sans la prop, reste un bloc décoratif.
 - « Toujours vers la landing » (choix de l'humain) : cliquer le logo pendant l'onboarding
   ou depuis un écran connecté ouvre la landing publique et quitte le parcours en cours,
-  sans confirmation.
+  sans confirmation. **Révisé le 2026-09-09 — voir l'amendement ci-dessous.**
 
 ## Amendement (2026-09-08) : animation en plein écran au clic
 
@@ -187,6 +187,36 @@ ni de comportement :
   repère à l'autre ; ils s'empilent sous ~560 px.
 - Le titre de section « Notre promesse » est mis en avant (plus grand, plus gras)
   par rapport au `h2` générique.
+
+## Amendement (2026-09-09) : le logo Reachly dépend de l'état de session
+
+Révise le « toujours vers la landing » de l'amendement du 2026-09-08. Le clic sur le
+logo Reachly (carré + mot) a désormais deux comportements :
+
+- **Session active** → le tableau de bord de l'utilisateur (`connecte`).
+- **Aucune session** → la page d'accueil publique (`accueil`).
+
+Scénario: Logo cliqué en étant connecté
+
+  Étant donné une personne connectée, sur n'importe quel écran de l'app
+
+  Quand elle clique sur le logo Reachly
+
+  Alors elle arrive sur son tableau de bord
+
+Scénario: Logo cliqué sans être connecté
+
+  Étant donné une personne non connectée, sur la landing, la connexion ou l'inscription
+
+  Quand elle clique sur le logo Reachly
+
+  Alors elle arrive sur la page d'accueil publique
+
+**Mise en œuvre** : `App.jsx` (`clicLogo`) vérifie la session à chaque clic
+(`supabase.auth.getSession()`) avant de router — ce qui couvre aussi une session
+expirée entre-temps. La barre `EnteteConnecte` (préférences, mon compte, mes
+publications, onboarding) n'apparaissant que sur des écrans connectés, son logo
+pointe directement vers le tableau de bord sans revérifier.
 
 ## Fini quand
 

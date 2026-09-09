@@ -82,9 +82,14 @@ export default function App() {
     )
   }
 
-  // Ticket 16 (amendement) : le logo Reachly ramène toujours à l'accueil,
-  // sur tous les écrans.
-  const allerAccueil = () => naviguerVers('accueil')
+  // Ticket 16 (amendement 2026-09-09) : le logo Reachly ramène au tableau de
+  // bord quand une session est active, à la page d'accueil publique sinon.
+  // Vérification de la session à chaque clic — couvre aussi le cas d'une
+  // session expirée entre-temps.
+  const clicLogo = async () => {
+    const { data } = await supabase.auth.getSession()
+    naviguerVers(data.session ? 'connecte' : 'accueil')
+  }
   // Déconnexion : on remplace l'entrée d'historique (revenir en arrière ne
   // doit pas ramener sur un écran protégé).
   const deconnecter = () => naviguerVers('connexion', { remplacer: true })
@@ -92,7 +97,7 @@ export default function App() {
   if (ecran === 'accueil') {
     return (
       <Accueil
-        onAllerAccueil={allerAccueil}
+        onAllerAccueil={clicLogo}
         onAllerConnexion={() => naviguerVers('connexion')}
         onAllerInscription={() => naviguerVers('inscription')}
       />
@@ -101,7 +106,7 @@ export default function App() {
   if (ecran === 'inscription') {
     return (
       <Inscription
-        onAllerAccueil={allerAccueil}
+        onAllerAccueil={clicLogo}
         onChangerMode={naviguerVers}
         onInscriptionReussie={() => naviguerVers('onboarding-identite')}
       />
@@ -165,7 +170,7 @@ export default function App() {
     )
   }
   if (ecran === 'admin') {
-    return <Admin onAllerAccueil={allerAccueil} onRetour={() => naviguerVers('connecte')} />
+    return <Admin onAllerAccueil={clicLogo} onRetour={() => naviguerVers('connecte')} />
   }
   if (ecran === 'publications') {
     return (
@@ -188,7 +193,7 @@ export default function App() {
   if (ecran === 'connecte') {
     return (
       <Dashboard
-        onAllerAccueil={allerAccueil}
+        onAllerAccueil={clicLogo}
         onDeconnexionReussie={() => naviguerVers('connexion', { remplacer: true })}
         onRelancerOnboarding={() => naviguerVers('onboarding-identite')}
         onModifierPreferences={() => naviguerVers('preferences')}
@@ -202,7 +207,7 @@ export default function App() {
   // connexion — voir ticket 02.
   return (
     <Connexion
-      onAllerAccueil={allerAccueil}
+      onAllerAccueil={clicLogo}
       onChangerMode={naviguerVers}
       onDeconnexionReussie={() => naviguerVers('connexion', { remplacer: true })}
       onRelancerOnboarding={() => naviguerVers('onboarding-identite')}

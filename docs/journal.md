@@ -1,5 +1,32 @@
 # Journal
 
+## 2026-09-09 — Ticket 16 (amendement) : le logo Reachly dépend de l'état de session
+
+**Demande (humain)** : le clic sur le logo Reachly doit avoir deux comportements —
+connecté → tableau de bord ; non connecté → landing. Révise le « toujours vers la
+landing » du 2026-09-08.
+
+**Fait**
+- `src/App.jsx` : `allerAccueil` (qui forçait `naviguerVers('accueil')`) remplacé par
+  `clicLogo`, un handler `async` qui lit `supabase.auth.getSession()` puis route vers
+  `'connecte'` si une session existe, `'accueil'` sinon. Vérification à chaque clic —
+  couvre une session expirée entre-temps. Les cinq points de passage (`Accueil`,
+  `Inscription`, `Connexion`, `Admin`, `Dashboard`) reçoivent `onAllerAccueil={clicLogo}`.
+- `src/components/EnteteConnecte.jsx` : cette barre n'existant que sur des écrans
+  connectés, son logo pointe directement vers `'connecte'` (au lieu de `'accueil'`) —
+  pas de revérification de session nécessaire.
+- `docs/tickets/16-landing-page.md` : amendement « le logo Reachly dépend de l'état de
+  session » (deux scénarios Gherkin) ; l'amendement du 2026-09-08 marqué comme révisé.
+
+**Vérifié**
+- `npm run build` : OK.
+
+**Non vérifié**
+- Rendu réel en navigateur (pas d'outil disponible sur cette machine).
+- Cas limite : logo cliqué depuis un écran `EnteteConnecte` après expiration de la
+  session → route vers `'connecte'`, la garde du tableau de bord (ticket 11) prend
+  alors le relais. Non rejoué.
+
 ## 2026-09-09 — Ticket 16 (amendement) : retouches de présentation de la landing
 
 **Demande (humain)** : trois ajustements sur la page d'accueil, sans changement de

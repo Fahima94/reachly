@@ -128,7 +128,9 @@ export default function EnteteConnecte({ onNaviguer, onDeconnexionReussie }) {
   return (
     <>
       <div className="barre-superieure">
-        <LogoReachly onNaviguer={() => onNaviguer('accueil')} />
+        {/* Cette barre n'existe que sur des écrans connectés : le logo ramène
+            au tableau de bord (ticket 16, amendement 2026-09-09). */}
+        <LogoReachly onNaviguer={() => onNaviguer('connecte')} />
         <div className="profil-entete">
           <div className="conteneur-avatar" ref={menuRef}>
             <button
