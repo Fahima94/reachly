@@ -1,5 +1,38 @@
 # Journal
 
+## 2026-09-09 — "Publier" ouvre la fenêtre de publication LinkedIn (pas juste le profil)
+
+**Demande (humain)** : après une première demande de publication automatique via l'API
+LinkedIn (contraire au cadrage — "pas de publication automatique", non retranché), reformulée
+en « ouvrir la page de publication sur LinkedIn, pas automatique » — la personne doit toujours
+coller et cliquer "Publier" elle-même sur LinkedIn.
+
+**Vérifié (recherche web, 2026-09-09)** : ré-interrogé si LinkedIn permet désormais de
+pré-remplir le texte d'un post par URL — non. `shareArticle` (title/summary/source) est
+déprécié et ignoré ; seul `https://www.linkedin.com/sharing/share-offsite/?url=...` reste
+supporté, et il ne prend qu'une URL (prévisualisation via les balises Open Graph de la page
+cible) — jamais de texte libre. Confirme et affine le constat du ticket 13 (2026-09-04) :
+il existe bien un lien officiel qui ouvre la fenêtre de composition (pas seulement le
+profil), mais toujours aucun moyen d'y pré-remplir le texte généré.
+
+**Fait (code)**
+- `src/pages/Dashboard.jsx` : `sujet.lien` (déjà validé `http(s)://`) transmis à
+  `GenerationPost` via une nouvelle prop `sujetLien`.
+- `src/components/GenerationPost.jsx` : `lienComposition` — si `sujetLien` existe,
+  `https://www.linkedin.com/sharing/share-offsite/?url=<sujetLien encodé>` ; la modale de
+  confirmation de publication l'utilise en priorité ("Ouvrir LinkedIn (fenêtre de
+  publication)"), avec une note explicite (coller le texte déjà copié, publier soi-même).
+  Repli inchangé si le sujet n'a pas de lien source valide : profil LinkedIn de la personne,
+  puis invitation à le renseigner.
+- `npm run build` : OK (100 modules).
+
+**Reste à faire / non vérifié**
+- Non testé en navigateur réel (ouverture effective de la fenêtre de composition LinkedIn,
+  contenu de la prévisualisation Open Graph pour un lien source donné).
+- Le cadrage ("pas de publication automatique") n'a pas eu besoin d'être modifié — ce
+  changement respecte la contrainte telle qu'écrite (aucun appel API, la personne publie
+  elle-même).
+
 ## 2026-09-09 — Tableau de bord : date réelle de publication (au lieu de la date de veille)
 
 **Constat (humain)** : « il y a X h » affiché sur les cartes ne correspond pas à la
