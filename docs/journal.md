@@ -1,5 +1,21 @@
 # Journal
 
+## 2026-09-09 — « Posts inspirants » renommé + vouvoiement corrigé
+
+**Demande (humain)** : trouver un meilleur intitulé que « Posts inspirants » (utilité et
+contenu attendu pas assez explicites) ; au passage, vouvoyer partout.
+
+**Fait** :
+- Intitulé retenu (choix proposé à l'humain) : **« Exemples pour définir votre style »**
+  — dit à la fois quoi coller et pourquoi, sans dépendre de la description en dessous.
+  Appliqué dans `src/pages/onboarding/LinkedinPosts.jsx` et `src/pages/Preferences.jsx`
+  (`id` associé renommé `exemples-style-description` par cohérence).
+- Correction du tutoiement introduit par erreur dans les deux tours précédents (texte de
+  description et `placeholder`) — le reste de l'appli vouvoie systématiquement
+  (confirmé par recherche : aucune autre occurrence de tu/ton/ta/tes/toi dans `src/`).
+
+**Vérifié en réel** : `npm run build` OK.
+
 ## 2026-09-09 — Préférences : regroupement filtrage veille / personnalisation posts
 
 **Demande (humain)** : pour une meilleure ergonomie et compréhension, regrouper ce qui

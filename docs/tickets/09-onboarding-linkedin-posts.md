@@ -155,6 +155,12 @@ reléguée en toute fin d'écran Préférences, après Tonalité/Voix.
 **Reste à faire (piste future, pas ce lot)** : un champ « Biographie » (parcours,
 personnalité) qui nourrirait aussi le profil éditorial, en complément des posts collés.
 
+### Amendement : renommage + vouvoiement (09/09)
+
+L'intitulé « Posts inspirants » ne disait ni à quoi ça sert ni ce qu'il fallait y
+mettre. Renommé **« Exemples pour définir votre style »**. Correction au passage d'un
+tutoiement introduit par erreur dans l'amendement précédent — l'appli vouvoie partout.
+
 ## Fini quand
 
 - [ ] Les huit scénarios passent (4 initiaux + 4 de l'amendement profil éditorial)

@@ -491,11 +491,12 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             />
           </div>
 
-          <fieldset aria-describedby="posts-inspirants-description">
-            <legend>Posts inspirants</legend>
-            <p id="posts-inspirants-description" className="description-choix">
-              Colle 1 à 3 posts que tu apprécies — les tiens ou ceux d'autres personnes —
-              pour que Reachly écrive dans ton style, pas un style générique.
+          <fieldset aria-describedby="exemples-style-description">
+            <legend>Exemples pour définir votre style</legend>
+            <p id="exemples-style-description" className="description-choix">
+              Collez 1 à 3 posts que vous appréciez — les vôtres ou ceux d'autres
+              personnes — pour que Reachly écrive dans votre style, pas un style
+              générique.
             </p>
             {!profilGenere && postsNonVidesActuels.length === 0 && (
               <p className="exemple-profil-editorial">
@@ -510,7 +511,7 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
                   id={`post-${index}`}
                   value={post}
                   onChange={(e) => modifierPost(index, e.target.value)}
-                  placeholder="Colle ici le texte complet d'un post LinkedIn que tu apprécies…"
+                  placeholder="Collez ici le texte complet d'un post LinkedIn que vous appréciez…"
                 />
                 <button type="button" onClick={() => retirerPost(index)}>
                   Retirer ce post
