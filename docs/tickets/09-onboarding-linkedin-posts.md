@@ -126,6 +126,35 @@ le profil peut devenir désynchronisé de ses posts tant qu'elle ne régénère 
 
 **Accessibilité :** label explicite sur la zone de texte du profil ("Profil éditorial, modifiable"), message d'erreur de régénération annoncé (`role="alert"`), focus clavier visible sur le bouton "Régénérer", cible ≥ 24×24 px.
 
+### Amendement : mise en avant et ergonomie (retour utilisateur, 09/09)
+
+**Constat (humain)** : la section « Posts inspirants » n'était pas assez mise en avant ni
+assez ergonomique — son utilité n'était pas explicite.
+
+**Cause** : l'explication de l'utilité n'existait que dans un attribut `title` (tooltip au
+survol, invisible au clic/tactile, non fiable au lecteur d'écran) ; le flux imposait deux
+boutons dans deux fieldsets séparés (« Enregistrer mes posts » puis, ailleurs, « Générer/
+Régénérer ») sans lien visible entre eux ; aucune indication du format attendu ; section
+reléguée en toute fin d'écran Préférences, après Tonalité/Voix.
+
+**Décisions**
+- L'explication devient un texte visible en permanence sous le titre de section (`<p
+  id="posts-inspirants-description">`, lié au fieldset par `aria-describedby`), plus
+  aucune dépendance à un `title`.
+- Un exemple du résultat (« Style détecté : direct, orienté résultats, peu d'emojis. »)
+  s'affiche tant qu'aucun post n'est saisi ni profil généré — montre le bénéfice avant
+  l'effort.
+- Chaque zone de texte a un `placeholder` indiquant le format attendu.
+- Enregistrement et analyse sont fusionnés en un seul bouton (« Enregistrer et analyser
+  mon style » / « Enregistrer et régénérer mon profil » selon le contexte) — la personne
+  n'a plus à deviner qu'il faut cliquer une seconde fois ailleurs pour lancer l'analyse.
+- Dans l'écran Préférences uniquement (l'onboarding garde son ordre, déjà une étape
+  dédiée) : la section est remontée juste après « Catégories », avant Métiers/Secteurs/
+  Tonalité/Voix, pour plus de visibilité.
+
+**Reste à faire (piste future, pas ce lot)** : un champ « Biographie » (parcours,
+personnalité) qui nourrirait aussi le profil éditorial, en complément des posts collés.
+
 ## Fini quand
 
 - [ ] Les huit scénarios passent (4 initiaux + 4 de l'amendement profil éditorial)

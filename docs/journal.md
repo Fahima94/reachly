@@ -1,5 +1,36 @@
 # Journal
 
+## 2026-09-09 — Ticket 09 (amendement) : mise en avant et ergonomie de « Posts inspirants »
+
+**Constat (humain)** : la section « Posts inspirants » (onboarding étape 5 et écran
+Préférences) n'est pas assez mise en avant ni assez ergonomique, son utilité pas assez
+explicite.
+
+**Fait** (`src/pages/onboarding/LinkedinPosts.jsx` et `src/pages/Preferences.jsx`,
+logique dupliquée aux deux endroits) :
+- Explication de l'utilité passée d'un attribut `title` (tooltip invisible en pratique) à
+  un texte permanent sous le titre de section, lié par `aria-describedby`.
+- Exemple du résultat (« Style détecté : direct, orienté résultats, peu d'emojis. »)
+  affiché tant qu'aucun post n'est saisi ni profil généré — montre le bénéfice avant
+  l'effort. Nouvelle classe CSS `.exemple-profil-editorial`.
+- `placeholder` ajouté à chaque zone de texte.
+- `sauvegarderPosts()` renvoie désormais un booléen ; nouvelle fonction
+  `sauvegarderEtAnalyser()` qui enchaîne enregistrement puis analyse — un seul bouton
+  (libellé contextuel) remplace les deux boutons dans deux fieldsets séparés.
+- Écran Préférences seulement : section remontée juste après « Catégories », avant
+  Métiers/Secteurs/Tonalité/Voix (plus visible qu'en toute fin d'écran).
+- Amendement du [ticket 09](tickets/09-onboarding-linkedin-posts.md).
+
+**Vérifié en réel** : `npm run build` OK ; parcours Playwright complet (onboarding jusqu'à
+l'étape 5, saisie d'un post, bascule du libellé du bouton, disparition de l'exemple après
+saisie, ordre des sections en Préférences) — aucune erreur console.
+
+**Reste à faire**
+- Piste future notée (pas ce lot) : un champ « Biographie » (parcours, personnalité) pour
+  nourrir aussi le profil éditorial.
+- Code dupliqué entre les deux écrans (déjà le cas avant ce tour) — pourrait devenir un
+  composant partagé à l'occasion.
+
 ## 2026-09-09 — Tableau de bord : date réelle de publication (au lieu de la date de veille)
 
 **Constat (humain)** : « il y a X h » affiché sur les cartes ne correspond pas à la

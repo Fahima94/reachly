@@ -669,6 +669,20 @@ fieldset.chips input[type='radio'] {
   margin-bottom: 0;
 }
 
+/* Aperçu du bénéfice avant tout effort (retour utilisateur : la section
+   "Posts inspirants" ne montrait pas à quoi elle servait) — visible tant
+   qu'aucun post n'est saisi ni aucun profil généré, remplacé ensuite par le
+   vrai résultat dans .profil-editorial-formate. */
+.exemple-profil-editorial {
+  padding: var(--space-3) var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-3);
+}
+
 /* Messages d'état */
 [role='alert'] {
   color: var(--color-danger);

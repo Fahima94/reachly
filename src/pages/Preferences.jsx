@@ -184,10 +184,11 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
 
   const postsNonVidesActuels = posts.map((p) => p.trim()).filter(Boolean)
   const profilGenere = profilEditorial.trim() !== ''
-  const afficherSectionProfil = postsNonVidesActuels.length > 0 || profilGenere
 
   // Enregistre uniquement LinkedIn + les posts, sans toucher au reste du
-  // profil ni déclencher l'analyse du profil éditorial.
+  // profil ni déclencher l'analyse du profil éditorial. Renvoie un booléen
+  // (plutôt que rien) pour que `sauvegarderEtAnalyser` sache si elle peut
+  // enchaîner sur l'analyse.
   async function sauvegarderPosts() {
     setErreurSauvegardePosts('')
     setSauvegardePostsEnCours(true)
@@ -200,7 +201,7 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
       if (erreurUtilisateur || !user) {
         setErreurSauvegardePosts("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
         setSauvegardePostsEnCours(false)
-        return
+        return false
       }
 
       const { error } = await supabase.from('profiles').upsert({
@@ -212,16 +213,28 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
       if (error) {
         setErreurSauvegardePosts("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
         setSauvegardePostsEnCours(false)
-        return
+        return false
       }
 
       setConfirmationSauvegardePosts(true)
       setTimeout(() => setConfirmationSauvegardePosts(false), 3000)
       setSauvegardePostsEnCours(false)
+      return true
     } catch {
       setErreurSauvegardePosts("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
       setSauvegardePostsEnCours(false)
+      return false
     }
+  }
+
+  // Un seul geste pour l'utilisateur : enregistrer ses posts puis, s'il y en
+  // a, enchaîner tout de suite sur l'analyse de style — plutôt que deux
+  // boutons dans deux fieldsets séparés qu'il fallait deviner d'enchaîner
+  // (retour utilisateur : la fonctionnalité passait inaperçue).
+  async function sauvegarderEtAnalyser() {
+    const succes = await sauvegarderPosts()
+    if (!succes || postsNonVidesActuels.length === 0) return
+    await gererRegenerer()
   }
 
   async function gererRegenerer() {
@@ -383,6 +396,77 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             ))}
           </fieldset>
 
+          <div>
+            <label htmlFor="linkedin">Profil LinkedIn</label>
+            <input
+              id="linkedin"
+              name="linkedin"
+              type="text"
+              autoComplete="url"
+              value={linkedin}
+              onChange={(e) => setLinkedin(e.target.value)}
+            />
+          </div>
+
+          <fieldset aria-describedby="posts-inspirants-description">
+            <legend>Posts inspirants</legend>
+            <p id="posts-inspirants-description" className="description-choix">
+              Colle 1 à 3 posts que tu apprécies — les tiens ou ceux d'autres personnes —
+              pour que Reachly écrive dans ton style, pas un style générique.
+            </p>
+            {!profilGenere && postsNonVidesActuels.length === 0 && (
+              <p className="exemple-profil-editorial">
+                Exemple de résultat une fois analysé : « Style détecté : direct, orienté
+                résultats, peu d'emojis. »
+              </p>
+            )}
+            {posts.map((post, index) => (
+              <div key={index}>
+                <label htmlFor={`post-${index}`}>Post {index + 1}</label>
+                <textarea
+                  id={`post-${index}`}
+                  value={post}
+                  onChange={(e) => modifierPost(index, e.target.value)}
+                  placeholder="Colle ici le texte complet d'un post LinkedIn que tu apprécies…"
+                />
+                <button type="button" onClick={() => retirerPost(index)}>
+                  Retirer ce post
+                </button>
+              </div>
+            ))}
+            <button type="button" onClick={ajouterPost}>
+              Ajouter un autre post
+            </button>
+          </fieldset>
+
+          <p>
+            {erreurSauvegardePosts && <span role="alert">{erreurSauvegardePosts} </span>}
+            {erreurAnalyse && <span role="alert">{erreurAnalyse} </span>}
+            <button
+              type="button"
+              onClick={sauvegarderEtAnalyser}
+              disabled={sauvegardePostsEnCours || analyseEnCours || enCours}
+            >
+              {sauvegardePostsEnCours || analyseEnCours
+                ? 'Enregistrement…'
+                : postsNonVidesActuels.length === 0
+                  ? 'Enregistrer mes posts'
+                  : profilGenere
+                    ? 'Enregistrer et régénérer mon profil'
+                    : 'Enregistrer et analyser mon style'}
+            </button>
+            {confirmationSauvegardePosts && <span role="status"> Enregistré !</span>}
+          </p>
+
+          {profilGenere && (
+            <fieldset>
+              <legend>Profil éditorial</legend>
+              <div className="profil-editorial-formate">
+                {formaterProfilEditorial(profilEditorial)}
+              </div>
+            </fieldset>
+          )}
+
           <fieldset className="chips">
             <legend>Vos métiers (facultatif)</legend>
             {metiers.map((metier) => (
@@ -455,75 +539,6 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
               </label>
             ))}
           </fieldset>
-
-          <div>
-            <label htmlFor="linkedin">Profil LinkedIn</label>
-            <input
-              id="linkedin"
-              name="linkedin"
-              type="text"
-              autoComplete="url"
-              value={linkedin}
-              onChange={(e) => setLinkedin(e.target.value)}
-            />
-          </div>
-
-          <fieldset>
-            <legend title="Poste ici des exemples de publications — les tiennes ou celles d'autres personnes — que tu aimerais publier 🙂">
-              Posts inspirants
-            </legend>
-            {posts.map((post, index) => (
-              <div key={index}>
-                <label htmlFor={`post-${index}`}>Post {index + 1}</label>
-                <textarea
-                  id={`post-${index}`}
-                  value={post}
-                  onChange={(e) => modifierPost(index, e.target.value)}
-                />
-                <button type="button" onClick={() => retirerPost(index)}>
-                  Retirer ce post
-                </button>
-              </div>
-            ))}
-            <button type="button" onClick={ajouterPost}>
-              Ajouter un autre post
-            </button>
-          </fieldset>
-
-          <p>
-            {erreurSauvegardePosts && <span role="alert">{erreurSauvegardePosts} </span>}
-            <button
-              type="button"
-              onClick={sauvegarderPosts}
-              disabled={sauvegardePostsEnCours || enCours}
-            >
-              {sauvegardePostsEnCours ? 'Enregistrement…' : 'Enregistrer mes posts'}
-            </button>
-            {confirmationSauvegardePosts && <span role="status"> Enregistré !</span>}
-          </p>
-
-          {afficherSectionProfil && (
-            <fieldset>
-              <legend>Profil éditorial</legend>
-              {profilGenere && (
-                <div className="profil-editorial-formate">
-                  {formaterProfilEditorial(profilEditorial)}
-                </div>
-              )}
-              {erreurAnalyse && <p role="alert">{erreurAnalyse}</p>}
-              <button
-                type="button"
-                onClick={gererRegenerer}
-                disabled={analyseEnCours || enCours || postsNonVidesActuels.length === 0}
-              >
-                {analyseEnCours
-                  ? 'Analyse en cours…'
-                  : profilGenere
-                    ? 'Régénérer'
-                    : 'Générer à partir de mes posts'}
-              </button>
-            </fieldset>
-          )}
 
           <button type="submit" disabled={enCours} aria-busy={enCours}>
             {enCours ? 'Enregistrement en cours…' : 'Enregistrer'}
