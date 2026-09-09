@@ -52,6 +52,15 @@ export default function Identite({ onNaviguer, onDeconnexionReussie, onEtapeSuiv
       if (data) {
         setPrenom(data.prenom ?? '')
         setNom(data.nom ?? '')
+      } else {
+        // Premier onboarding, aucune ligne profiles : la connexion via
+        // LinkedIn (OIDC) fournit parfois prénom/nom dans les métadonnées
+        // utilisateur — pré-remplissage, toujours modifiable (LinkedIn peut
+        // renvoyer un nom tronqué selon les réglages de confidentialité de
+        // la personne, ex. « B. » au lieu du nom complet).
+        const metadonnees = user.user_metadata ?? {}
+        if (metadonnees.given_name) setPrenom(metadonnees.given_name)
+        if (metadonnees.family_name) setNom(metadonnees.family_name)
       }
       setChargementInitial(false)
     } catch {

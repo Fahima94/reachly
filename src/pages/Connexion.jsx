@@ -29,7 +29,23 @@ export default function Connexion({
   const [erreurEmail, setErreurEmail] = useState('')
   const [erreurMotDePasse, setErreurMotDePasse] = useState('')
 
+  const [erreurLinkedin, setErreurLinkedin] = useState('')
+
   const enCours = statut === 'chargement'
+
+  // Même principe que sur l'écran d'inscription : redirection complète vers
+  // LinkedIn puis retour sur l'app avec une session déjà établie — géré par
+  // App.jsx (écran de consentement CGU si jamais vu pour ce parcours).
+  async function gererConnexionLinkedin() {
+    setErreurLinkedin('')
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'linkedin_oidc',
+      options: { redirectTo: window.location.origin },
+    })
+    if (error) {
+      setErreurLinkedin('La connexion via LinkedIn a échoué. Vérifiez votre connexion et réessayez.')
+    }
+  }
 
   async function gererEnvoi(evenement) {
     evenement.preventDefault()
@@ -203,6 +219,19 @@ export default function Connexion({
           {enCours ? 'Connexion en cours…' : 'Se connecter'}
         </button>
       </form>
+
+      <p className="separateur-ou" role="separator">
+        ou
+      </p>
+
+      {erreurLinkedin && (
+        <p role="alert" className="erreur-globale">
+          {erreurLinkedin}
+        </p>
+      )}
+      <button type="button" onClick={gererConnexionLinkedin}>
+        Continuer avec LinkedIn
+      </button>
     </main>
   )
 }

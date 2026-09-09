@@ -43,6 +43,7 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
   const [voixChoisie, setVoixChoisie] = useState('')
   const [linkedin, setLinkedin] = useState('')
   const [posts, setPosts] = useState([''])
+  const [aPropos, setAPropos] = useState('')
   const [profilEditorial, setProfilEditorial] = useState('')
 
   const [chargementInitial, setChargementInitial] = useState(true)
@@ -88,7 +89,9 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
           .order('Visée de la publication'),
         supabase
           .from('profiles')
-          .select('"Tonalité_défaut", voix_narrative, linkedin, posts_exemples, profil_editorial')
+          .select(
+            '"Tonalité_défaut", voix_narrative, linkedin, posts_exemples, a_propos, profil_editorial',
+          )
           .eq('id', user.id)
           .maybeSingle(),
       ])
@@ -133,6 +136,7 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
         ? profilReponse.data.posts_exemples
         : []
       setPosts(exemples.length > 0 ? exemples : [''])
+      setAPropos(profilReponse.data?.a_propos ?? '')
       setProfilEditorial(profilReponse.data?.profil_editorial ?? '')
 
       setChargementInitial(false)
@@ -330,6 +334,7 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
         voix_narrative: voixChoisie,
         linkedin: linkedinValide(linkedin),
         posts_exemples: postsNonVides,
+        a_propos: aPropos.trim() || null,
         profil_editorial: profilTrim || null,
       })
 
@@ -541,6 +546,17 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             </button>
             {confirmationSauvegardePosts && <span role="status"> Enregistré !</span>}
           </p>
+
+          <div>
+            <label htmlFor="a-propos">À propos de vous</label>
+            <textarea
+              id="a-propos"
+              value={aPropos}
+              onChange={(e) => setAPropos(e.target.value)}
+              placeholder="Qui vous êtes, ce que vous aimez faire — tout ce qui nous aide à mieux calibrer vos posts."
+              rows={4}
+            />
+          </div>
 
           {profilGenere && (
             <fieldset>

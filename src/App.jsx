@@ -8,6 +8,7 @@ import Preferences from './pages/Preferences.jsx'
 import Admin from './pages/Admin.jsx'
 import MesPublications from './pages/MesPublications.jsx'
 import MonCompte from './pages/MonCompte.jsx'
+import ConsentementLinkedin from './pages/ConsentementLinkedin.jsx'
 import Identite from './pages/onboarding/Identite.jsx'
 import MetiersSecteurs from './pages/onboarding/MetiersSecteurs.jsx'
 import CategoriesSources from './pages/onboarding/CategoriesSources.jsx'
@@ -46,6 +47,19 @@ export default function App() {
     return () => window.removeEventListener('popstate', gererPopState)
   }, [])
 
+  // Connexion via LinkedIn (OIDC) : Supabase établit la session directement
+  // au retour, sans passer par la case de consentement CGU du formulaire
+  // d'inscription classique — on la redemande sur un écran dédié, une seule
+  // fois par compte (`user_metadata.consentement_cgu`, posé par cet écran).
+  function ecranApresSession(session) {
+    const fournisseur = session.user.app_metadata?.provider
+    const consentementDonne = session.user.user_metadata?.consentement_cgu
+    if (fournisseur === 'linkedin_oidc' && !consentementDonne) {
+      return 'consentement-linkedin'
+    }
+    return 'connecte'
+  }
+
   // Ticket 02 (amendement) : une session déjà valide (rechargement de page,
   // nouvel onglet) mène directement au tableau de bord, sans repasser par un
   // formulaire. `estAnnule` protège contre le double montage de StrictMode
@@ -62,7 +76,7 @@ export default function App() {
           naviguerVers('accueil', { remplacer: true })
           return
         }
-        naviguerVers(data.session ? 'connecte' : 'accueil', { remplacer: true })
+        naviguerVers(data.session ? ecranApresSession(data.session) : 'accueil', { remplacer: true })
       } catch {
         if (annule) return
         naviguerVers('accueil', { remplacer: true })
@@ -178,6 +192,15 @@ export default function App() {
         onNaviguer={naviguerVers}
         onDeconnexionReussie={deconnecter}
         onRetour={() => naviguerVers('connecte')}
+      />
+    )
+  }
+  if (ecran === 'consentement-linkedin') {
+    return (
+      <ConsentementLinkedin
+        onNaviguer={naviguerVers}
+        onDeconnexionReussie={deconnecter}
+        onAccepte={() => naviguerVers('connecte', { remplacer: true })}
       />
     )
   }

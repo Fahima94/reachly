@@ -66,6 +66,59 @@ saisie, ordre des sections en Préférences) — aucune erreur console.
 - Code dupliqué entre les deux écrans (déjà le cas avant ce tour) — pourrait devenir un
   composant partagé à l'occasion.
 
+## 2026-09-09 — Pré-remplissage prénom/nom à l'onboarding depuis LinkedIn (OIDC)
+
+**Constat (humain)** : un nouveau compte créé via LinkedIn arrive sur l'onboarding
+(« Comment vous appelez-vous ? ») avec les champs prénom/nom vides — alors que LinkedIn les
+a déjà transmis (`user_metadata.given_name`/`family_name`, vus dans le jeton du 2026-09-09).
+Gap déjà noté au "Reste à faire" de l'entrée de connexion LinkedIn, jamais fait.
+
+**Fait (code)**
+- `src/pages/onboarding/Identite.jsx` : quand aucune ligne `profiles` n'existe encore
+  (premier onboarding), les champs prénom/nom se pré-remplissent depuis
+  `user.user_metadata.given_name`/`family_name` s'ils sont présents — toujours modifiables.
+  Sans effet pour un compte créé par email (ces métadonnées n'existent pas).
+- `npm run build` : OK (100 modules).
+
+**Point de vigilance (pas un bug)** : LinkedIn peut renvoyer un nom de famille tronqué selon
+les réglages de confidentialité de la personne (ex. « B. » au lieu du nom complet, observé
+sur le compte de test) — le champ reste éditable, la personne corrige si besoin.
+
+**Non vérifié** : rendu réel en navigateur (pas d'outil disponible ici).
+
+## 2026-09-09 — "Publier" ouvre la fenêtre de publication LinkedIn (pas juste le profil)
+
+**Demande (humain)** : après une première demande de publication automatique via l'API
+LinkedIn (contraire au cadrage — "pas de publication automatique", non retranché), reformulée
+en « ouvrir la page de publication sur LinkedIn, pas automatique » — la personne doit toujours
+coller et cliquer "Publier" elle-même sur LinkedIn.
+
+**Vérifié (recherche web, 2026-09-09)** : ré-interrogé si LinkedIn permet désormais de
+pré-remplir le texte d'un post par URL — non. `shareArticle` (title/summary/source) est
+déprécié et ignoré ; seul `https://www.linkedin.com/sharing/share-offsite/?url=...` reste
+supporté, et il ne prend qu'une URL (prévisualisation via les balises Open Graph de la page
+cible) — jamais de texte libre. Confirme et affine le constat du ticket 13 (2026-09-04) :
+il existe bien un lien officiel qui ouvre la fenêtre de composition (pas seulement le
+profil), mais toujours aucun moyen d'y pré-remplir le texte généré.
+
+**Fait (code)**
+- `src/pages/Dashboard.jsx` : `sujet.lien` (déjà validé `http(s)://`) transmis à
+  `GenerationPost` via une nouvelle prop `sujetLien`.
+- `src/components/GenerationPost.jsx` : `lienComposition` — si `sujetLien` existe,
+  `https://www.linkedin.com/sharing/share-offsite/?url=<sujetLien encodé>` ; la modale de
+  confirmation de publication l'utilise en priorité ("Ouvrir LinkedIn (fenêtre de
+  publication)"), avec une note explicite (coller le texte déjà copié, publier soi-même).
+  Repli inchangé si le sujet n'a pas de lien source valide : profil LinkedIn de la personne,
+  puis invitation à le renseigner.
+- `npm run build` : OK (100 modules).
+
+**Reste à faire / non vérifié**
+- Non testé en navigateur réel (ouverture effective de la fenêtre de composition LinkedIn,
+  contenu de la prévisualisation Open Graph pour un lien source donné).
+- Le cadrage ("pas de publication automatique") n'a pas eu besoin d'être modifié — ce
+  changement respecte la contrainte telle qu'écrite (aucun appel API, la personne publie
+  elle-même).
+
 ## 2026-09-09 — Tableau de bord : date réelle de publication (au lieu de la date de veille)
 
 **Constat (humain)** : « il y a X h » affiché sur les cartes ne correspond pas à la
@@ -150,6 +203,49 @@ contenu ni de comportement.
 **Non vérifié**
 - Rendu réel en navigateur (pas d'outil disponible sur cette machine — Playwright
   incompatible macOS Darwin 21).
+
+## 2026-09-09 — Connexion via LinkedIn (OIDC), écran de consentement CGU dédié
+
+**Demande (humain)** : permettre de se connecter/s'inscrire via LinkedIn.
+
+**Décision clarifiée avec l'humain** : contrairement à la publication (hors périmètre du
+cadrage — "pas de publication automatique"), l'authentification via LinkedIn ne contredit
+aucune décision actée. Techniquement plus simple : Supabase Auth a un fournisseur
+`linkedin_oidc` intégré, pas besoin de backend maison (le `client_secret` LinkedIn vit dans
+le dashboard Supabase, jamais dans le code front). Le seul point à trancher : le
+consentement CGU (ticket 01, case obligatoire) n'a pas d'équivalent naturel dans un flux
+OAuth qui établit une session directement au retour. Tranché : écran de consentement
+intercalé, affiché une seule fois par compte, avant tout accès à l'onboarding/dashboard.
+
+**Fait (code)**
+- `src/pages/Connexion.jsx`, `src/pages/Inscription.jsx` : bouton "Continuer avec LinkedIn"
+  (`supabase.auth.signInWithOAuth({ provider: 'linkedin_oidc', options: { redirectTo:
+  window.location.origin } })`), sous un séparateur "ou".
+- `src/pages/ConsentementLinkedin.jsx` (nouveau) : case à cocher CGU identique à celle de
+  l'inscription classique ; à la validation, `supabase.auth.updateUser({ data: {
+  consentement_cgu: true } })` — stocké dans les métadonnées de l'utilisateur Supabase Auth
+  (`user_metadata`), pas de nouvelle colonne/migration sur `profiles`.
+- `src/App.jsx` : à la résolution de session, si le fournisseur est `linkedin_oidc` et que
+  `user_metadata.consentement_cgu` est absent → écran `consentement-linkedin` au lieu de
+  `connecte`. Une fois accepté, direction `connecte` normale (Dashboard.jsx redirige déjà
+  vers l'onboarding si le profil est incomplet — comportement inchangé, aucune bifurcation
+  spécifique à LinkedIn au-delà du consentement).
+- `src/index.css` : `.separateur-ou`.
+- `npm run build` : OK (100 modules).
+
+**Reste à faire, hors de portée depuis l'app**
+- **Rien ne fonctionnera tant que ce n'est pas configuré côté externe** : (1) une app
+  LinkedIn avec le produit "Sign In with LinkedIn using OpenID Connect" activé (nécessite une
+  Page LinkedIn d'entreprise), (2) son Client ID/Secret renseignés dans Supabase →
+  Authentication → Providers → LinkedIn (OIDC), (3) l'URL de callback fournie par Supabase
+  ajoutée dans les réglages de l'app LinkedIn. Aucun outil disponible depuis cette session
+  pour faire ces trois étapes (dashboards externes) — signalé à l'humain avant de coder.
+- Non testé en navigateur réel (impossible tant que le fournisseur n'est pas activé côté
+  Supabase).
+- Accessibilité non testée au clavier ni au lecteur d'écran sur le nouvel écran.
+- Pré-remplissage du nom/prénom à l'onboarding depuis les infos LinkedIn (disponibles dans
+  `user_metadata` après OIDC) : pas fait, l'onboarding actuel redemande tout — amélioration
+  possible mais non demandée ici.
 
 ## 2026-09-08 — Pastille de profil sur tous les écrans connectés (hors tableau de bord)
 

@@ -83,6 +83,25 @@ main:has(form) {
   max-width: 560px;
 }
 
+/* Séparateur "ou" entre le formulaire email/mot de passe et la connexion
+   LinkedIn (Connexion, Inscription). */
+.separateur-ou {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin: var(--space-4) 0;
+}
+
+.separateur-ou::before,
+.separateur-ou::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
 /* Écran "Mon compte" : sections séparées par un trait, comme l'en-tête. */
 main > section + section {
   margin-top: var(--space-5);

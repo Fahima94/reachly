@@ -27,6 +27,7 @@ async function analyserLeStyle(postsPourAnalyse) {
 export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtapeSuivante }) {
   const [linkedin, setLinkedin] = useState('')
   const [posts, setPosts] = useState([''])
+  const [aPropos, setAPropos] = useState('')
   const [profilEditorial, setProfilEditorial] = useState('')
   const [chargementInitial, setChargementInitial] = useState(true)
   const [erreurChargement, setErreurChargement] = useState('')
@@ -64,7 +65,7 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
       // onboarding → data null.
       const { data, error } = await supabase
         .from('profiles')
-        .select('linkedin, posts_exemples, profil_editorial')
+        .select('linkedin, posts_exemples, a_propos, profil_editorial')
         .eq('id', user.id)
         .maybeSingle()
       if (estAnnule()) return
@@ -80,6 +81,7 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
         const exemples = Array.isArray(data.posts_exemples) ? data.posts_exemples : []
         // Garde toujours au moins une zone de texte visible.
         setPosts(exemples.length > 0 ? exemples : [''])
+        setAPropos(data.a_propos ?? '')
         setProfilEditorial(data.profil_editorial ?? '')
       }
       setChargementInitial(false)
@@ -192,10 +194,11 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
 
     const linkedinTrim = linkedinValide(linkedin)
     const postsNonVides = posts.map((p) => p.trim()).filter(Boolean)
+    const aProposTrim = aPropos.trim()
     const profilTrim = profilEditorial.trim()
 
     // Rien à enregistrer : on termine directement, sans appel.
-    if (!linkedinTrim && postsNonVides.length === 0 && !profilTrim) {
+    if (!linkedinTrim && postsNonVides.length === 0 && !aProposTrim && !profilTrim) {
       onEtapeSuivante()
       return
     }
@@ -221,6 +224,7 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
         id: user.id,
         linkedin: linkedinTrim || null,
         posts_exemples: postsNonVides,
+        a_propos: aProposTrim || null,
         profil_editorial: profilTrim || null,
       })
 
@@ -331,6 +335,17 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
             </button>
             {confirmationSauvegardePosts && <span role="status"> Enregistré !</span>}
           </p>
+
+          <div>
+            <label htmlFor="a-propos">À propos de vous</label>
+            <textarea
+              id="a-propos"
+              value={aPropos}
+              onChange={(e) => setAPropos(e.target.value)}
+              placeholder="Qui vous êtes, ce que vous aimez faire — tout ce qui nous aide à mieux calibrer vos posts."
+              rows={4}
+            />
+          </div>
 
           {profilGenere && (
             <fieldset>
