@@ -19,7 +19,7 @@ base, resserré à l'essentiel pour le MVP. Une présentation animée du parcour
 - **Menu réduit à deux entrées** : « Connexion » et « Inscription », toutes deux vers
   l'écran d'authentification (le même écran, onglet actif différent).
 - **Contenu volontairement resserré**, repris et allégé du prototype :
-  - titre « être le premier à parler, sans y passer ses nuits. » et la phrase qui explique
+  - titre « Être le premier à parler, sans y passer ses nuits. » et la phrase qui explique
     ce que fait Reachly (veille agrégée et scorée, 5 sujets pré-rédigés chaque matin, dans
     votre voix, validés avant publication LinkedIn) ;
   - trois chiffres repères : `4h → 10 min` de veille quotidienne, `5 sujets` livrés chaque
@@ -110,7 +110,7 @@ Scénario: Personne ayant demandé moins d'animations
 
 ## Direction d'écran
 
-**Ce qu'on voit en premier :** le titre « être le premier à parler, sans y passer ses
+**Ce qu'on voit en premier :** le titre « Être le premier à parler, sans y passer ses
 nuits. », la phrase qui explique ce que fait Reachly, le bouton « Créer mon compte ».
 **Ce qui vient ensuite :** les trois chiffres repères, la présentation animée, puis la
 bande « Notre promesse » (trois engagements), puis le rappel final avec le même bouton.
@@ -174,6 +174,19 @@ du temps elle est décorative, sans contrôle) ; `Échap` en sort.
 - Sans effet si le navigateur refuse le plein écran (échec silencieux) ou si l'animation
   est en repli (`prefers-reduced-motion`, échec de chargement) : rien n'est cliquable dans
   ce cas.
+
+## Amendement (2026-09-09) : retouches de présentation
+
+Trois ajustements demandés par l'humain après relecture, sans changement de contenu
+ni de comportement :
+
+- Le titre du hero prend une majuscule : « Être le premier à parler, sans y passer
+  ses nuits. » (répercuté dans ce ticket ci-dessus).
+- Les trois chiffres repères (`4h → 10 min`, `5 sujets`, `100 %`) sont alignés en
+  grille de trois colonnes égales — nombre et libellé calés au même niveau d'un
+  repère à l'autre ; ils s'empilent sous ~560 px.
+- Le titre de section « Notre promesse » est mis en avant (plus grand, plus gras)
+  par rapport au `h2` générique.
 
 ## Fini quand
 

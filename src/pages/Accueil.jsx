@@ -92,7 +92,7 @@ export default function Accueil({ onAllerAccueil, onAllerConnexion, onAllerInscr
 
       <section className="landing-hero">
         <div className="landing-hero-texte">
-          <h1>être le premier à parler, sans y passer ses nuits.</h1>
+          <h1>Être le premier à parler, sans y passer ses nuits.</h1>
           <p className="landing-accroche">
             Reachly agrège votre veille Tech &amp; IA, la note par pertinence et vous
             livre chaque matin 5 sujets pré-rédigés, dans votre voix, prêts à valider

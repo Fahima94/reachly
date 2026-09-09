@@ -1,5 +1,31 @@
 # Journal
 
+## 2026-09-09 — Ticket 16 (amendement) : retouches de présentation de la landing
+
+**Demande (humain)** : trois ajustements sur la page d'accueil, sans changement de
+contenu ni de comportement.
+
+**Fait**
+- `src/pages/Accueil.jsx` : majuscule au titre du hero — « Être le premier à parler,
+  sans y passer ses nuits. ».
+- `src/index.css` : `.landing-chiffres` passe de `flex`/`flex-wrap` à une grille
+  `repeat(3, 1fr)` — les trois chiffres repères (`4h → 10 min`, `5 sujets`, `100 %`)
+  sont alignés en colonnes égales, nombre et libellé calés au même niveau. Nouveau
+  point de rupture `@media (max-width: 560px)` : les repères s'empilent en une
+  colonne quand trois deviennent trop étroites.
+- `src/index.css` : nouvelle règle `.landing-promesse h2` (1,6 rem, poids 700,
+  marge basse `--space-4`) — « Notre promesse » ressort par rapport au `h2`
+  générique (1,15 rem / 600).
+- `docs/tickets/16-landing-page.md` : titre littéral corrigé aux deux endroits qui
+  le citaient + section « Amendement (2026-09-09) ».
+
+**Vérifié**
+- `npm run build` : OK.
+
+**Non vérifié**
+- Rendu réel en navigateur (pas d'outil disponible sur cette machine — Playwright
+  incompatible macOS Darwin 21).
+
 ## 2026-09-08 — Pastille de profil sur tous les écrans connectés (hors tableau de bord)
 
 **Demande** : rajouter la pastille de profil (avatar + « + » photo + menu + « Se

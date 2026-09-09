@@ -1145,10 +1145,12 @@ main > ol > li > article > p:first-child {
   margin-bottom: var(--space-5);
 }
 
-/* Trois chiffres repères : le nombre en avant, la précision en dessous. */
+/* Trois chiffres repères : le nombre en avant, la précision en dessous.
+   Grille de trois colonnes égales pour que les repères soient alignés
+   (nombre et libellé calés au même niveau d'un repère à l'autre). */
 .landing-chiffres {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-4) var(--space-5);
   margin: 0;
   padding: 0;
@@ -1224,7 +1226,14 @@ main > ol > li > article > p:first-child {
   );
 }
 
-/* NOTRE PROMESSE : trois cartes de même gabarit. */
+/* NOTRE PROMESSE : titre de section mis en avant (plus grand et plus gras
+   que le h2 générique), puis trois cartes de même gabarit. */
+.landing-promesse h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+}
+
 .landing-promesse-liste {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1277,5 +1286,13 @@ main > ol > li > article > p:first-child {
   .landing-hero {
     grid-template-columns: 1fr;
     gap: var(--space-5);
+  }
+}
+
+/* Sous ~560px, trois colonnes deviennent trop étroites pour "4h → 10 min" :
+   les repères s'empilent. */
+@media (max-width: 560px) {
+  .landing-chiffres {
+    grid-template-columns: 1fr;
   }
 }
