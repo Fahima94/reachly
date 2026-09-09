@@ -1,5 +1,25 @@
 # Journal
 
+## 2026-09-09 — Pré-remplissage prénom/nom à l'onboarding depuis LinkedIn (OIDC)
+
+**Constat (humain)** : un nouveau compte créé via LinkedIn arrive sur l'onboarding
+(« Comment vous appelez-vous ? ») avec les champs prénom/nom vides — alors que LinkedIn les
+a déjà transmis (`user_metadata.given_name`/`family_name`, vus dans le jeton du 2026-09-09).
+Gap déjà noté au "Reste à faire" de l'entrée de connexion LinkedIn, jamais fait.
+
+**Fait (code)**
+- `src/pages/onboarding/Identite.jsx` : quand aucune ligne `profiles` n'existe encore
+  (premier onboarding), les champs prénom/nom se pré-remplissent depuis
+  `user.user_metadata.given_name`/`family_name` s'ils sont présents — toujours modifiables.
+  Sans effet pour un compte créé par email (ces métadonnées n'existent pas).
+- `npm run build` : OK (100 modules).
+
+**Point de vigilance (pas un bug)** : LinkedIn peut renvoyer un nom de famille tronqué selon
+les réglages de confidentialité de la personne (ex. « B. » au lieu du nom complet, observé
+sur le compte de test) — le champ reste éditable, la personne corrige si besoin.
+
+**Non vérifié** : rendu réel en navigateur (pas d'outil disponible ici).
+
 ## 2026-09-09 — "Publier" ouvre la fenêtre de publication LinkedIn (pas juste le profil)
 
 **Demande (humain)** : après une première demande de publication automatique via l'API
