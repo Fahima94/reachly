@@ -377,6 +377,11 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             </p>
           )}
 
+          <h2>Filtrage de vos actus</h2>
+          <p className="description-choix">
+            Ce qui détermine les sujets retenus pour vous dans la veille quotidienne.
+          </p>
+
           <fieldset className="chips" aria-describedby={erreurCategories ? 'categories-erreur' : undefined}>
             <legend>Catégories (au moins une)</legend>
             {erreurCategories && (
@@ -392,6 +397,84 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
                   onChange={() => basculer(setSelectionCategories, categorie.id)}
                 />
                 {categorie.nom}
+              </label>
+            ))}
+          </fieldset>
+
+          <fieldset className="chips">
+            <legend>Vos métiers (facultatif)</legend>
+            {metiers.map((metier) => (
+              <label key={metier.id}>
+                <input
+                  type="checkbox"
+                  checked={selectionMetiersSecteurs.has(metier.id)}
+                  onChange={() => basculer(setSelectionMetiersSecteurs, metier.id)}
+                />
+                {metier.nom}
+              </label>
+            ))}
+          </fieldset>
+
+          <fieldset className="chips">
+            <legend>Vos secteurs d'activité (facultatif)</legend>
+            {secteurs.map((secteur) => (
+              <label key={secteur.id}>
+                <input
+                  type="checkbox"
+                  checked={selectionMetiersSecteurs.has(secteur.id)}
+                  onChange={() => basculer(setSelectionMetiersSecteurs, secteur.id)}
+                />
+                {secteur.nom}
+              </label>
+            ))}
+          </fieldset>
+
+          <h2>Personnalisation de vos posts</h2>
+          <p className="description-choix">
+            Ce qui influence le ton et le style des posts générés à partir de ces sujets.
+          </p>
+
+          <fieldset className="chips" aria-describedby={erreurTonalite ? 'tonalite-erreur' : undefined}>
+            <legend>Tonalité</legend>
+            {erreurTonalite && (
+              <p id="tonalite-erreur" role="alert">
+                {erreurTonalite}
+              </p>
+            )}
+            {tonalites.map((tonalite) => (
+              <label key={tonalite.id}>
+                <input
+                  type="radio"
+                  name="tonalite"
+                  value={tonalite.id}
+                  checked={tonaliteChoisie === tonalite.id}
+                  onChange={() => setTonaliteChoisie(tonalite.id)}
+                />
+                {tonalite['Visée de la publication']}
+              </label>
+            ))}
+            {tonaliteChoisieDescriptif && (
+              <p className="description-choix">{tonaliteChoisieDescriptif}</p>
+            )}
+          </fieldset>
+
+          <fieldset className="chips" aria-describedby={erreurVoix ? 'voix-erreur' : undefined}>
+            <legend>Voix narrative</legend>
+            {erreurVoix && (
+              <p id="voix-erreur" role="alert">
+                {erreurVoix}
+              </p>
+            )}
+            {VOIX_NARRATIVES.map((voix) => (
+              <label key={voix.valeur}>
+                <input
+                  type="radio"
+                  name="voix-narrative"
+                  value={voix.valeur}
+                  checked={voixChoisie === voix.valeur}
+                  onChange={() => setVoixChoisie(voix.valeur)}
+                />
+                {voix.libelle}
               </label>
             ))}
           </fieldset>
@@ -466,79 +549,6 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
               </div>
             </fieldset>
           )}
-
-          <fieldset className="chips">
-            <legend>Vos métiers (facultatif)</legend>
-            {metiers.map((metier) => (
-              <label key={metier.id}>
-                <input
-                  type="checkbox"
-                  checked={selectionMetiersSecteurs.has(metier.id)}
-                  onChange={() => basculer(setSelectionMetiersSecteurs, metier.id)}
-                />
-                {metier.nom}
-              </label>
-            ))}
-          </fieldset>
-
-          <fieldset className="chips">
-            <legend>Vos secteurs d'activité (facultatif)</legend>
-            {secteurs.map((secteur) => (
-              <label key={secteur.id}>
-                <input
-                  type="checkbox"
-                  checked={selectionMetiersSecteurs.has(secteur.id)}
-                  onChange={() => basculer(setSelectionMetiersSecteurs, secteur.id)}
-                />
-                {secteur.nom}
-              </label>
-            ))}
-          </fieldset>
-
-          <fieldset className="chips" aria-describedby={erreurTonalite ? 'tonalite-erreur' : undefined}>
-            <legend>Tonalité</legend>
-            {erreurTonalite && (
-              <p id="tonalite-erreur" role="alert">
-                {erreurTonalite}
-              </p>
-            )}
-            {tonalites.map((tonalite) => (
-              <label key={tonalite.id}>
-                <input
-                  type="radio"
-                  name="tonalite"
-                  value={tonalite.id}
-                  checked={tonaliteChoisie === tonalite.id}
-                  onChange={() => setTonaliteChoisie(tonalite.id)}
-                />
-                {tonalite['Visée de la publication']}
-              </label>
-            ))}
-            {tonaliteChoisieDescriptif && (
-              <p className="description-choix">{tonaliteChoisieDescriptif}</p>
-            )}
-          </fieldset>
-
-          <fieldset className="chips" aria-describedby={erreurVoix ? 'voix-erreur' : undefined}>
-            <legend>Voix narrative</legend>
-            {erreurVoix && (
-              <p id="voix-erreur" role="alert">
-                {erreurVoix}
-              </p>
-            )}
-            {VOIX_NARRATIVES.map((voix) => (
-              <label key={voix.valeur}>
-                <input
-                  type="radio"
-                  name="voix-narrative"
-                  value={voix.valeur}
-                  checked={voixChoisie === voix.valeur}
-                  onChange={() => setVoixChoisie(voix.valeur)}
-                />
-                {voix.libelle}
-              </label>
-            ))}
-          </fieldset>
 
           <button type="submit" disabled={enCours} aria-busy={enCours}>
             {enCours ? 'Enregistrement en cours…' : 'Enregistrer'}

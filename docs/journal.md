@@ -1,5 +1,24 @@
 # Journal
 
+## 2026-09-09 — Préférences : regroupement filtrage veille / personnalisation posts
+
+**Demande (humain)** : pour une meilleure ergonomie et compréhension, regrouper ce qui
+relève du filtrage des actus d'un côté et de la personnalisation des posts de l'autre.
+
+**Fait** (`src/pages/Preferences.jsx`) : deux sections avec titre `<h2>` et une phrase
+d'intro (`.description-choix`) — « Filtrage de vos actus » (Catégories, Métiers,
+Secteurs) puis « Personnalisation de vos posts » (Tonalité, Voix narrative, LinkedIn,
+Posts inspirants, Profil éditorial). Auparavant les fieldsets étaient dans un ordre
+entrelacé (Catégories, LinkedIn/Posts, Métiers, Secteurs, Tonalité, Voix) — la remontée
+de « Posts inspirants » du tour précédent avait d'ailleurs accentué ce mélange.
+
+L'onboarding n'est pas touché : chaque groupe y correspond déjà à des étapes séparées
+(Catégories = étape 2, Métiers/Secteurs = étape 3, Tonalité = étape 4, LinkedIn/Posts =
+étape 5), la séquence fait déjà cette distinction implicitement.
+
+**Vérifié en réel** : `npm run build` OK ; parcours Playwright jusqu'à Préférences,
+ordre des `<h2>`/`<legend>` conforme, aucune erreur console.
+
 ## 2026-09-09 — Ticket 09 (amendement) : mise en avant et ergonomie de « Posts inspirants »
 
 **Constat (humain)** : la section « Posts inspirants » (onboarding étape 5 et écran
