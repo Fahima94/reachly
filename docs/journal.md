@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-09-10 — n8n : le prompt de génération utilise l'article complet (décision)
+
+**Suite de l'entrée précédente** — après comparaison en réel, décision de l'humain :
+basculer définitivement `Get Info.contenu` (résumé traduit) → `Get Info.article` (texte
+scrappé complet).
+
+**Vérifié avant bascule** : mesure de durée contrôlée (même sujet, même tonalité, deux
+appels de chaque) — résumé 5,6s/3,2s, article complet 6,8s/2,3s : aucun écart mesurable
+au-delà de la variance normale entre deux appels identiques. Couverture du champ
+`article` sur les 197 `Infos` en base : 0 vide — la bascule ne risque pas de générer un
+prompt avec un contenu manquant.
+
+**Fait** : `Generation Post` (workflow `Reachly Publication CC`) pointe désormais sur
+`Get Info.article`.
+
+**Vérifié en réel après bascule** : appel de production réel, 3,8 s, post cohérent et
+bien formé à partir de l'article complet.
+
 ## 2026-09-10 — n8n : génération de post 10x plus rapide (modèle Gemini instable)
 
 **Constat (humain)** : une génération a mis plus d'1 min 50 ; soupçon que la longueur de
