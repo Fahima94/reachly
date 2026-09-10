@@ -1,5 +1,26 @@
 # Journal
 
+## 2026-09-10 — n8n : le prompt d'analyse de style utilise « À propos de vous »
+
+**Suite de l'entrée précédente** (le champ arrivait au webhook mais était ignoré côté
+prompt) — accès n8n retrouvé dans cette session, correctif appliqué directement dans le
+workflow `Reachly_Profil_Utilisateur` (nœud « Analyser le style », id `22YXPZxH9pk7ZZwW`).
+
+**Fait** :
+- Prompt utilisateur reconstruit : compose dynamiquement une section « comment cette
+  personne se décrit elle-même » (si `a_propos` fourni) et/ou une section posts (si
+  `posts` non vide), au lieu de toujours supposer la présence de posts.
+- Prompt système mis à jour : explique comment combiner bio et posts, et comment se
+  comporter quand seule la bio est fournie (dégager ton/thèmes/personnalité, signaler
+  explicitement que les éléments structurels restent indéterminés faute de posts).
+- Nouvelle version publiée (`update_workflow` + `publish_workflow`).
+
+**Vérifié en réel** : deux appels réels au webhook de production (`curl`, pas de mock) —
+bio seule → profil cohérent avec la bio, mention explicite du manque de posts pour la
+structure ; bio + un post → les deux sources combinées, structure/ton tirés du post,
+thèmes tirés de la bio. Dans les deux cas : réponse bien formée, commence par
+« Profil éditorial : », en français.
+
 ## 2026-09-10 — « À propos de vous » transmis au webhook d'analyse de style
 
 **Demande (humain)** : le champ « À propos de vous » (ajouté par Fahima) doit être
@@ -18,11 +39,8 @@ véritable webhook n8n n'est pas accessible en test) — payload confirmé :
 `{ posts: [], a_propos: "…" }` en remplissant uniquement "À propos", bouton et appel
 déclenchés correctement, aucune erreur console.
 
-**Non fait — hors de portée depuis cette session** : le workflow n8n
-`Reachly_Profil_Utilisateur` doit encore être modifié pour que son prompt utilise
-réellement `a_propos` (actuellement il ne regarde probablement que `posts` — je n'ai pas
-accès à l'éditeur n8n dans cette session pour vérifier ni corriger). Le champ arrive bien
-au workflow ; reste à l'y câbler côté prompt.
+**Suite** : le câblage côté prompt n8n a été fait juste après (accès retrouvé) — voir
+l'entrée suivante.
 
 ## 2026-09-09 — Intégration et ergonomie du champ « À propos de vous »
 
