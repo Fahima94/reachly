@@ -1,5 +1,40 @@
 # Journal
 
+## 2026-09-10 — "Mes publications" : bouton "Publier" au lieu du select de statut
+
+**Demande (humain)** : remplacer le système de changement de statut (un `<select>` libre
+Brouillon/Enregistré/Publié) par un bouton "Publier", sur le modèle du tableau de bord.
+
+**Décision (proposée, validée par l'humain)** : un seul bouton "Publier" — pas de second
+bouton "Enregistrer" séparé (le tableau de bord en a deux après génération, mais ici on
+ne garde que l'action de publication). Le statut "Enregistré" n'est plus atteignable
+depuis cet écran (reste affiché s'il existe déjà en base sur d'anciennes publications).
+
+**Fait** :
+- **`src/components/ModaleConfirmationPublication.jsx`** (nouveau) : extraction du
+  composant jusque-là défini localement dans `GenerationPost.jsx`, pour le partager avec
+  `MesPublications.jsx` sans dupliquer sa logique (piège de focus, clavier).
+  `GenerationPost.jsx` l'importe désormais au lieu de le redéfinir.
+- **`src/pages/MesPublications.jsx`** : select de statut retiré, remplacé par un bouton
+  "Publier" (visible tant que le statut n'est pas "Publié") qui reproduit exactement le
+  geste du tableau de bord — statut → "Publié", date du jour si absente, copie du texte
+  dans le presse-papiers, puis la même modale de confirmation (lien vers la fenêtre de
+  composition LinkedIn pré-attachée à l'article source si disponible, sinon le profil
+  LinkedIn de la personne, sinon invitation à le renseigner). Nécessite deux nouvelles
+  données chargées au montage : `info_id` → lien de l'article source (`Infos.lien`,
+  requête séparée sur les ids distincts, comme ailleurs dans l'app) et `profiles.linkedin`
+  de la personne connectée. Le champ "Date de publication" (correctif manuel) reste
+  disponible une fois "Publié".
+- **`src/pages/Connexion.jsx`** : nouvelle prop `onModifierPreferences` transmise à
+  `MesPublications` (bascule vers l'écran Préférences), nécessaire pour le repli "Renseigner
+  mon LinkedIn" de la modale partagée.
+
+**Vérifié en réel** : parcours complet — génération d'un post depuis le tableau de bord
+(créant une publication "Brouillon" avec un vrai `info_id`), ouverture de "Mes
+publications", aucun select de statut, bouton "Publier" présent, clic → presse-papiers
+rempli, modale ouverte avec le bon lien ("fenêtre de publication", l'article source en
+avait un), statut passé à "Publié" en base. Aucune erreur console.
+
 ## 2026-09-10 — Sélection de tonalité obligatoire à la génération (plus de blocage)
 
 **Demande (humain)** : rendre la sélection de tonalité obligatoire au moment de la
