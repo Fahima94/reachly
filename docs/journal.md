@@ -18,6 +18,162 @@ publication automatique.
 
 **Non vérifié** : rendu réel en navigateur.
 
+## 2026-09-10 — n8n : le prompt de génération utilise l'article complet (décision)
+
+**Suite de l'entrée précédente** — après comparaison en réel, décision de l'humain :
+basculer définitivement `Get Info.contenu` (résumé traduit) → `Get Info.article` (texte
+scrappé complet).
+
+**Vérifié avant bascule** : mesure de durée contrôlée (même sujet, même tonalité, deux
+appels de chaque) — résumé 5,6s/3,2s, article complet 6,8s/2,3s : aucun écart mesurable
+au-delà de la variance normale entre deux appels identiques. Couverture du champ
+`article` sur les 197 `Infos` en base : 0 vide — la bascule ne risque pas de générer un
+prompt avec un contenu manquant.
+
+**Fait** : `Generation Post` (workflow `Reachly Publication CC`) pointe désormais sur
+`Get Info.article`.
+
+**Vérifié en réel après bascule** : appel de production réel, 3,8 s, post cohérent et
+bien formé à partir de l'article complet.
+
+## 2026-09-10 — n8n : génération de post 10x plus rapide (modèle Gemini instable)
+
+**Constat (humain)** : une génération a mis plus d'1 min 50 ; soupçon que la longueur de
+l'article scrapé en soit responsable — vérifié via l'exécution n8n que le prompt ne
+récupère que le résumé, pas l'article complet.
+
+**Investigation** (logs d'exécution n8n réels, deux exécutions lentes) : la lenteur n'a
+rien à voir avec la taille du contenu (1300-1500 tokens en entrée, modeste). Le nœud
+**Google Gemini Chat Model** tournait sur `gemini-3-flash-preview` (valeur par défaut du
+nœud, jamais fixée explicitement) — un modèle *preview*, sujet à des surcharges :
+- Exécution 352289 : Gemini a mis 112 s à répondre (mais a fini par réussir).
+- Exécution 352286 : Gemini a échoué après 89 s avec `503 — high demand`, avant bascule
+  sur le fallback Groq.
+
+Dans les deux cas, tous les autres nœuds (Supabase, etc.) prennent 3 à 356 ms — Gemini
+preview est seul responsable des 90-112 secondes observées.
+
+**Fait** : modèle explicitement fixé à `models/gemini-3.1-flash-lite` (stable, économe,
+recommandé par la documentation du nœud pour ce cas d'usage — palier preview évité).
+
+**Vérifié en réel** : deux appels réels au webhook après le changement — 11,6 s puis
+2,6 s (contre 90-112 s avant). Aucune régression de qualité observée sur les textes
+générés.
+
+**Résumé vs article complet** — confirmé que le prompt utilise `Get Info.contenu`
+(résumé traduit, ~100 mots) et jamais `Get Info.article` (texte scrappé complet, ~700
+mots ici, souvent en anglais) — déjà identifié comme chantier non fait fin août. Testé
+en réel sur le même sujet (bascule temporaire, immédiatement annulée après test, aucune
+décision prise) : la version "article complet" a produit un détail chiffré absent du
+résumé (250 000 organisations clientes vs uniquement "4 millions d'utilisateurs
+payants"/"600 M$ de revenus" dans la version résumé) — matière plus riche, confirmée,
+mais décision de bascule laissée à l'humain après comparaison.
+
+## 2026-09-10 — Synchronisation du tableau Notion (jamais faite depuis sa création)
+
+**Demande (humain)** : mets à jour le Notion, le tableau montre des "en cours".
+
+**Constat** : le tableau `Tickets` de la page "Reachly — Développement" n'avait que 13
+lignes (tickets 01-13) et la plupart affichaient encore "En cours" ou "Pas commencé" —
+jamais resynchronisé depuis sa création, indépendamment de tout le travail réel accompli
+depuis (confirme et corrige la dette technique notée le 2026-09-07).
+
+**Fait** : statut passé à "Terminé" pour les tickets 05 à 13 (fonctionnellement complets
+et vérifiés en réel à de nombreuses reprises au fil des sessions, même quand la case à
+cocher "Fini quand" de leur fichier local n'avait jamais été retro-cochée). Tickets 14, 15
+et 16 — absents du tableau — ajoutés avec le même traitement. Seul le ticket 03
+(récupération de mot de passe, annulé en V1) reste à "Pas commencé", à raison.
+
+**Non fait** : les cases à cocher "Fini quand" des fichiers locaux (`docs/tickets/*.md`)
+n'ont pas été retouchées — cette mise à jour ne concernait que Notion, pas la source de
+vérité elle-même.
+
+## 2026-09-10 — "À propos de vous" dans un fieldset
+
+**Demande (humain)** : ajouter un fieldset sur "À propos de vous".
+
+**Fait** (`src/pages/onboarding/LinkedinPosts.jsx`, `src/pages/Preferences.jsx`) : le
+`<div>` devient un `<fieldset>`/`<legend>`, comme "Exemples pour définir votre style"
+juste en dessous — même carte bordée, même traitement visuel. Le `<label>` associé au
+textarea devient visuellement masqué (`.visually-hidden`) pour ne pas dupliquer le texte
+déjà porté par la légende, tout en gardant l'association programmatique explicite.
+
+**Vérifié en réel** : capture d'écran (onboarding, étape 5) — carte bordée identique aux
+deux sections, `<legend>` bien dans un `<fieldset>`. Aucune erreur console.
+
+## 2026-09-10 — Petite passe UI : cohérence des types de boutons
+
+**Demande (humain)** : passe sur les types de boutons (primaires, secondaires, etc.).
+
+**Constat** : captures d'écran réelles sur landing, inscription, tableau de bord, modale
+de génération, post généré, menu profil, "Mes publications". Le système à trois niveaux
+(`.bouton-primaire` violet plein / bouton par défaut blanc bordé / `.bouton-discret`
+texte souligné) est déjà cohérent partout — une seule vraie incohérence trouvée : sur
+"Mes publications", "Enregistrer les modifications" et "Publier" étaient empilés
+verticalement, alors que la même paire (après génération, tableau de bord) est en ligne
+côte à côte.
+
+**Décision (proposée, validée par l'humain)** : corriger uniquement cette incohérence de
+mise en page — le reste du système n'a pas besoin d'être retouché.
+
+**Fait** (`src/pages/MesPublications.jsx`) : "Publier" et "Enregistrer les
+modifications" regroupés dans un `<div className="actions-generation-post">`, primaire
+en premier — même classe, même ordre que `GenerationPost.jsx`. Confirmation "Enregistré
+!" déplacée sous la paire de boutons plutôt qu'accolée au seul bouton secondaire.
+
+**Vérifié en réel** : capture d'écran après le correctif, mise en page identique aux deux
+endroits. Aucune erreur console.
+
+## 2026-09-10 — Fix : "Se déconnecter" restait bloqué après une connexion classique
+
+**Constat (humain)** : le bouton "Se déconnecter" ne fonctionne pas bien, ça reste
+bloqué sur la page.
+
+**Cause** : `src/pages/Connexion.jsx` gère son propre état post-connexion en interne
+(`statut`, `preferencesOuvertes`, `adminOuvert`, `publicationsOuvertes`, `compteOuvert`)
+pour le chemin de connexion classique (email/mot de passe) — contrairement au chemin
+LinkedIn OIDC ou à une session déjà active au chargement, qui passent par le routage de
+`App.jsx` (`ecran`). Le bouton "Se déconnecter" appelait directement
+`onDeconnexionReussie` du parent (`() => naviguerVers('connexion', { remplacer: true })`)
+sans jamais réinitialiser l'état local de `Connexion.jsx`. Comme `App.jsx` était déjà sur
+l'écran `'connexion'` durant tout ce parcours (il n'en sort jamais), cet appel ne
+changeait rien (React ne re-rend pas sur une valeur d'état identique) — la session était
+bien coupée côté Supabase, mais l'interface restait figée sur l'écran affiché.
+
+**Fait** : nouvelle fonction locale `gererDeconnexionReussie` dans `Connexion.jsx` qui
+réinitialise `statut` à `'idle'` et referme tous les `xxxOuvert`, puis appelle le
+`onDeconnexionReussie` du parent — substituée aux quatre endroits où le prop était
+transmis tel quel (Preferences, MesPublications, MonCompte, Dashboard rendus en interne).
+
+**Vérifié en réel** : compte de test, connexion via le formulaire classique (le chemin
+cassé), onboarding complété, clic sur "Se déconnecter" — retour immédiat et correct au
+formulaire de connexion, session bien absente du stockage local. Aucune erreur console.
+
+## 2026-09-10 — Retour à `reachly-tce` comme site présenté (quota Netlify atteint sur l'autre compte)
+
+`reachlyf.netlify.app` (auto-déploiement depuis `main`, compte de Fahima) a atteint son
+quota Netlify — on rebascule sur `reachly-tce.netlify.app` (déploiement manuel depuis ce
+poste, `netlify deploy --prod --no-build --dir=dist` après `npm run build`) comme site
+présenté. Déployé et vérifié (`main` à jour dessus, HTTP 200). À rebasculer si le quota
+de `reachlyf` se libère ou si un plan payant est pris.
+
+## 2026-09-10 — "Mes publications" : simplification supplémentaire de l'affichage publié
+
+**Demande (humain)** : se contenter d'afficher "Publié le [date]" et le texte du post en
+clair (pas dans un champ), plutôt qu'un textarea en lecture seule + un champ date.
+
+**Fait** (`src/pages/MesPublications.jsx`) : pour une publication "Publié", le
+`<textarea readOnly>` et le champ date deviennent un simple `<p>` (texte du post, sauts
+de ligne conservés via `white-space: pre-wrap` — nouveau sur `.texte-publication`, sans
+effet sur le textarea qui les préserve déjà nativement) et une ligne "Publié le
+[date formatée]". Suppression de `gererChangementDate` (plus aucun appelant) et de la
+classe CSS `.modifier-statut-publication` (ne servait qu'à aligner le select/champ date
+disparus).
+
+**Vérifié en réel** : après publication, plus aucun `<textarea>` ni `<input type=date>`
+sur la carte ; texte affiché correspond au post généré, sauts de ligne conservés ; ligne
+"Publié le 10 septembre 2026" correcte. Aucune erreur console.
+
 ## 2026-09-10 — "Mes publications" : texte en lecture seule une fois publié
 
 **Question (humain)** : est-ce pertinent de garder le bouton d'édition sur les

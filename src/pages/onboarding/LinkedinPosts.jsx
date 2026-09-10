@@ -292,12 +292,15 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
             Reachly rédige vos posts dans votre style, pas un style générique.
           </p>
 
-          <div>
-            <label htmlFor="a-propos">À propos de vous</label>
+          <fieldset aria-describedby="a-propos-description">
+            <legend>À propos de vous</legend>
             <p id="a-propos-description" className="description-choix">
               Qui vous êtes, ce que vous aimez faire, ce qui vous distingue — un court
               texte libre.
             </p>
+            <label htmlFor="a-propos" className="visually-hidden">
+              À propos de vous
+            </label>
             <textarea
               id="a-propos"
               aria-describedby="a-propos-description"
@@ -306,7 +309,7 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
               placeholder="Ex. : développeuse full-stack passionnée par l'IA, j'aime vulgariser des sujets techniques…"
               rows={4}
             />
-          </div>
+          </fieldset>
 
           <fieldset aria-describedby="exemples-style-description">
             <legend>Exemples pour définir votre style</legend>

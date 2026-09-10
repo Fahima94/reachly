@@ -915,25 +915,14 @@ fieldset.chips input[type='radio'] {
   margin-bottom: var(--space-3);
 }
 
-/* Texte de la publication : modifiable (textarea, pleine largeur de la
-   carte comme les autres champs de l'app). */
+/* Texte de la publication (écran "Mes publications") : modifiable
+   (textarea, pleine largeur de la carte) tant que non publiée ; même
+   classe réutilisée sur un <p> en lecture seule une fois "Publié" —
+   `white-space: pre-wrap` y conserve les sauts de ligne du post
+   (natif sur un textarea, pas sur un <p>). */
 .texte-publication {
   margin: 0 0 var(--space-2);
-}
-
-/* Modifier le statut d'une publication (écran "Mes publications") : champs
-   côte à côte, largeur limitée au contenu plutôt que la pleine largeur
-   habituelle des formulaires (pas de vraie saisie de texte ici). */
-.modifier-statut-publication {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: var(--space-3);
-}
-
-.modifier-statut-publication select,
-.modifier-statut-publication input[type='date'] {
-  width: auto;
+  white-space: pre-wrap;
 }
 
 /* Source · ancienneté (carte du tableau de bord) : plus discret que le
