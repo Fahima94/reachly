@@ -1,6 +1,31 @@
 # Journal
 
-## 2026-09-10 — Fix probable : copie presse-papiers échouait avant l'ouverture LinkedIn
+## 2026-09-10 — Fix : "Ouvrir LinkedIn" n'attache plus l'article source
+
+**Constat (humain, test réel)** : au clic sur "Publier", la fenêtre LinkedIn ouverte
+attachait un aperçu de l'article source (lien collé automatiquement par
+`share-offsite`) — pas ce que la personne veut coller, qui est le texte du post déjà
+copié dans le presse-papiers.
+
+**Fait** (`src/components/GenerationPost.jsx`, `src/components/ModaleConfirmationPublication.jsx`,
+`src/pages/MesPublications.jsx`, `src/pages/Dashboard.jsx`) : suppression complète du lien
+de composition `share-offsite/?url=<article>` (et de la requête `Infos.lien` qui
+l'alimentait côté "Mes publications"). "Ouvrir LinkedIn" pointe désormais toujours vers
+le profil LinkedIn de la personne (jamais un lien tiers), avec la consigne de coller le
+texte copié dans un nouveau post. Toujours aucun appel à l'API LinkedIn, aucune
+publication automatique.
+- `npm run build` : OK (102 modules).
+
+**Non vérifié** : rendu réel en navigateur.
+
+## 2026-09-10 — Fix probable (complémentaire) : copie presse-papiers avant l'ouverture LinkedIn
+
+**Suite de l'entrée précédente** — même signalement humain (l'URL/l'article arrive dans
+la fenêtre LinkedIn, pas le texte du post), corrigé en parallèle et indépendamment sous
+un angle différent, avant de découvrir la correction ci-dessus au moment de pousser.
+Les deux corrections sont complémentaires, pas redondantes : celle-ci reste valable même
+maintenant que LinkedIn n'attache plus l'article (la copie presse-papiers doit de toute
+façon réussir pour qu'il y ait quelque chose à coller).
 
 **Constat (humain)** : au clic sur "Publier", la fenêtre LinkedIn récupère bien l'URL de
 l'article (pré-remplie dans l'aperçu du lien), mais pas le texte du post généré — alors
