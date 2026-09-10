@@ -240,19 +240,27 @@ export default function MesPublications({
                     id={`texte-${pub.id}`}
                     value={pub.contenu ?? ''}
                     onChange={(e) => modifierTexteLocal(pub.id, e.target.value)}
+                    readOnly={pub.statut === 'Publié'}
                     rows={6}
                     className="texte-publication"
                   />
-                  <p>
-                    <button
-                      type="button"
-                      onClick={() => gererEnregistrerModifications(pub)}
-                      disabled={modificationEnCours === pub.id}
-                    >
-                      {modificationEnCours === pub.id ? 'Enregistrement…' : 'Enregistrer les modifications'}
-                    </button>
-                    {texteEnregistreId === pub.id && <span role="status"> Enregistré !</span>}
-                  </p>
+                  {pub.statut === 'Publié' ? (
+                    <p className="meta-discrete">
+                      Déjà publié — ce texte n'est plus modifiable ici (l'éditer ne changerait de
+                      toute façon rien sur LinkedIn).
+                    </p>
+                  ) : (
+                    <p>
+                      <button
+                        type="button"
+                        onClick={() => gererEnregistrerModifications(pub)}
+                        disabled={modificationEnCours === pub.id}
+                      >
+                        {modificationEnCours === pub.id ? 'Enregistrement…' : 'Enregistrer les modifications'}
+                      </button>
+                      {texteEnregistreId === pub.id && <span role="status"> Enregistré !</span>}
+                    </p>
+                  )}
 
                   <div className="modifier-statut-publication">
                     {pub.statut !== 'Publié' ? (

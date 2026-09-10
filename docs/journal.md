@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-09-10 — "Mes publications" : texte en lecture seule une fois publié
+
+**Question (humain)** : est-ce pertinent de garder le bouton d'édition sur les
+publications déjà "Publié" ? Trois options proposées, l'humain choisit de retirer
+purement et simplement la possibilité d'éditer un post déjà publié.
+
+**Fait** (`src/pages/MesPublications.jsx`) : la zone de texte devient `readOnly` dès que
+`pub.statut === 'Publié'`, le bouton "Enregistrer les modifications" disparaît, remplacé
+par un texte explicatif (« Déjà publié — ce texte n'est plus modifiable ici, l'éditer ne
+changerait de toute façon rien sur LinkedIn »). L'archive reflète alors exactement ce qui
+a été copié/publié au moment du clic sur "Publier" — cohérent avec le correctif de
+l'entrée précédente (qui garantit déjà que ce texte est le bon à cet instant-là).
+
+**Vérifié en réel** : avant publication, zone éditable + bouton présent ; après clic sur
+"Publier", zone en lecture seule, bouton disparu, message explicatif affiché. Aucune
+erreur console.
+
 ## 2026-09-10 — "Mes publications" : renommage + correctif "Publier" perdait le texte édité
 
 **Demande (humain)** : « le bouton "Enregistrer le texte" sert à quoi ? » — en
