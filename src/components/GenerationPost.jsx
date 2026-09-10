@@ -151,7 +151,6 @@ function ModaleConfirmationGeneration({
 
 export default function GenerationPost({
   sujetId,
-  sujetLien,
   userId,
   tonalites,
   tonaliteId,
@@ -178,16 +177,6 @@ export default function GenerationPost({
   const boutonPublierRef = useRef(null)
   const boutonGenererRef = useRef(null)
   const texteRef = useRef(null)
-
-  // Ouvre la fenêtre de publication LinkedIn elle-même (pas juste le profil),
-  // pré-attachée à l'article source — LinkedIn n'expose aucun moyen officiel
-  // de pré-remplir le texte du post (vérifié : `shareArticle` est déprécié,
-  // seul `share-offsite` reste supporté et ne prend qu'une URL). La personne
-  // colle le texte déjà copié comme commentaire et publie elle-même — jamais
-  // d'appel à l'API LinkedIn, jamais de publication automatique.
-  const lienComposition = sujetLien
-    ? `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(sujetLien)}`
-    : null
 
   // Le champ suit la longueur du texte plutôt qu'une hauteur fixe (6 lignes
   // quel que soit le contenu) — recalculée à chaque changement, génération
@@ -382,7 +371,6 @@ export default function GenerationPost({
 
       {modaleOuverte && (
         <ModaleConfirmationPublication
-          lienComposition={lienComposition}
           lienLinkedin={lienLinkedin}
           copieReussie={copieModaleReussie}
           onFermer={() => setModaleOuverte(false)}

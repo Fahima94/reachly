@@ -3,8 +3,6 @@ import { supabase } from '../lib/supabase.js'
 import EnteteConnecte from '../components/EnteteConnecte.jsx'
 import ModaleConfirmationPublication from '../components/ModaleConfirmationPublication.jsx'
 
-const LIEN_VALIDE = /^https?:\/\//i
-
 function formaterDate(date) {
   if (!date) return null
   return new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -19,7 +17,6 @@ export default function MesPublications({
   // chargement | erreur | pret
   const [etat, setEtat] = useState('chargement')
   const [publications, setPublications] = useState([])
-  const [lienParInfoId, setLienParInfoId] = useState(new Map())
   const [lienLinkedinUtilisateur, setLienLinkedinUtilisateur] = useState(null)
   const [modificationEnCours, setModificationEnCours] = useState(null)
   const [erreurModification, setErreurModification] = useState(null) // { id, message } | null
@@ -29,7 +26,6 @@ export default function MesPublications({
   // de bord (src/components/ModaleConfirmationPublication.jsx).
   const [modaleOuverte, setModaleOuverte] = useState(false)
   const [copieModaleReussie, setCopieModaleReussie] = useState(true)
-  const [lienModale, setLienModale] = useState({ composition: null, profil: null })
   const elementDeclencheurRef = useRef(null)
 
   // `estAnnule` protège contre le double montage de StrictMode en
@@ -51,7 +47,7 @@ export default function MesPublications({
         await Promise.all([
           supabase
             .from('Publications')
-            .select('id, titre, contenu, statut, "date_création", date_publication, created_at, info_id')
+            .select('id, titre, contenu, statut, "date_création", date_publication, created_at')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false }),
           supabase.from('profiles').select('linkedin').eq('id', user.id).maybeSingle(),
@@ -64,27 +60,6 @@ export default function MesPublications({
       }
 
       setLienLinkedinUtilisateur(profil?.linkedin || null)
-
-      // Lien de l'article source, pour ouvrir directement la fenêtre de
-      // composition LinkedIn dessus (comme sur le tableau de bord) — requête
-      // séparée, pas d'embed, même motif que le reste de l'app.
-      const idsInfos = [...new Set((pubs ?? []).map((p) => p.info_id).filter(Boolean))]
-      if (idsInfos.length > 0) {
-        const { data: infos, error: erreurInfos } = await supabase
-          .from('Infos')
-          .select('id, lien')
-          .in('id', idsInfos)
-        if (estAnnule()) return
-        if (erreurInfos) {
-          setEtat('erreur')
-          return
-        }
-        setLienParInfoId(
-          new Map(infos.map((i) => [i.id, LIEN_VALIDE.test(i.lien ?? '') ? i.lien : null])),
-        )
-      } else {
-        setLienParInfoId(new Map())
-      }
 
       setPublications(pubs ?? [])
       setEtat('pret')
@@ -154,8 +129,10 @@ export default function MesPublications({
   // Seule façon de passer une publication à "Publié" depuis cet écran (plus
   // de sélecteur de statut libre) — même geste que "Publier" sur le tableau
   // de bord : statut + date du jour (si absente), copie dans le
-  // presse-papiers, puis fenêtre de composition LinkedIn pré-attachée à
-  // l'article source si on l'a, sinon le profil LinkedIn de la personne.
+  // presse-papiers, puis lien vers le profil LinkedIn de la personne (jamais
+  // l'article source en pièce jointe — LinkedIn y attache automatiquement un
+  // aperçu de ce lien, ce qui n'est pas ce qu'on veut publier ; la personne
+  // colle elle-même le texte déjà copié dans un nouveau post).
   // Enregistre aussi `contenu` : sans ça, un texte modifié juste avant de
   // publier (sans passer par "Enregistrer les modifications") serait copié
   // tel quel dans le presse-papiers/LinkedIn, mais la base garderait
@@ -178,14 +155,6 @@ export default function MesPublications({
       copieReussie = false
     }
     setCopieModaleReussie(copieReussie)
-
-    const lienSource = lienParInfoId.get(pub.info_id) ?? null
-    setLienModale({
-      composition: lienSource
-        ? `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(lienSource)}`
-        : null,
-      profil: lienSource ? null : lienLinkedinUtilisateur,
-    })
     setModaleOuverte(true)
   }
 
@@ -297,8 +266,7 @@ export default function MesPublications({
 
       {modaleOuverte && (
         <ModaleConfirmationPublication
-          lienComposition={lienModale.composition}
-          lienLinkedin={lienModale.profil}
+          lienLinkedin={lienLinkedinUtilisateur}
           copieReussie={copieModaleReussie}
           onFermer={() => setModaleOuverte(false)}
           onOuvrirPreferences={onModifierPreferences}
