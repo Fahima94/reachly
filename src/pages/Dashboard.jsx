@@ -150,7 +150,6 @@ export default function Dashboard({
   const [sujets, setSujets] = useState([])
   const [aucuneCorrespondance, setAucuneCorrespondance] = useState(false)
   const [userId, setUserId] = useState(null)
-  const [tonaliteDefinie, setTonaliteDefinie] = useState(false)
   const [emailAdmin, setEmailAdmin] = useState(false)
   const [initiales, setInitiales] = useState('')
   const [nomComplet, setNomComplet] = useState('')
@@ -201,7 +200,6 @@ export default function Dashboard({
       }
 
       setUserId(user.id)
-      setTonaliteDefinie(Boolean(profil['Tonalité_défaut']))
       setEmailAdmin(estAdmin(user.email))
       setInitiales(`${profil.prenom[0]}${profil.nom[0]}`.toUpperCase())
       setNomComplet(`${profil.prenom} ${profil.nom}`)
@@ -703,7 +701,6 @@ export default function Dashboard({
                       sujetId={sujet.id}
                       sujetLien={sujet.lien}
                       userId={userId}
-                      tonaliteDefinie={tonaliteDefinie}
                       tonalites={tonalites}
                       tonaliteId={tonaliteId}
                       voixCode={voixCode}

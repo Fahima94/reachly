@@ -61,12 +61,15 @@ en ticket quand l'un de ces points devient prioritaire.
   `Resoudre Overrides` calcule `tonalite_effective = null`, puis `Get Tonalite` (filtre
   Supabase `id = {{ tonalite_effective }}`) échoue avec `invalid input syntax for type
   uuid: "null"` — le webhook répond 200 avec un corps vide, sans erreur exploitable.
-  **Pas un risque utilisateur actuel** : `GenerationPost.jsx` bloque déjà ce cas côté app
-  (`gererClicGenerer` vérifie `tonaliteDefinie` avant tout appel, message "Choisissez
-  d'abord une tonalité..."). Reste une absence de défense en profondeur côté n8n — si un
-  jour un autre appelant (script, changement futur du front) omet cette vérification, le
-  même échec silencieux se reproduira. Correctif possible : repli sur une tonalité par
-  défaut dans `Resoudre Overrides`, ou message d'erreur explicite renvoyé par le webhook.
+  **Mis à jour le 2026-09-10** : `GenerationPost.jsx` rend maintenant la sélection de
+  tonalité obligatoire dans la modale de confirmation (bouton désactivé tant qu'aucune
+  valeur n'est choisie) — il est donc structurellement impossible pour l'app d'envoyer
+  `tonalite_id` vide au webhook, y compris pour un compte sans tonalité par défaut.
+  Reste une absence de défense en profondeur côté n8n lui-même : un appel direct au
+  webhook (script, futur autre appelant) sans passer par l'app peut toujours provoquer le
+  même échec silencieux. Correctif possible si ça devient prioritaire : repli sur une
+  tonalité par défaut dans `Resoudre Overrides`, ou message d'erreur explicite renvoyé
+  par le webhook.
 
 ## Accessibilité clavier, vérifiée (2026-09-07)
 

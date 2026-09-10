@@ -78,6 +78,33 @@ suite à la préparation du plan de rédaction (2026-09-09). Contact fourni : `c
 **Non vérifié** : rendu réel en navigateur (repli SPA testé côté serveur seulement, pas le
 rendu client final) ; accessibilité non testée au clavier ni au lecteur d'écran.
 
+## 2026-09-10 — Sélection de tonalité obligatoire à la génération (plus de blocage)
+
+**Demande (humain)** : rendre la sélection de tonalité obligatoire au moment de la
+génération du post — suite à la découverte de la veille (bug n8n si `Tonalité_défaut`
+est vide, déjà sans risque côté app, mais l'ancien comportement était de bloquer
+entièrement la personne et de la renvoyer vers Préférences).
+
+**Fait** (`src/components/GenerationPost.jsx`, `src/pages/Dashboard.jsx`) :
+- Suppression de l'état `manque-tonalite` (redirection forcée vers "Renseigner mes
+  préférences") — `gererClicGenerer` ouvre désormais toujours la modale de confirmation,
+  qu'une tonalité par défaut existe ou non.
+- Le select "Tonalité" de la modale reçoit une option vide ("Choisissez une tonalité…")
+  et devient obligatoire : le bouton "Tout est ok, générer" est désactivé tant qu'aucune
+  valeur n'est choisie, avec un message d'aide sous le champ.
+- **La tonalité par défaut du profil continue à pré-remplir ce choix quand elle existe**
+  (`tonaliteId ?? ''`) — rien ne change pour les comptes qui en ont une, la génération
+  reste immédiate. Le champ vide ne concerne que les comptes qui n'ont jamais défini de
+  tonalité par défaut.
+- Focus initial de la modale envoyé sur le select (plutôt que le bouton, désactivé et donc
+  non focusable) quand aucune valeur n'est encore choisie ; piège de focus (Tab) étendu
+  aux `<select>`, qui en étaient absents.
+- `tonaliteDefinie` (prop, état, calcul) supprimé de `Dashboard.jsx` — devenu inutile.
+
+**Vérifié en réel** : compte de test sans tonalité définie — modale ouverte directement
+(plus de redirection), bouton désactivé au départ, focus sur le select à l'ouverture,
+activation après choix, génération réussie de bout en bout. Aucune erreur console.
+
 ## 2026-09-10 — Vérification réelle des cas limites de génération de post
 
 **Demande (humain)** : le cas "pas de posts de référence" est-il bien pris en compte
