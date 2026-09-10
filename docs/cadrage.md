@@ -47,6 +47,7 @@ Une seule interface pour les trois — la sous-segmentation calibre les réglage
 - Email retenu comme canal de notification pragmatique pour le MVP (pas de SMS/WhatsApp).
 - Authentification V1 sans e-mail : inscription immédiatement connectée (confirmation d'adresse désactivée dans Supabase), pas de parcours « mot de passe oublié ». Raison : quota d'envoi d'e-mails Supabase. Le ticket 03 est annulé ; à revoir en V1.x avec un fournisseur d'e-mail dédié.
 - Conformité RGPD, accessibilité, sécurité
+- Propriété intellectuelle des textes générés : l'utilisateur en devient propriétaire (dès la génération, et a fortiori une fois validé/modifié et publié sous son nom) — Reachly ne revendique aucun droit sur le contenu produit. Décision actée pour la rédaction des CGU (ticket 15).
 
 ## Questions ouvertes
 
