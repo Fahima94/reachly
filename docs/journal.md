@@ -1,5 +1,13 @@
 # Journal
 
+## 2026-09-10 — Retour à `reachly-tce` comme site présenté (quota Netlify atteint sur l'autre compte)
+
+`reachlyf.netlify.app` (auto-déploiement depuis `main`, compte de Fahima) a atteint son
+quota Netlify — on rebascule sur `reachly-tce.netlify.app` (déploiement manuel depuis ce
+poste, `netlify deploy --prod --no-build --dir=dist` après `npm run build`) comme site
+présenté. Déployé et vérifié (`main` à jour dessus, HTTP 200). À rebasculer si le quota
+de `reachlyf` se libère ou si un plan payant est pris.
+
 ## 2026-09-10 — "Mes publications" : simplification supplémentaire de l'affichage publié
 
 **Demande (humain)** : se contenter d'afficher "Publié le [date]" et le texte du post en
