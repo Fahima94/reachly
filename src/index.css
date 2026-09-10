@@ -751,9 +751,9 @@ fieldset.chips input[type='radio'] {
   box-shadow: var(--shadow-sm);
 }
 
-/* Génération de post en cours : ampoule qui pulse à côté du texte — le
-   texte reste le signal principal (annoncé par role="status"), l'animation
-   n'est qu'un renfort visuel. */
+/* Génération de post en cours : étincelle qui scintille à côté du texte —
+   le texte reste le signal principal (annoncé par role="status"),
+   l'animation n'est qu'un renfort visuel. */
 .generation-en-cours {
   display: flex;
   align-items: center;
@@ -762,23 +762,46 @@ fieldset.chips input[type='radio'] {
 
 .icone-generation {
   color: var(--color-primary);
-  animation: pulse-idee 1.2s ease-in-out infinite;
 }
 
-@keyframes pulse-idee {
+.icone-generation-etincelle-principale {
+  transform-origin: 12px 10.5px;
+  animation: pulse-etincelle 1.6s ease-in-out infinite;
+}
+
+.icone-generation-etincelle-secondaire {
+  transform-origin: 18.5px 4.5px;
+  animation: scintiller-etincelle 1.6s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+
+@keyframes pulse-etincelle {
   0%,
   100% {
-    opacity: 0.35;
-    transform: scale(0.9);
+    opacity: 0.75;
+    transform: scale(0.85) rotate(0deg);
   }
   50% {
     opacity: 1;
-    transform: scale(1.08);
+    transform: scale(1.05) rotate(8deg);
+  }
+}
+
+@keyframes scintiller-etincelle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.4);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .icone-generation {
+  .icone-generation-etincelle-principale,
+  .icone-generation-etincelle-secondaire {
     animation: none;
   }
 }

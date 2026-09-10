@@ -20,11 +20,15 @@ function IconeGeneration() {
       className="icone-generation"
     >
       <path
-        d="M12 2a7 7 0 0 0-4 12.74c.6.44 1 1.16 1 1.96V17a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-.3c0-.8.4-1.52 1-1.96A7 7 0 0 0 12 2z"
+        className="icone-generation-etincelle-principale"
+        d="M12 2c.6 5.2 2 7.8 7 8.5-5 .7-6.4 3.3-7 8.5-.6-5.2-2-7.8-7-8.5 5-.7 6.4-3.3 7-8.5z"
         fill="currentColor"
       />
-      <rect x="9.5" y="19.5" width="5" height="1.6" rx="0.8" fill="currentColor" />
-      <rect x="10" y="21.6" width="4" height="1.4" rx="0.7" fill="currentColor" />
+      <path
+        className="icone-generation-etincelle-secondaire"
+        d="M18.5 2c.25 1.6.9 2.25 2.5 2.5-1.6.25-2.25.9-2.5 2.5-.25-1.6-.9-2.25-2.5-2.5 1.6-.25 2.25-.9 2.5-2.5z"
+        fill="currentColor"
+      />
     </svg>
   )
 }
