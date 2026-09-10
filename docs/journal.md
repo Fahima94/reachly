@@ -1,5 +1,27 @@
 # Journal
 
+## 2026-09-10 — Test réel confirmé : `share-offsite` fonctionne comme prévu (pas un bug)
+
+**Suite de l'entrée précédente**, après déploiement sur `reachly-tce` et nouveau test humain
+en conditions réelles (redirection OAuth désormais résolue, sans lien avec `share-offsite`).
+
+**Constat (humain)** : « on en est toujours au même point » — le champ de texte de la
+fenêtre LinkedIn reste vide après ouverture. **Clarifié par la personne elle-même** : elle
+ne savait pas qu'il fallait coller (Ctrl+V) manuellement le texte déjà copié dans le
+presse-papiers — pas une limitation de l'app mais de l'API LinkedIn elle-même (`share-offsite`
+ne peut recevoir qu'une URL, jamais de texte pré-rempli, déjà établi précédemment dans ce
+même journal). La modale l'indique déjà (« Collez le texte copié dans le champ de
+commentaire, puis publiez vous-même »).
+
+**Décision** : pas de bug, pas de correctif nécessaire. Proposé de renforcer ce message pour
+les futurs utilisateurs réels (qui auraient la même attente) — **refusé explicitement** par
+la personne : « le message actuel suffit », confusion jugée ponctuelle liée au test, pas un
+vrai problème d'UX.
+
+**Reste ouvert** (voir `docs/dette-technique.md`) : le rendu de la carte de lien attachée par
+LinkedIn sous le texte collé (à quoi elle ressemble, si elle nuit à la portée du post) n'a
+toujours pas été évalué — ce test-ci n'est pas allé jusqu'à la publication effective.
+
 ## 2026-09-10 — Remis en test : fenêtre de composition LinkedIn pré-attachée (`share-offsite`)
 
 **Demande (humaine)**, après le diagnostic séparé de la redirection OAuth (voir plus bas) :
