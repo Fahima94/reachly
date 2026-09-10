@@ -126,6 +126,10 @@ export default function Connexion({
         onNaviguer={onChangerMode}
         onDeconnexionReussie={onDeconnexionReussie}
         onRetour={() => setPublicationsOuvertes(false)}
+        onModifierPreferences={() => {
+          setPublicationsOuvertes(false)
+          setPreferencesOuvertes(true)
+        }}
       />
     )
   }

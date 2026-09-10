@@ -1,5 +1,80 @@
 # Journal
 
+## 2026-09-10 — "Mes publications" : texte en lecture seule une fois publié
+
+**Question (humain)** : est-ce pertinent de garder le bouton d'édition sur les
+publications déjà "Publié" ? Trois options proposées, l'humain choisit de retirer
+purement et simplement la possibilité d'éditer un post déjà publié.
+
+**Fait** (`src/pages/MesPublications.jsx`) : la zone de texte devient `readOnly` dès que
+`pub.statut === 'Publié'`, le bouton "Enregistrer les modifications" disparaît, remplacé
+par un texte explicatif (« Déjà publié — ce texte n'est plus modifiable ici, l'éditer ne
+changerait de toute façon rien sur LinkedIn »). L'archive reflète alors exactement ce qui
+a été copié/publié au moment du clic sur "Publier" — cohérent avec le correctif de
+l'entrée précédente (qui garantit déjà que ce texte est le bon à cet instant-là).
+
+**Vérifié en réel** : avant publication, zone éditable + bouton présent ; après clic sur
+"Publier", zone en lecture seule, bouton disparu, message explicatif affiché. Aucune
+erreur console.
+
+## 2026-09-10 — "Mes publications" : renommage + correctif "Publier" perdait le texte édité
+
+**Demande (humain)** : « le bouton "Enregistrer le texte" sert à quoi ? » — en
+répondant, j'ai repéré que `gererPublier` n'enregistrait jamais `contenu` : éditer le
+texte puis cliquer directement "Publier" (sans passer par "Enregistrer le texte")
+copiait bien le texte édité dans le presse-papiers/LinkedIn, mais la base gardait
+l'ancien texte — désynchronisation entre ce qui est réellement publié et ce qui est
+enregistré. Signalé à l'humain, correctif accepté implicitement (pas d'objection).
+
+**Fait** :
+- Bouton renommé **« Enregistrer les modifications »** (au lieu de « Enregistrer le
+  texte ») — plus explicite sur le fait qu'il s'agit de sauvegarder un changement, pas
+  d'une action générique. Fonction `gererEnregistrerTexte` renommée
+  `gererEnregistrerModifications` en cohérence.
+- `gererPublier` inclut désormais `contenu: pub.contenu` dans sa mise à jour — le texte
+  actuellement affiché (édité ou non) est toujours ce qui finit en base, plus jamais de
+  décalage avec ce qui a été copié/publié.
+
+**Vérifié en réel** : édité le texte d'un post généré, cliqué "Publier" directement
+(sans "Enregistrer les modifications") — le texte édité est bien celui retrouvé en base
+après coup (vérifié par requête authentifiée), statut bien "Publié". Aucune erreur
+console.
+
+## 2026-09-10 — "Mes publications" : bouton "Publier" au lieu du select de statut
+
+**Demande (humain)** : remplacer le système de changement de statut (un `<select>` libre
+Brouillon/Enregistré/Publié) par un bouton "Publier", sur le modèle du tableau de bord.
+
+**Décision (proposée, validée par l'humain)** : un seul bouton "Publier" — pas de second
+bouton "Enregistrer" séparé (le tableau de bord en a deux après génération, mais ici on
+ne garde que l'action de publication). Le statut "Enregistré" n'est plus atteignable
+depuis cet écran (reste affiché s'il existe déjà en base sur d'anciennes publications).
+
+**Fait** :
+- **`src/components/ModaleConfirmationPublication.jsx`** (nouveau) : extraction du
+  composant jusque-là défini localement dans `GenerationPost.jsx`, pour le partager avec
+  `MesPublications.jsx` sans dupliquer sa logique (piège de focus, clavier).
+  `GenerationPost.jsx` l'importe désormais au lieu de le redéfinir.
+- **`src/pages/MesPublications.jsx`** : select de statut retiré, remplacé par un bouton
+  "Publier" (visible tant que le statut n'est pas "Publié") qui reproduit exactement le
+  geste du tableau de bord — statut → "Publié", date du jour si absente, copie du texte
+  dans le presse-papiers, puis la même modale de confirmation (lien vers la fenêtre de
+  composition LinkedIn pré-attachée à l'article source si disponible, sinon le profil
+  LinkedIn de la personne, sinon invitation à le renseigner). Nécessite deux nouvelles
+  données chargées au montage : `info_id` → lien de l'article source (`Infos.lien`,
+  requête séparée sur les ids distincts, comme ailleurs dans l'app) et `profiles.linkedin`
+  de la personne connectée. Le champ "Date de publication" (correctif manuel) reste
+  disponible une fois "Publié".
+- **`src/pages/Connexion.jsx`** : nouvelle prop `onModifierPreferences` transmise à
+  `MesPublications` (bascule vers l'écran Préférences), nécessaire pour le repli "Renseigner
+  mon LinkedIn" de la modale partagée.
+
+**Vérifié en réel** : parcours complet — génération d'un post depuis le tableau de bord
+(créant une publication "Brouillon" avec un vrai `info_id`), ouverture de "Mes
+publications", aucun select de statut, bouton "Publier" présent, clic → presse-papiers
+rempli, modale ouverte avec le bon lien ("fenêtre de publication", l'article source en
+avait un), statut passé à "Publié" en base. Aucune erreur console.
+
 ## 2026-09-10 — Fix : la photo LinkedIn pré-remplie était une URL temporaire
 
 **Constat (humain, test réel)** : connecté avec un compte LinkedIn existant (déjà onboardé

@@ -1,21 +1,36 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase.js'
 import EnteteConnecte from '../components/EnteteConnecte.jsx'
+import ModaleConfirmationPublication from '../components/ModaleConfirmationPublication.jsx'
+
+const LIEN_VALIDE = /^https?:\/\//i
 
 function formaterDate(date) {
   if (!date) return null
   return new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-const STATUTS = ['Brouillon', 'Enregistré', 'Publié']
-
-export default function MesPublications({ onNaviguer, onDeconnexionReussie, onRetour }) {
+export default function MesPublications({
+  onNaviguer,
+  onDeconnexionReussie,
+  onRetour,
+  onModifierPreferences,
+}) {
   // chargement | erreur | pret
   const [etat, setEtat] = useState('chargement')
   const [publications, setPublications] = useState([])
+  const [lienParInfoId, setLienParInfoId] = useState(new Map())
+  const [lienLinkedinUtilisateur, setLienLinkedinUtilisateur] = useState(null)
   const [modificationEnCours, setModificationEnCours] = useState(null)
   const [erreurModification, setErreurModification] = useState(null) // { id, message } | null
   const [texteEnregistreId, setTexteEnregistreId] = useState(null)
+
+  // Modale de confirmation après "Publier" — même composant que le tableau
+  // de bord (src/components/ModaleConfirmationPublication.jsx).
+  const [modaleOuverte, setModaleOuverte] = useState(false)
+  const [copieModaleReussie, setCopieModaleReussie] = useState(true)
+  const [lienModale, setLienModale] = useState({ composition: null, profil: null })
+  const elementDeclencheurRef = useRef(null)
 
   // `estAnnule` protège contre le double montage de StrictMode en
   // développement — motif déjà utilisé sur les autres écrans de l'app.
@@ -32,19 +47,46 @@ export default function MesPublications({ onNaviguer, onDeconnexionReussie, onRe
         return
       }
 
-      const { data, error } = await supabase
-        .from('Publications')
-        .select('id, titre, contenu, statut, "date_création", date_publication, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+      const [{ data: pubs, error: erreurPubs }, { data: profil, error: erreurProfil }] =
+        await Promise.all([
+          supabase
+            .from('Publications')
+            .select('id, titre, contenu, statut, "date_création", date_publication, created_at, info_id')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false }),
+          supabase.from('profiles').select('linkedin').eq('id', user.id).maybeSingle(),
+        ])
       if (estAnnule()) return
 
-      if (error) {
+      if (erreurPubs || erreurProfil) {
         setEtat('erreur')
         return
       }
 
-      setPublications(data ?? [])
+      setLienLinkedinUtilisateur(profil?.linkedin || null)
+
+      // Lien de l'article source, pour ouvrir directement la fenêtre de
+      // composition LinkedIn dessus (comme sur le tableau de bord) — requête
+      // séparée, pas d'embed, même motif que le reste de l'app.
+      const idsInfos = [...new Set((pubs ?? []).map((p) => p.info_id).filter(Boolean))]
+      if (idsInfos.length > 0) {
+        const { data: infos, error: erreurInfos } = await supabase
+          .from('Infos')
+          .select('id, lien')
+          .in('id', idsInfos)
+        if (estAnnule()) return
+        if (erreurInfos) {
+          setEtat('erreur')
+          return
+        }
+        setLienParInfoId(
+          new Map(infos.map((i) => [i.id, LIEN_VALIDE.test(i.lien ?? '') ? i.lien : null])),
+        )
+      } else {
+        setLienParInfoId(new Map())
+      }
+
+      setPublications(pubs ?? [])
       setEtat('pret')
     } catch {
       if (estAnnule()) return
@@ -87,36 +129,64 @@ export default function MesPublications({ onNaviguer, onDeconnexionReussie, onRe
     return true
   }
 
-  function gererChangementStatut(pub, nouveauStatut) {
-    // Passer à "Publié" sans date déjà enregistrée : celle du jour par
-    // défaut, modifiable ensuite via le champ date qui apparaît.
-    const correctifs = { statut: nouveauStatut }
-    if (nouveauStatut === 'Publié' && !pub.date_publication) {
-      correctifs.date_publication = new Date().toISOString().slice(0, 10)
-    }
-    appliquerMiseAJour(pub, correctifs)
-  }
-
   function gererChangementDate(pub, nouvelleDate) {
     appliquerMiseAJour(pub, { date_publication: nouvelleDate || null })
   }
 
   // Le texte se modifie localement à chaque frappe (pas d'appel réseau tant
-  // que "Enregistrer le texte" n'est pas cliqué) — même principe que le
-  // texte généré sur le tableau de bord (GenerationPost.jsx).
+  // que "Enregistrer les modifications" n'est pas cliqué) — même principe
+  // que le texte généré sur le tableau de bord (GenerationPost.jsx).
   function modifierTexteLocal(pubId, nouveauTexte) {
     setPublications((precedent) =>
       precedent.map((p) => (p.id === pubId ? { ...p, contenu: nouveauTexte } : p)),
     )
   }
 
-  async function gererEnregistrerTexte(pub) {
+  async function gererEnregistrerModifications(pub) {
     setTexteEnregistreId(null)
     const succes = await appliquerMiseAJour(pub, { contenu: pub.contenu })
     if (succes) {
       setTexteEnregistreId(pub.id)
       setTimeout(() => setTexteEnregistreId(null), 3000)
     }
+  }
+
+  // Seule façon de passer une publication à "Publié" depuis cet écran (plus
+  // de sélecteur de statut libre) — même geste que "Publier" sur le tableau
+  // de bord : statut + date du jour (si absente), copie dans le
+  // presse-papiers, puis fenêtre de composition LinkedIn pré-attachée à
+  // l'article source si on l'a, sinon le profil LinkedIn de la personne.
+  // Enregistre aussi `contenu` : sans ça, un texte modifié juste avant de
+  // publier (sans passer par "Enregistrer les modifications") serait copié
+  // tel quel dans le presse-papiers/LinkedIn, mais la base garderait
+  // l'ancien texte — désynchronisation entre ce qui est réellement publié
+  // et ce que l'app enregistre.
+  async function gererPublier(pub, evenement) {
+    elementDeclencheurRef.current = evenement.currentTarget
+
+    const correctifs = { statut: 'Publié', contenu: pub.contenu }
+    if (!pub.date_publication) {
+      correctifs.date_publication = new Date().toISOString().slice(0, 10)
+    }
+    const succes = await appliquerMiseAJour(pub, correctifs)
+    if (!succes) return
+
+    let copieReussie = true
+    try {
+      await navigator.clipboard.writeText(pub.contenu ?? '')
+    } catch {
+      copieReussie = false
+    }
+    setCopieModaleReussie(copieReussie)
+
+    const lienSource = lienParInfoId.get(pub.info_id) ?? null
+    setLienModale({
+      composition: lienSource
+        ? `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(lienSource)}`
+        : null,
+      profil: lienSource ? null : lienLinkedinUtilisateur,
+    })
+    setModaleOuverte(true)
   }
 
   return (
@@ -170,37 +240,39 @@ export default function MesPublications({ onNaviguer, onDeconnexionReussie, onRe
                     id={`texte-${pub.id}`}
                     value={pub.contenu ?? ''}
                     onChange={(e) => modifierTexteLocal(pub.id, e.target.value)}
+                    readOnly={pub.statut === 'Publié'}
                     rows={6}
                     className="texte-publication"
                   />
-                  <p>
-                    <button
-                      type="button"
-                      onClick={() => gererEnregistrerTexte(pub)}
-                      disabled={modificationEnCours === pub.id}
-                    >
-                      {modificationEnCours === pub.id ? 'Enregistrement…' : 'Enregistrer le texte'}
-                    </button>
-                    {texteEnregistreId === pub.id && <span role="status"> Enregistré !</span>}
-                  </p>
-
-                  <div className="modifier-statut-publication">
-                    <div>
-                      <label htmlFor={`statut-${pub.id}`}>Statut</label>
-                      <select
-                        id={`statut-${pub.id}`}
-                        value={pub.statut}
-                        onChange={(e) => gererChangementStatut(pub, e.target.value)}
+                  {pub.statut === 'Publié' ? (
+                    <p className="meta-discrete">
+                      Déjà publié — ce texte n'est plus modifiable ici (l'éditer ne changerait de
+                      toute façon rien sur LinkedIn).
+                    </p>
+                  ) : (
+                    <p>
+                      <button
+                        type="button"
+                        onClick={() => gererEnregistrerModifications(pub)}
                         disabled={modificationEnCours === pub.id}
                       >
-                        {STATUTS.map((statut) => (
-                          <option key={statut} value={statut}>
-                            {statut}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    {pub.statut === 'Publié' && (
+                        {modificationEnCours === pub.id ? 'Enregistrement…' : 'Enregistrer les modifications'}
+                      </button>
+                      {texteEnregistreId === pub.id && <span role="status"> Enregistré !</span>}
+                    </p>
+                  )}
+
+                  <div className="modifier-statut-publication">
+                    {pub.statut !== 'Publié' ? (
+                      <button
+                        type="button"
+                        className="bouton-primaire"
+                        onClick={(e) => gererPublier(pub, e)}
+                        disabled={modificationEnCours === pub.id}
+                      >
+                        {modificationEnCours === pub.id ? 'Publication…' : 'Publier'}
+                      </button>
+                    ) : (
                       <div>
                         <label htmlFor={`date-${pub.id}`}>Date de publication</label>
                         <input
@@ -221,6 +293,17 @@ export default function MesPublications({ onNaviguer, onDeconnexionReussie, onRe
             )
           })}
         </ol>
+      )}
+
+      {modaleOuverte && (
+        <ModaleConfirmationPublication
+          lienComposition={lienModale.composition}
+          lienLinkedin={lienModale.profil}
+          copieReussie={copieModaleReussie}
+          onFermer={() => setModaleOuverte(false)}
+          onOuvrirPreferences={onModifierPreferences}
+          elementDeclencheur={elementDeclencheurRef}
+        />
       )}
     </main>
   )
