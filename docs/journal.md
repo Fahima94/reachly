@@ -1,5 +1,39 @@
 # Journal
 
+## 2026-09-10 — Vérification réelle des cas limites de génération de post
+
+**Demande (humain)** : le cas "pas de posts de référence" est-il bien pris en compte
+(déjà répondu, reconfirmé) ? Le cas "pas de profil éditorial" (repli sur les éléments
+génériques du prompt) est-il pris en compte ?
+
+**Vérifié en réel** (webhook `Reachly Publication CC`, `f385f1d3-...`, compte de test) :
+- Lu le prompt de génération : `profil_editorial && !profil_editorial.includes('aucun')`
+  conditionne l'injection du style personnalisé — si absent, vide, ou égal à la chaîne
+  de repli `"Profil éditorial : aucun"` (produite par l'autre workflow quand le contenu
+  fourni est trop maigre), ce bloc est simplement omis. Le prompt retombe sur ses
+  éléments génériques (rôle de ghostwriter, tonalité, voix narrative, règles de
+  structure). C'était déjà pensé avant mon intervention sur "À propos de vous".
+- **Confirmé avec un profil éditorial de test réel** (tutoiement imposé, vocabulaire
+  imposé, punchline finale imposée) : le post généré respecte scrupuleusement ces
+  consignes — le mécanisme fonctionne de bout en bout.
+
+**Bug trouvé en testant le cas "profil vide" (sans rapport avec `a_propos`)** : un
+compte n'ayant jamais renseigné de tonalité par défaut (`Tonalité_défaut` = `null`) fait
+planter le workflow — `Resoudre Overrides` calcule `tonalite_effective = null`, puis
+`Get Tonalite` (Supabase, filtre `id = {{ tonalite_effective }}`) échoue avec
+`invalid input syntax for type uuid: "null"`. Le webhook répond 200 avec un corps
+**vide**, sans erreur exploitable.
+
+**Pas un risque en pratique** : `src/components/GenerationPost.jsx` bloque déjà ce cas
+côté app — `gererClicGenerer()` vérifie `tonaliteDefinie` et affiche "Choisissez d'abord
+une tonalité pour générer un post." avant même d'appeler le webhook. Le bug n'est
+atteignable qu'en appelant le webhook n8n directement (comme je viens de le faire pour
+tester), jamais depuis l'app. Noté comme dette technique (défense en profondeur
+manquante côté n8n) — pas corrigé, pas de risque utilisateur actuel.
+
+**Effet de bord de ce test** : une ligne "Brouillon" a été créée dans `Publications`
+pour le compte de test (id `3f30f8d3-...`), comme prévenu avant de tester.
+
 ## 2026-09-10 — n8n : le prompt d'analyse de style utilise « À propos de vous »
 
 **Suite de l'entrée précédente** (le champ arrivait au webhook mais était ignoré côté
