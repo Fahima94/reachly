@@ -1,5 +1,21 @@
 # Journal
 
+## 2026-09-10 — Annulé : retrait de `target="_blank"` sans effet, retour au comportement précédent
+
+**Constat (humain, test réel sur téléphone)** : le navigateur ne propose toujours pas
+d'ouvrir l'appli LinkedIn après le retrait de `target="_blank"` sur mobile (entrée
+précédente). Le correctif reposait sur une limitation documentée de Safari/iOS mais rien
+ne garantissait qu'elle suffise — confirmé qu'elle ne suffit pas ici.
+
+**Fait** (`src/components/ModaleConfirmationPublication.jsx`) : retour pur et simple au
+comportement précédent — `target="_blank"` / `rel="noopener noreferrer"` systématiques,
+sur mobile comme sur desktop, plus de détection `estMobile()`.
+- `npm run build` : bundle identique à avant le changement mobile (même hash
+  `index-DBBZg73O.js`), confirme un retour strict à l'état antérieur.
+
+**Question ouverte, non résolue** : comment proposer l'ouverture de l'appli LinkedIn reste
+sans réponse — voir `docs/dette-technique.md`.
+
 ## 2026-09-10 — Mobile : retrait de `target="_blank"` pour favoriser l'ouverture de l'appli LinkedIn
 
 **Demande (humaine)** : comment proposer l'ouverture de l'appli LinkedIn sur mobile au clic

@@ -26,6 +26,14 @@ en ticket quand l'un de ces points devient prioritaire.
   automatiquement sous le texte collé, ni si elle nuit réellement à la portée du post
   (règle de génération « pas de lien dans le texte »). Nécessite un vrai compte LinkedIn
   pour trancher — voir `docs/journal.md`.
+- **Ouverture de l'appli LinkedIn sur mobile — sans solution trouvée.** Testé le
+  2026-09-10 : retirer `target="_blank"` (limitation documentée de Safari/iOS vis-à-vis des
+  Universal Links) n'a pas suffi, le navigateur ne propose toujours pas d'ouvrir l'appli ;
+  correctif annulé, retour au comportement précédent (nouvel onglet systématique). Reste
+  ouvert : LinkedIn ne documente aucun mécanisme officiel et fiable pour ça (voir
+  `docs/journal.md`) ; les pistes restantes (schéma d'URL `linkedin://` non documenté,
+  `intent://` Android, ou un service tiers payant type Zippy/U2L) n'ont pas été tentées —
+  fragiles et/ou nécessitent une dépendance externe, pas engagées sans decision explicite.
 
 ## Périmètre volontairement réduit (décisions déjà prises, pas des oublis)
 
