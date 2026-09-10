@@ -6,6 +6,7 @@ import EnteteConnecte from '../../components/EnteteConnecte.jsx'
 export default function Identite({ onNaviguer, onDeconnexionReussie, onEtapeSuivante }) {
   const [prenom, setPrenom] = useState('')
   const [nom, setNom] = useState('')
+  const [avatarLinkedin, setAvatarLinkedin] = useState(null)
   const [chargementInitial, setChargementInitial] = useState(true)
   const [erreurChargement, setErreurChargement] = useState('')
   const [statut, setStatut] = useState('idle') // idle | chargement
@@ -54,13 +55,17 @@ export default function Identite({ onNaviguer, onDeconnexionReussie, onEtapeSuiv
         setNom(data.nom ?? '')
       } else {
         // Premier onboarding, aucune ligne profiles : la connexion via
-        // LinkedIn (OIDC) fournit parfois prénom/nom dans les métadonnées
-        // utilisateur — pré-remplissage, toujours modifiable (LinkedIn peut
-        // renvoyer un nom tronqué selon les réglages de confidentialité de
-        // la personne, ex. « B. » au lieu du nom complet).
+        // LinkedIn (OIDC) fournit parfois prénom/nom/photo dans les
+        // métadonnées utilisateur — pré-remplissage, toujours modifiable
+        // (LinkedIn peut renvoyer un nom tronqué selon les réglages de
+        // confidentialité de la personne, ex. « B. » au lieu du nom complet).
+        // `avatarLinkedin` n'est utilisé qu'ici (jamais sur une relance) —
+        // condition suffisante pour ne jamais écraser une photo déjà
+        // uploadée manuellement (voir gererValidation).
         const metadonnees = user.user_metadata ?? {}
         if (metadonnees.given_name) setPrenom(metadonnees.given_name)
         if (metadonnees.family_name) setNom(metadonnees.family_name)
+        if (metadonnees.picture) setAvatarLinkedin(metadonnees.picture)
       }
       setChargementInitial(false)
     } catch {
@@ -106,12 +111,21 @@ export default function Identite({ onNaviguer, onDeconnexionReussie, onEtapeSuiv
 
       // Première écriture dans profiles pour cette personne : upsert (pas de
       // ligne existante), on en profite pour y copier l'email déjà connu.
-      const { error } = await supabase.from('profiles').upsert({
+      const correctifs = {
         id: user.id,
         email: user.email,
         prenom: prenom.trim(),
         nom: nom.trim(),
-      })
+      }
+      // `avatar_url` seulement si LinkedIn en a fourni une à l'instant (voir
+      // chargerProfil) — jamais inclus sinon, pour ne jamais écraser une
+      // photo déjà choisie manuellement (Dashboard.jsx / MonCompte.jsx) sur
+      // une relance de l'onboarding.
+      if (avatarLinkedin) {
+        correctifs.avatar_url = avatarLinkedin
+      }
+
+      const { error } = await supabase.from('profiles').upsert(correctifs)
 
       if (error) {
         setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")

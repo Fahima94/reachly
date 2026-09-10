@@ -1,5 +1,23 @@
 # Journal
 
+## 2026-09-10 — Pré-remplissage de la photo de profil depuis LinkedIn (OIDC)
+
+**Demande (humain)** : suite au pré-remplissage prénom/nom du 2026-09-09, même principe
+pour la photo — LinkedIn fournit aussi `user_metadata.picture`.
+
+**Fait (code)**
+- `src/pages/onboarding/Identite.jsx` : `avatarLinkedin` capturé uniquement au premier
+  onboarding (même branche que prénom/nom, `!data` en base) ; inclus dans l'upsert
+  (`avatar_url`) seulement s'il existe. Jamais inclus sur une relance — condition
+  suffisante pour ne jamais écraser une photo déjà choisie manuellement (Dashboard.jsx,
+  MonCompte.jsx), puisque l'état ne se peuple que dans ce cas précis.
+- `npm run build` : OK (101 modules).
+
+**Non vérifié** : rendu réel en navigateur (nouveau compte LinkedIn avec photo de profil
+réelle) ; comportement si `user_metadata.picture` pointe vers une URL expirée ou protégée
+côté LinkedIn (pas creusé — l'`<img>` affiche alors une image cassée jusqu'à ce que la
+personne change sa photo).
+
 ## 2026-09-10 — Ticket 15 : pages CGU / politique de confidentialité (structure, pas le contenu)
 
 **Demande (humain)** : lien en bas de page vers les CGU / politique de confidentialité,
