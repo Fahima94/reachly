@@ -129,10 +129,6 @@ export default function MesPublications({
     return true
   }
 
-  function gererChangementDate(pub, nouvelleDate) {
-    appliquerMiseAJour(pub, { date_publication: nouvelleDate || null })
-  }
-
   // Le texte se modifie localement à chaque frappe (pas d'appel réseau tant
   // que "Enregistrer les modifications" n'est pas cliqué) — même principe
   // que le texte généré sur le tableau de bord (GenerationPost.jsx).
@@ -233,37 +229,35 @@ export default function MesPublications({
                     </span>
                     {date && <span className="meta-discrete">{date}</span>}
                   </summary>
-                  <label htmlFor={`texte-${pub.id}`} className="visually-hidden">
-                    Texte de la publication « {pub.titre || 'sans titre'} »
-                  </label>
-                  <textarea
-                    id={`texte-${pub.id}`}
-                    value={pub.contenu ?? ''}
-                    onChange={(e) => modifierTexteLocal(pub.id, e.target.value)}
-                    readOnly={pub.statut === 'Publié'}
-                    rows={6}
-                    className="texte-publication"
-                  />
                   {pub.statut === 'Publié' ? (
-                    <p className="meta-discrete">
-                      Déjà publié — ce texte n'est plus modifiable ici (l'éditer ne changerait de
-                      toute façon rien sur LinkedIn).
-                    </p>
+                    <>
+                      <p className="texte-publication">{pub.contenu}</p>
+                      <p className="meta-discrete">
+                        Publié le {formaterDate(pub.date_publication)}.
+                      </p>
+                    </>
                   ) : (
-                    <p>
-                      <button
-                        type="button"
-                        onClick={() => gererEnregistrerModifications(pub)}
-                        disabled={modificationEnCours === pub.id}
-                      >
-                        {modificationEnCours === pub.id ? 'Enregistrement…' : 'Enregistrer les modifications'}
-                      </button>
-                      {texteEnregistreId === pub.id && <span role="status"> Enregistré !</span>}
-                    </p>
-                  )}
-
-                  <div className="modifier-statut-publication">
-                    {pub.statut !== 'Publié' ? (
+                    <>
+                      <label htmlFor={`texte-${pub.id}`} className="visually-hidden">
+                        Texte de la publication « {pub.titre || 'sans titre'} »
+                      </label>
+                      <textarea
+                        id={`texte-${pub.id}`}
+                        value={pub.contenu ?? ''}
+                        onChange={(e) => modifierTexteLocal(pub.id, e.target.value)}
+                        rows={6}
+                        className="texte-publication"
+                      />
+                      <p>
+                        <button
+                          type="button"
+                          onClick={() => gererEnregistrerModifications(pub)}
+                          disabled={modificationEnCours === pub.id}
+                        >
+                          {modificationEnCours === pub.id ? 'Enregistrement…' : 'Enregistrer les modifications'}
+                        </button>
+                        {texteEnregistreId === pub.id && <span role="status"> Enregistré !</span>}
+                      </p>
                       <button
                         type="button"
                         className="bouton-primaire"
@@ -272,19 +266,8 @@ export default function MesPublications({
                       >
                         {modificationEnCours === pub.id ? 'Publication…' : 'Publier'}
                       </button>
-                    ) : (
-                      <div>
-                        <label htmlFor={`date-${pub.id}`}>Date de publication</label>
-                        <input
-                          id={`date-${pub.id}`}
-                          type="date"
-                          value={pub.date_publication ?? ''}
-                          onChange={(e) => gererChangementDate(pub, e.target.value)}
-                          disabled={modificationEnCours === pub.id}
-                        />
-                      </div>
-                    )}
-                  </div>
+                    </>
+                  )}
                   {erreurModification?.id === pub.id && (
                     <p role="alert">{erreurModification.message}</p>
                   )}

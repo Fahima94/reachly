@@ -1,5 +1,22 @@
 # Journal
 
+## 2026-09-10 — "Mes publications" : simplification supplémentaire de l'affichage publié
+
+**Demande (humain)** : se contenter d'afficher "Publié le [date]" et le texte du post en
+clair (pas dans un champ), plutôt qu'un textarea en lecture seule + un champ date.
+
+**Fait** (`src/pages/MesPublications.jsx`) : pour une publication "Publié", le
+`<textarea readOnly>` et le champ date deviennent un simple `<p>` (texte du post, sauts
+de ligne conservés via `white-space: pre-wrap` — nouveau sur `.texte-publication`, sans
+effet sur le textarea qui les préserve déjà nativement) et une ligne "Publié le
+[date formatée]". Suppression de `gererChangementDate` (plus aucun appelant) et de la
+classe CSS `.modifier-statut-publication` (ne servait qu'à aligner le select/champ date
+disparus).
+
+**Vérifié en réel** : après publication, plus aucun `<textarea>` ni `<input type=date>`
+sur la carte ; texte affiché correspond au post généré, sauts de ligne conservés ; ligne
+"Publié le 10 septembre 2026" correcte. Aucune erreur console.
+
 ## 2026-09-10 — "Mes publications" : texte en lecture seule une fois publié
 
 **Question (humain)** : est-ce pertinent de garder le bouton d'édition sur les
