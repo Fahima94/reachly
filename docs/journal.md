@@ -35,6 +35,84 @@ publications", aucun select de statut, bouton "Publier" présent, clic → press
 rempli, modale ouverte avec le bon lien ("fenêtre de publication", l'article source en
 avait un), statut passé à "Publié" en base. Aucune erreur console.
 
+## 2026-09-10 — Fix : la photo LinkedIn pré-remplie était une URL temporaire
+
+**Constat (humain, test réel)** : connecté avec un compte LinkedIn existant (déjà onboardé
+le 2026-09-04, donc hors du cas « premier onboarding »), la photo ne suivait pas — attendu
+vu la garde anti-écrasement. En creusant le fonctionnement pour un vrai nouveau compte : le
+lien LinkedIn stocké (`media.licdn.com/...?e=...`) est signé et temporaire (paramètre `e=`
+d'expiration), pas une URL stable — même pour un premier onboarding, la photo aurait fini
+par casser.
+
+**Fait (code)**
+- `src/pages/onboarding/Identite.jsx` : `rapatrierPhotoLinkedin(url, userId)` — télécharge
+  l'image depuis LinkedIn (`media.licdn.com` autorise le fetch cross-origin, vérifié :
+  `Access-Control-Allow-Origin: *`) puis la réuploade dans le bucket `avatars` (même
+  mécanisme que l'upload manuel, Dashboard.jsx/MonCompte.jsx) pour obtenir une URL
+  publique permanente. En cas d'échec (réseau, CORS imprévu…), rien n'est écrit plutôt
+  qu'un lien voué à expirer.
+- Compte de test (`horizonsdatas@gmail.com`) : `avatar_url` posé manuellement en base
+  (lien LinkedIn temporaire, en attendant) pour vérifier l'affichage — je n'ai pas pu
+  refaire le rapatriement complet moi-même (l'upload vers `avatars` exige d'être
+  authentifié comme l'utilisateur, hors de portée de mes outils Supabase actuels,
+  base de données seulement).
+- `npm run build` : OK (101 modules).
+
+**Non vérifié** : parcours complet en navigateur avec un compte réellement jamais onboardé.
+
+## 2026-09-10 — Pré-remplissage de la photo de profil depuis LinkedIn (OIDC)
+
+**Demande (humain)** : suite au pré-remplissage prénom/nom du 2026-09-09, même principe
+pour la photo — LinkedIn fournit aussi `user_metadata.picture`.
+
+**Fait (code)**
+- `src/pages/onboarding/Identite.jsx` : `avatarLinkedin` capturé uniquement au premier
+  onboarding (même branche que prénom/nom, `!data` en base) ; inclus dans l'upsert
+  (`avatar_url`) seulement s'il existe. Jamais inclus sur une relance — condition
+  suffisante pour ne jamais écraser une photo déjà choisie manuellement (Dashboard.jsx,
+  MonCompte.jsx), puisque l'état ne se peuple que dans ce cas précis.
+- `npm run build` : OK (101 modules).
+
+**Non vérifié** : rendu réel en navigateur (nouveau compte LinkedIn avec photo de profil
+réelle) ; comportement si `user_metadata.picture` pointe vers une URL expirée ou protégée
+côté LinkedIn (pas creusé — l'`<img>` affiche alors une image cassée jusqu'à ce que la
+personne change sa photo).
+
+## 2026-09-10 — Ticket 15 : pages CGU / politique de confidentialité (structure, pas le contenu)
+
+**Demande (humain)** : lien en bas de page vers les CGU / politique de confidentialité,
+suite à la préparation du plan de rédaction (2026-09-09). Contact fourni : `contact@reachly.fr`.
+
+**Fait (code)**
+- `src/pages/PageLegale.jsx` (nouveau) : un seul composant paramétré (`document="conditions"`
+  ou `"confidentialite"`) plutôt que deux pages quasi identiques — titre, mention « en cours
+  de rédaction » + contact (le contenu juridique reste hors de portée, ticket 15 l'exige
+  explicite), lien croisé vers l'autre document. `version`/`dateMiseAJour` à `null` jusqu'à
+  ce qu'un texte réel soit fourni par un humain.
+- `src/App.jsx` : ces deux pages sont vérifiées par `window.location.pathname`
+  (`/conditions-utilisation`, `/politique-confidentialite`) **avant** la résolution de
+  session et le routage interne (`ecran`) — l'app n'avait jusqu'ici aucune vraie URL par
+  écran (tout en état JS interne + `history.pushState` sans changer l'URL), ce ticket
+  introduit les deux premières URL stables et publiques de l'app.
+- `public/_redirects` (nouveau) : `/* /index.html 200` — sans ça, un accès direct à ces
+  URL sur Netlify (ou tout hébergeur statique) renvoyait une 404 ; nécessaire pour toute
+  navigation directe/partagée, pas seulement ces deux pages.
+- `src/pages/Inscription.jsx` : le libellé de la case CGU (texte brut depuis le ticket 01)
+  devient deux vrais liens, ouverts en nouvel onglet — ne perd jamais la saisie en cours.
+  Lien discret de pied de page ajouté (les deux documents, aussi en nouvel onglet).
+- `src/pages/Connexion.jsx` : même lien de pied de page.
+- `npm run build` : OK (101 modules). Vérifié que le serveur de dev sert bien `index.html`
+  sur `/conditions-utilisation` (repli SPA), pas de 404.
+
+**Hors de portée (rappel du ticket)**
+- Rédaction du contenu juridique — humain ou conseil juridique, jamais l'agent.
+- Enregistrement de la version/date du consentement avec le profil (RGPD art. 7.1) — déjà
+  noté comme non fait le 2026-09-07 (ticket 01), toujours pas câblé ; sans contenu réel, il
+  n'y a de toute façon rien à versionner pour l'instant.
+
+**Non vérifié** : rendu réel en navigateur (repli SPA testé côté serveur seulement, pas le
+rendu client final) ; accessibilité non testée au clavier ni au lecteur d'écran.
+
 ## 2026-09-10 — Sélection de tonalité obligatoire à la génération (plus de blocage)
 
 **Demande (humain)** : rendre la sélection de tonalité obligatoire au moment de la
