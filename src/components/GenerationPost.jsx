@@ -251,6 +251,22 @@ export default function GenerationPost({
       return
     }
 
+    // La copie presse-papiers doit rester le tout premier `await` de la
+    // fonction, avant n'importe quel appel réseau — certains navigateurs
+    // (Safari/WebKit notamment) exigent que `navigator.clipboard.writeText`
+    // reste dans le prolongement direct du geste de clic ; un `await` réseau
+    // avant elle peut lui faire perdre cette autorisation et la faire
+    // échouer silencieusement (retour utilisateur : l'URL arrive bien dans
+    // la fenêtre LinkedIn, mais pas le texte à coller).
+    let copieReussie = true
+    if (nouveauStatut === 'Publié') {
+      try {
+        await navigator.clipboard.writeText(texte)
+      } catch {
+        copieReussie = false
+      }
+    }
+
     setErreurAction('')
     setActionEnCours(nouveauStatut === 'Publié' ? 'publier' : 'enregistrer')
     try {
@@ -273,13 +289,7 @@ export default function GenerationPost({
         return
       }
 
-      // Publié : copie dans le presse-papiers puis ouverture de la modale.
-      let copieReussie = true
-      try {
-        await navigator.clipboard.writeText(texte)
-      } catch {
-        copieReussie = false
-      }
+      // Publié : la copie presse-papiers a déjà eu lieu plus haut.
       setCopieModaleReussie(copieReussie)
 
       const { data: profil } = await supabase

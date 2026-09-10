@@ -1,5 +1,32 @@
 # Journal
 
+## 2026-09-10 — Fix probable : copie presse-papiers échouait avant l'ouverture LinkedIn
+
+**Constat (humain)** : au clic sur "Publier", la fenêtre LinkedIn récupère bien l'URL de
+l'article (pré-remplie dans l'aperçu du lien), mais pas le texte du post généré — alors
+que ce texte est censé être copié dans le presse-papiers pour un collage manuel (LinkedIn
+ne permet techniquement aucun pré-remplissage de texte, seulement une URL — déjà établi).
+
+**Cause probable trouvée** : dans `sauvegarder()` (`GenerationPost.jsx`) et
+`gererPublier()` (`MesPublications.jsx`), `navigator.clipboard.writeText()` s'exécutait
+*après* un `await` sur un appel réseau Supabase (mise à jour du statut). Or l'API
+Clipboard exige, dans plusieurs navigateurs (Safari/WebKit en particulier), que l'appel
+reste dans le prolongement direct et synchrone du geste de clic — un `await` réseau avant
+elle peut faire perdre cette autorisation et la faire échouer silencieusement, sans que
+l'utilisateur s'en aperçoive forcément (le message d'erreur existant "La copie
+automatique a échoué" pouvait passer inaperçu, ou ne pas se déclencher selon le
+navigateur).
+
+**Fait** : la copie presse-papiers est désormais le tout premier `await` de chacune des
+deux fonctions, avant tout appel réseau.
+
+**Vérifié en réel** : Playwright/Chromium (permissions presse-papiers accordées) — copie
+toujours correcte après la réorganisation, aucune régression. **Non vérifié** : je ne
+peux pas reproduire le bug WebKit/Safari lui-même dans cet environnement (Chromium est
+plus permissif sur ce point) — la correction est bien fondée sur un comportement connu et
+documenté de l'API Clipboard, mais reste à confirmer par l'humain sur le navigateur où le
+problème a été observé.
+
 ## 2026-09-10 — n8n : le prompt de génération utilise l'article complet (décision)
 
 **Suite de l'entrée précédente** — après comparaison en réel, décision de l'humain :

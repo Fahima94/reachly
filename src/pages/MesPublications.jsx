@@ -160,6 +160,20 @@ export default function MesPublications({
   async function gererPublier(pub, evenement) {
     elementDeclencheurRef.current = evenement.currentTarget
 
+    // La copie presse-papiers doit rester le tout premier `await`, avant
+    // n'importe quel appel réseau — certains navigateurs (Safari/WebKit
+    // notamment) exigent que `navigator.clipboard.writeText` reste dans le
+    // prolongement direct du geste de clic ; un `await` réseau avant elle
+    // peut lui faire perdre cette autorisation et la faire échouer
+    // silencieusement (retour utilisateur : l'URL arrive bien dans la
+    // fenêtre LinkedIn, mais pas le texte à coller).
+    let copieReussie = true
+    try {
+      await navigator.clipboard.writeText(pub.contenu ?? '')
+    } catch {
+      copieReussie = false
+    }
+
     const correctifs = { statut: 'Publié', contenu: pub.contenu }
     if (!pub.date_publication) {
       correctifs.date_publication = new Date().toISOString().slice(0, 10)
@@ -167,12 +181,6 @@ export default function MesPublications({
     const succes = await appliquerMiseAJour(pub, correctifs)
     if (!succes) return
 
-    let copieReussie = true
-    try {
-      await navigator.clipboard.writeText(pub.contenu ?? '')
-    } catch {
-      copieReussie = false
-    }
     setCopieModaleReussie(copieReussie)
 
     const lienSource = lienParInfoId.get(pub.info_id) ?? null
