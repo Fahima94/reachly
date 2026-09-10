@@ -1,5 +1,30 @@
 # Journal
 
+## 2026-09-10 — Fix : la photo LinkedIn pré-remplie était une URL temporaire
+
+**Constat (humain, test réel)** : connecté avec un compte LinkedIn existant (déjà onboardé
+le 2026-09-04, donc hors du cas « premier onboarding »), la photo ne suivait pas — attendu
+vu la garde anti-écrasement. En creusant le fonctionnement pour un vrai nouveau compte : le
+lien LinkedIn stocké (`media.licdn.com/...?e=...`) est signé et temporaire (paramètre `e=`
+d'expiration), pas une URL stable — même pour un premier onboarding, la photo aurait fini
+par casser.
+
+**Fait (code)**
+- `src/pages/onboarding/Identite.jsx` : `rapatrierPhotoLinkedin(url, userId)` — télécharge
+  l'image depuis LinkedIn (`media.licdn.com` autorise le fetch cross-origin, vérifié :
+  `Access-Control-Allow-Origin: *`) puis la réuploade dans le bucket `avatars` (même
+  mécanisme que l'upload manuel, Dashboard.jsx/MonCompte.jsx) pour obtenir une URL
+  publique permanente. En cas d'échec (réseau, CORS imprévu…), rien n'est écrit plutôt
+  qu'un lien voué à expirer.
+- Compte de test (`horizonsdatas@gmail.com`) : `avatar_url` posé manuellement en base
+  (lien LinkedIn temporaire, en attendant) pour vérifier l'affichage — je n'ai pas pu
+  refaire le rapatriement complet moi-même (l'upload vers `avatars` exige d'être
+  authentifié comme l'utilisateur, hors de portée de mes outils Supabase actuels,
+  base de données seulement).
+- `npm run build` : OK (101 modules).
+
+**Non vérifié** : parcours complet en navigateur avec un compte réellement jamais onboardé.
+
 ## 2026-09-10 — Pré-remplissage de la photo de profil depuis LinkedIn (OIDC)
 
 **Demande (humain)** : suite au pré-remplissage prénom/nom du 2026-09-09, même principe

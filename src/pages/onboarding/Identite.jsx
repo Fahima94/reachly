@@ -16,6 +16,35 @@ export default function Identite({ onNaviguer, onDeconnexionReussie, onEtapeSuiv
 
   const enCours = statut === 'chargement'
 
+  // L'URL de photo fournie par LinkedIn (OIDC) est signée et temporaire
+  // (paramètre `e=` d'expiration) — la stocker telle quelle finirait par
+  // casser l'image. On la télécharge une fois et on la réhéberge dans le
+  // bucket `avatars` (même mécanisme que l'upload manuel), pour obtenir une
+  // URL publique stable. `media.licdn.com` autorise le fetch cross-origin
+  // (`Access-Control-Allow-Origin: *`, vérifié). En cas d'échec (CORS,
+  // réseau…), on n'écrit rien plutôt qu'un lien voué à expirer.
+  async function rapatrierPhotoLinkedin(url, userId) {
+    try {
+      const reponse = await fetch(url)
+      if (!reponse.ok) return null
+      const blob = await reponse.blob()
+      const extension = blob.type.split('/')[1] || 'jpg'
+      const chemin = `${userId}/avatar-${Date.now()}.${extension}`
+
+      const { error: erreurUpload } = await supabase.storage
+        .from('avatars')
+        .upload(chemin, blob, { contentType: blob.type })
+      if (erreurUpload) return null
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('avatars').getPublicUrl(chemin)
+      return publicUrl
+    } catch {
+      return null
+    }
+  }
+
   // `estAnnule` protège contre le double montage de StrictMode en
   // développement : si ce chargement a été annulé (montage suivant déjà en
   // cours), on n'écrase pas un état plus frais avec une réponse en retard.
@@ -118,11 +147,15 @@ export default function Identite({ onNaviguer, onDeconnexionReussie, onEtapeSuiv
         nom: nom.trim(),
       }
       // `avatar_url` seulement si LinkedIn en a fourni une à l'instant (voir
-      // chargerProfil) — jamais inclus sinon, pour ne jamais écraser une
-      // photo déjà choisie manuellement (Dashboard.jsx / MonCompte.jsx) sur
-      // une relance de l'onboarding.
+      // chargerProfil) et que le rapatriement dans notre propre stockage a
+      // réussi — jamais inclus sinon, pour ne jamais écraser une photo déjà
+      // choisie manuellement (Dashboard.jsx / MonCompte.jsx) sur une relance
+      // de l'onboarding, ni stocker un lien LinkedIn temporaire.
       if (avatarLinkedin) {
-        correctifs.avatar_url = avatarLinkedin
+        const photoRapatriee = await rapatrierPhotoLinkedin(avatarLinkedin, user.id)
+        if (photoRapatriee) {
+          correctifs.avatar_url = photoRapatriee
+        }
       }
 
       const { error } = await supabase.from('profiles').upsert(correctifs)
