@@ -20,6 +20,12 @@ en ticket quand l'un de ces points devient prioritaire.
   isolément), ticket 14 (états vide/erreur de chaque section). « Tonalité manquante »
   a été rejoué le 2026-09-10, mais côté n8n directement, pas depuis l'écran — voir
   « Robustesse des workflows n8n » plus bas.
+- **Rendu réel de `share-offsite` sur LinkedIn (remis en test le 2026-09-10).** L'URL de
+  composition (`share-offsite/?url=<article>`) est vérifiée côté app (Playwright), mais
+  personne n'a encore confirmé à quoi ressemble la carte de lien que LinkedIn attache
+  automatiquement sous le texte collé, ni si elle nuit réellement à la portée du post
+  (règle de génération « pas de lien dans le texte »). Nécessite un vrai compte LinkedIn
+  pour trancher — voir `docs/journal.md`.
 
 ## Périmètre volontairement réduit (décisions déjà prises, pas des oublis)
 

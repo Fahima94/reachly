@@ -1,12 +1,15 @@
 import { useEffect, useRef } from 'react'
 
-// Confirmation après "Publier" : ouvre le profil LinkedIn de la personne
-// (jamais l'article source — LinkedIn y attacherait automatiquement un
-// aperçu du lien, ce qui n'est pas la publication qu'on veut coller), sinon
-// invite à le renseigner. Jamais d'appel à l'API LinkedIn — la personne
-// colle le texte déjà copié dans un nouveau post et publie elle-même.
-// Partagé entre GenerationPost.jsx (tableau de bord) et MesPublications.jsx.
+// Confirmation après "Publier" : ouvre la fenêtre de composition LinkedIn
+// pré-attachée à l'article source si on l'a, sinon le profil LinkedIn de la
+// personne, sinon invite à le renseigner. Jamais d'appel à l'API LinkedIn —
+// la personne colle le texte déjà copié et publie elle-même. Partagé entre
+// GenerationPost.jsx (tableau de bord) et MesPublications.jsx.
+// Remis en test le 2026-09-10 (retiré une première fois car la carte de lien
+// attachée par share-offsite déroge à la règle "pas de lien dans le texte"
+// — à évaluer en conditions réelles sur LinkedIn avant de trancher).
 export default function ModaleConfirmationPublication({
+  lienComposition,
   lienLinkedin,
   copieReussie,
   onFermer,
@@ -70,18 +73,29 @@ export default function ModaleConfirmationPublication({
             La copie automatique a échoué — sélectionnez et copiez le texte manuellement.
           </p>
         )}
-        {lienLinkedin ? (
+        {lienComposition ? (
           <>
             <p>
-              <a ref={boutonPrincipalRef} href={lienLinkedin} target="_blank" rel="noopener noreferrer">
-                Ouvrir LinkedIn
+              <a
+                ref={boutonPrincipalRef}
+                href={lienComposition}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ouvrir LinkedIn (fenêtre de publication)
               </a>
             </p>
             <p className="meta-discrete">
-              Collez le texte copié dans un nouveau post, puis publiez vous-même — rien n'est
-              publié automatiquement.
+              Collez le texte copié dans le champ de commentaire, puis publiez vous-même —
+              rien n'est publié automatiquement.
             </p>
           </>
+        ) : lienLinkedin ? (
+          <p>
+            <a ref={boutonPrincipalRef} href={lienLinkedin} target="_blank" rel="noopener noreferrer">
+              Ouvrir LinkedIn
+            </a>
+          </p>
         ) : (
           <p>
             <button type="button" ref={boutonPrincipalRef} onClick={onOuvrirPreferences}>

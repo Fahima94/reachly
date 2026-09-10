@@ -699,6 +699,7 @@ export default function Dashboard({
                     )}
                     <GenerationPost
                       sujetId={sujet.id}
+                      sujetLien={sujet.lien}
                       userId={userId}
                       tonalites={tonalites}
                       tonaliteId={tonaliteId}

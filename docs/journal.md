@@ -1,5 +1,40 @@
 # Journal
 
+## 2026-09-10 — Remis en test : fenêtre de composition LinkedIn pré-attachée (`share-offsite`)
+
+**Demande (humaine)**, après le diagnostic séparé de la redirection OAuth (voir plus bas) :
+réessayer le brouillon automatique — c'est-à-dire remettre en test le mécanisme
+`share-offsite` retiré le même jour (entrée « Fix : "Ouvrir LinkedIn" n'attache plus
+l'article source » ci-dessous). Décision assumée malgré le compromis déjà expliqué à la
+personne : `share-offsite` ne peut recevoir qu'une URL, jamais de texte pré-rempli, et
+LinkedIn y attache automatiquement une carte d'aperçu de cette URL sous le texte collé —
+ce qui contrevient à la consigne de génération « pas de lien dans le texte du post »
+(l'algorithme LinkedIn pénalise les posts avec lien sortant). Le lien redirect OAuth et
+`share-offsite` sont deux mécanismes indépendants ; ce n'est pas ce diagnostic qui a
+résolu le second, la personne souhaite simplement réévaluer `share-offsite` en conditions
+réelles maintenant que le reste fonctionne.
+
+**Fait** (`src/components/GenerationPost.jsx`, `src/components/ModaleConfirmationPublication.jsx`,
+`src/pages/MesPublications.jsx`, `src/pages/Dashboard.jsx`) : restauration à l'identique de
+ce qui existait avant le retrait (commit `d10e671`) — `lienComposition` (URL
+`https://www.linkedin.com/sharing/share-offsite/?url=<article>`) reproposé en priorité
+dans la modale de confirmation quand un lien source valide existe, avec repli sur le lien
+de profil LinkedIn puis sur l'invitation à le renseigner, inchangés. Comportement commun
+entre le tableau de bord et « Mes publications » : même composant partagé, même critère de
+validité de lien (`LIEN_VALIDE`).
+- `npm run build` : OK (102 modules).
+- **Vérifié réellement (Playwright, compte jetable + article existant en base)** :
+  depuis « Mes publications », le clic sur "Publier" ouvre bien une modale dont le lien
+  pointe vers `share-offsite/?url=<article encodé>`, libellé "Ouvrir LinkedIn (fenêtre de
+  publication)". Le chemin tableau de bord (`GenerationPost.jsx`) n'a pas été rejoué en
+  conditions réelles séparément (webhook n8n non déclenché pour ce test) mais partage
+  strictement le même composant de modale et la même logique de construction du lien —
+  revu par lecture de code.
+- **Non vérifiable depuis ici** : le rendu final côté LinkedIn (à quoi ressemble
+  concrètement la carte de lien attachée, si elle gêne réellement la portée du post). Sans
+  compte LinkedIn réel à disposition, seule la personne peut trancher ce point en testant
+  la publication elle-même — c'est l'objet de cette remise en test.
+
 ## 2026-09-10 — Fix : "Ouvrir LinkedIn" n'attache plus l'article source
 
 **Constat (humain, test réel)** : au clic sur "Publier", la fenêtre LinkedIn ouverte
