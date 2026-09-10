@@ -146,9 +146,17 @@ function ModaleConfirmationGeneration({
 }) {
   const dialogRef = useRef(null)
   const boutonPrincipalRef = useRef(null)
+  const selectTonaliteRef = useRef(null)
 
   useEffect(() => {
-    boutonPrincipalRef.current?.focus()
+    // Le bouton principal est désactivé tant qu'aucune tonalité n'est
+    // choisie (il ne peut alors pas recevoir le focus) — on envoie le focus
+    // initial sur le select dans ce cas, sinon sur le bouton comme avant.
+    if (tonaliteSelectionnee) {
+      boutonPrincipalRef.current?.focus()
+    } else {
+      selectTonaliteRef.current?.focus()
+    }
 
     function gererClavier(evenement) {
       if (evenement.key === 'Escape') {
@@ -156,7 +164,7 @@ function ModaleConfirmationGeneration({
         return
       }
       if (evenement.key === 'Tab') {
-        const focusables = dialogRef.current?.querySelectorAll('button, a[href]')
+        const focusables = dialogRef.current?.querySelectorAll('button, a[href], select')
         if (!focusables || focusables.length === 0) return
         const premier = focusables[0]
         const dernier = focusables[focusables.length - 1]
@@ -194,15 +202,26 @@ function ModaleConfirmationGeneration({
           <label htmlFor={`tonalite-generation-${sujetId}`}>Tonalité</label>
           <select
             id={`tonalite-generation-${sujetId}`}
+            ref={selectTonaliteRef}
             value={tonaliteSelectionnee ?? ''}
             onChange={(e) => onChangerTonalite(e.target.value)}
+            required
+            aria-describedby={!tonaliteSelectionnee ? `tonalite-requise-${sujetId}` : undefined}
           >
+            <option value="" disabled>
+              Choisissez une tonalité…
+            </option>
             {tonalites.map((t) => (
               <option key={t.id} value={t.id}>
                 {t['Visée de la publication']}
               </option>
             ))}
           </select>
+          {!tonaliteSelectionnee && (
+            <p id={`tonalite-requise-${sujetId}`} className="description-choix">
+              Une tonalité est nécessaire pour générer ce post.
+            </p>
+          )}
         </div>
         <div>
           <label htmlFor={`voix-generation-${sujetId}`}>Voix narrative</label>
@@ -224,7 +243,13 @@ function ModaleConfirmationGeneration({
           </button>
         </p>
         <div className="actions-generation-post">
-          <button type="button" ref={boutonPrincipalRef} className="bouton-primaire" onClick={onConfirmer}>
+          <button
+            type="button"
+            ref={boutonPrincipalRef}
+            className="bouton-primaire"
+            onClick={onConfirmer}
+            disabled={!tonaliteSelectionnee}
+          >
             Tout est ok, générer
           </button>
           <button type="button" onClick={onAnnuler}>
@@ -240,13 +265,12 @@ export default function GenerationPost({
   sujetId,
   sujetLien,
   userId,
-  tonaliteDefinie,
   tonalites,
   tonaliteId,
   voixCode,
   onModifierPreferences,
 }) {
-  // idle | manque-tonalite | chargement | pret | erreur
+  // idle | confirmation | chargement | pret | erreur
   const [etat, setEtat] = useState('idle')
   const [texte, setTexte] = useState('')
   const [publicationId, setPublicationId] = useState(null)
@@ -320,12 +344,12 @@ export default function GenerationPost({
     }
   }
 
+  // La tonalité par défaut du profil (si elle existe) ne fait plus que
+  // pré-remplir ce choix — elle ne dispense jamais de le confirmer : la
+  // personne doit explicitement avoir une tonalité sélectionnée dans la
+  // modale avant de pouvoir générer (bouton désactivé sinon).
   function gererClicGenerer() {
-    if (!tonaliteDefinie) {
-      setEtat('manque-tonalite')
-      return
-    }
-    setTonaliteSelectionnee(tonaliteId)
+    setTonaliteSelectionnee(tonaliteId ?? '')
     setVoixSelectionnee(voixCode)
     setEtat('confirmation')
   }
@@ -412,17 +436,6 @@ export default function GenerationPost({
           />
         )}
       </>
-    )
-  }
-
-  if (etat === 'manque-tonalite') {
-    return (
-      <div>
-        <p role="alert">Choisissez d'abord une tonalité pour générer un post.</p>
-        <button type="button" onClick={onModifierPreferences}>
-          Renseigner mes préférences
-        </button>
-      </div>
     )
   }
 
