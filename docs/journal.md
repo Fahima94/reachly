@@ -78,6 +78,82 @@ suite à la préparation du plan de rédaction (2026-09-09). Contact fourni : `c
 **Non vérifié** : rendu réel en navigateur (repli SPA testé côté serveur seulement, pas le
 rendu client final) ; accessibilité non testée au clavier ni au lecteur d'écran.
 
+## 2026-09-10 — Vérification réelle des cas limites de génération de post
+
+**Demande (humain)** : le cas "pas de posts de référence" est-il bien pris en compte
+(déjà répondu, reconfirmé) ? Le cas "pas de profil éditorial" (repli sur les éléments
+génériques du prompt) est-il pris en compte ?
+
+**Vérifié en réel** (webhook `Reachly Publication CC`, `f385f1d3-...`, compte de test) :
+- Lu le prompt de génération : `profil_editorial && !profil_editorial.includes('aucun')`
+  conditionne l'injection du style personnalisé — si absent, vide, ou égal à la chaîne
+  de repli `"Profil éditorial : aucun"` (produite par l'autre workflow quand le contenu
+  fourni est trop maigre), ce bloc est simplement omis. Le prompt retombe sur ses
+  éléments génériques (rôle de ghostwriter, tonalité, voix narrative, règles de
+  structure). C'était déjà pensé avant mon intervention sur "À propos de vous".
+- **Confirmé avec un profil éditorial de test réel** (tutoiement imposé, vocabulaire
+  imposé, punchline finale imposée) : le post généré respecte scrupuleusement ces
+  consignes — le mécanisme fonctionne de bout en bout.
+
+**Bug trouvé en testant le cas "profil vide" (sans rapport avec `a_propos`)** : un
+compte n'ayant jamais renseigné de tonalité par défaut (`Tonalité_défaut` = `null`) fait
+planter le workflow — `Resoudre Overrides` calcule `tonalite_effective = null`, puis
+`Get Tonalite` (Supabase, filtre `id = {{ tonalite_effective }}`) échoue avec
+`invalid input syntax for type uuid: "null"`. Le webhook répond 200 avec un corps
+**vide**, sans erreur exploitable.
+
+**Pas un risque en pratique** : `src/components/GenerationPost.jsx` bloque déjà ce cas
+côté app — `gererClicGenerer()` vérifie `tonaliteDefinie` et affiche "Choisissez d'abord
+une tonalité pour générer un post." avant même d'appeler le webhook. Le bug n'est
+atteignable qu'en appelant le webhook n8n directement (comme je viens de le faire pour
+tester), jamais depuis l'app. Noté comme dette technique (défense en profondeur
+manquante côté n8n) — pas corrigé, pas de risque utilisateur actuel.
+
+**Effet de bord de ce test** : une ligne "Brouillon" a été créée dans `Publications`
+pour le compte de test (id `3f30f8d3-...`), comme prévenu avant de tester.
+
+## 2026-09-10 — n8n : le prompt d'analyse de style utilise « À propos de vous »
+
+**Suite de l'entrée précédente** (le champ arrivait au webhook mais était ignoré côté
+prompt) — accès n8n retrouvé dans cette session, correctif appliqué directement dans le
+workflow `Reachly_Profil_Utilisateur` (nœud « Analyser le style », id `22YXPZxH9pk7ZZwW`).
+
+**Fait** :
+- Prompt utilisateur reconstruit : compose dynamiquement une section « comment cette
+  personne se décrit elle-même » (si `a_propos` fourni) et/ou une section posts (si
+  `posts` non vide), au lieu de toujours supposer la présence de posts.
+- Prompt système mis à jour : explique comment combiner bio et posts, et comment se
+  comporter quand seule la bio est fournie (dégager ton/thèmes/personnalité, signaler
+  explicitement que les éléments structurels restent indéterminés faute de posts).
+- Nouvelle version publiée (`update_workflow` + `publish_workflow`).
+
+**Vérifié en réel** : deux appels réels au webhook de production (`curl`, pas de mock) —
+bio seule → profil cohérent avec la bio, mention explicite du manque de posts pour la
+structure ; bio + un post → les deux sources combinées, structure/ton tirés du post,
+thèmes tirés de la bio. Dans les deux cas : réponse bien formée, commence par
+« Profil éditorial : », en français.
+
+## 2026-09-10 — « À propos de vous » transmis au webhook d'analyse de style
+
+**Demande (humain)** : le champ « À propos de vous » (ajouté par Fahima) doit être
+intégré au prompt de génération du profil éditorial.
+
+**Fait** (`src/pages/onboarding/LinkedinPosts.jsx` et `src/pages/Preferences.jsx`) :
+- `analyserLeStyle(posts, aPropos)` envoie désormais `a_propos` au webhook n8n
+  (`VITE_N8N_WEBHOOK_PROFIL_EDITORIAL`) en plus de `posts`.
+- L'analyse peut désormais se déclencher avec seulement « À propos de vous » rempli,
+  sans aucun post — avant, elle exigeait au moins un post (le champ, bien
+  qu'enregistré, ne participait pas du tout à l'analyse).
+- Bouton et libellés mis à jour en conséquence.
+
+**Vérifié en réel** : `npm run build` OK ; Playwright avec interception réseau (le
+véritable webhook n8n n'est pas accessible en test) — payload confirmé :
+`{ posts: [], a_propos: "…" }` en remplissant uniquement "À propos", bouton et appel
+déclenchés correctement, aucune erreur console.
+
+**Suite** : le câblage côté prompt n8n a été fait juste après (accès retrouvé) — voir
+l'entrée suivante.
+
 ## 2026-09-09 — Intégration et ergonomie du champ « À propos de vous »
 
 **Demande (humain)** : après la fusion avec le travail parallèle de Fahima (nouveau champ

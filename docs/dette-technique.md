@@ -16,8 +16,10 @@ en ticket quand l'un de ces points devient prioritaire.
   avec un compte de test temporairement ajouté à la liste *client* (jamais à la vraie
   policy SQL). Personne n'a testé l'écran avec une des 3 vraies adresses admin.
 - Quelques scénarios ponctuels jamais rejoués : ticket 11 (état vide « aucun sujet scoré »,
-  état d'erreur réseau), ticket 13 (« post modifié conservé », « tonalité manquante » et
-  « échec de la génération » isolément), ticket 14 (états vide/erreur de chaque section).
+  état d'erreur réseau), ticket 13 (« post modifié conservé » et « échec de la génération »
+  isolément), ticket 14 (états vide/erreur de chaque section). « Tonalité manquante »
+  a été rejoué le 2026-09-10, mais côté n8n directement, pas depuis l'écran — voir
+  « Robustesse des workflows n8n » plus bas.
 
 ## Périmètre volontairement réduit (décisions déjà prises, pas des oublis)
 
@@ -51,6 +53,20 @@ en ticket quand l'un de ces points devient prioritaire.
   synchronisé depuis cette session, et une recherche rapide y a fait remonter un
   avertissement de page en double laissé par quelqu'un d'autre. État réel non vérifié en
   profondeur — à clarifier avec l'humain si cette vue doit rester à jour.
+
+## Robustesse des workflows n8n (trouvé en testant, 2026-09-10)
+
+- **`Reachly Publication CC` plante si `Tonalité_défaut` est vide.** Testé en appelant le
+  webhook directement (contournant l'app) avec un compte sans tonalité définie : le nœud
+  `Resoudre Overrides` calcule `tonalite_effective = null`, puis `Get Tonalite` (filtre
+  Supabase `id = {{ tonalite_effective }}`) échoue avec `invalid input syntax for type
+  uuid: "null"` — le webhook répond 200 avec un corps vide, sans erreur exploitable.
+  **Pas un risque utilisateur actuel** : `GenerationPost.jsx` bloque déjà ce cas côté app
+  (`gererClicGenerer` vérifie `tonaliteDefinie` avant tout appel, message "Choisissez
+  d'abord une tonalité..."). Reste une absence de défense en profondeur côté n8n — si un
+  jour un autre appelant (script, changement futur du front) omet cette vérification, le
+  même échec silencieux se reproduira. Correctif possible : repli sur une tonalité par
+  défaut dans `Resoudre Overrides`, ou message d'erreur explicite renvoyé par le webhook.
 
 ## Accessibilité clavier, vérifiée (2026-09-07)
 
