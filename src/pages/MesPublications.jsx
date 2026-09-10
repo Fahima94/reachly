@@ -134,15 +134,15 @@ export default function MesPublications({
   }
 
   // Le texte se modifie localement à chaque frappe (pas d'appel réseau tant
-  // que "Enregistrer le texte" n'est pas cliqué) — même principe que le
-  // texte généré sur le tableau de bord (GenerationPost.jsx).
+  // que "Enregistrer les modifications" n'est pas cliqué) — même principe
+  // que le texte généré sur le tableau de bord (GenerationPost.jsx).
   function modifierTexteLocal(pubId, nouveauTexte) {
     setPublications((precedent) =>
       precedent.map((p) => (p.id === pubId ? { ...p, contenu: nouveauTexte } : p)),
     )
   }
 
-  async function gererEnregistrerTexte(pub) {
+  async function gererEnregistrerModifications(pub) {
     setTexteEnregistreId(null)
     const succes = await appliquerMiseAJour(pub, { contenu: pub.contenu })
     if (succes) {
@@ -156,10 +156,15 @@ export default function MesPublications({
   // de bord : statut + date du jour (si absente), copie dans le
   // presse-papiers, puis fenêtre de composition LinkedIn pré-attachée à
   // l'article source si on l'a, sinon le profil LinkedIn de la personne.
+  // Enregistre aussi `contenu` : sans ça, un texte modifié juste avant de
+  // publier (sans passer par "Enregistrer les modifications") serait copié
+  // tel quel dans le presse-papiers/LinkedIn, mais la base garderait
+  // l'ancien texte — désynchronisation entre ce qui est réellement publié
+  // et ce que l'app enregistre.
   async function gererPublier(pub, evenement) {
     elementDeclencheurRef.current = evenement.currentTarget
 
-    const correctifs = { statut: 'Publié' }
+    const correctifs = { statut: 'Publié', contenu: pub.contenu }
     if (!pub.date_publication) {
       correctifs.date_publication = new Date().toISOString().slice(0, 10)
     }
@@ -241,10 +246,10 @@ export default function MesPublications({
                   <p>
                     <button
                       type="button"
-                      onClick={() => gererEnregistrerTexte(pub)}
+                      onClick={() => gererEnregistrerModifications(pub)}
                       disabled={modificationEnCours === pub.id}
                     >
-                      {modificationEnCours === pub.id ? 'Enregistrement…' : 'Enregistrer le texte'}
+                      {modificationEnCours === pub.id ? 'Enregistrement…' : 'Enregistrer les modifications'}
                     </button>
                     {texteEnregistreId === pub.id && <span role="status"> Enregistré !</span>}
                   </p>

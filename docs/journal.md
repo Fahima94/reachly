@@ -1,5 +1,28 @@
 # Journal
 
+## 2026-09-10 — "Mes publications" : renommage + correctif "Publier" perdait le texte édité
+
+**Demande (humain)** : « le bouton "Enregistrer le texte" sert à quoi ? » — en
+répondant, j'ai repéré que `gererPublier` n'enregistrait jamais `contenu` : éditer le
+texte puis cliquer directement "Publier" (sans passer par "Enregistrer le texte")
+copiait bien le texte édité dans le presse-papiers/LinkedIn, mais la base gardait
+l'ancien texte — désynchronisation entre ce qui est réellement publié et ce qui est
+enregistré. Signalé à l'humain, correctif accepté implicitement (pas d'objection).
+
+**Fait** :
+- Bouton renommé **« Enregistrer les modifications »** (au lieu de « Enregistrer le
+  texte ») — plus explicite sur le fait qu'il s'agit de sauvegarder un changement, pas
+  d'une action générique. Fonction `gererEnregistrerTexte` renommée
+  `gererEnregistrerModifications` en cohérence.
+- `gererPublier` inclut désormais `contenu: pub.contenu` dans sa mise à jour — le texte
+  actuellement affiché (édité ou non) est toujours ce qui finit en base, plus jamais de
+  décalage avec ce qui a été copié/publié.
+
+**Vérifié en réel** : édité le texte d'un post généré, cliqué "Publier" directement
+(sans "Enregistrer les modifications") — le texte édité est bien celui retrouvé en base
+après coup (vérifié par requête authentifiée), statut bien "Publié". Aucune erreur
+console.
+
 ## 2026-09-10 — "Mes publications" : bouton "Publier" au lieu du select de statut
 
 **Demande (humain)** : remplacer le système de changement de statut (un `<select>` libre
