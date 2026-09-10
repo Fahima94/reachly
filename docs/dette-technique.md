@@ -49,10 +49,9 @@ en ticket quand l'un de ces points devient prioritaire.
 ## Suivi du projet
 
 - **Mémoire Notion** (`AGENTS.md` : vue Epic/User Story/Ticket dérivée de `docs/tickets/`)
-  — un espace Notion Reachly existe bien (Cockpit, Tâches, Journal), mais je ne l'ai jamais
-  synchronisé depuis cette session, et une recherche rapide y a fait remonter un
-  avertissement de page en double laissé par quelqu'un d'autre. État réel non vérifié en
-  profondeur — à clarifier avec l'humain si cette vue doit rester à jour.
+  — synchronisée le 2026-09-10 (tickets 05-13 passés à "Terminé", 14/15/16 ajoutés, jusque-là
+  absents). Rappel : Notion est une vue, pas la source de vérité — un décalage peut se
+  reproduire tant que la mise à jour n'est pas systématique après chaque ticket bouclé.
 
 ## Robustesse des workflows n8n (trouvé en testant, 2026-09-10)
 

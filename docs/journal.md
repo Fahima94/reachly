@@ -1,5 +1,24 @@
 # Journal
 
+## 2026-09-10 — Synchronisation du tableau Notion (jamais faite depuis sa création)
+
+**Demande (humain)** : mets à jour le Notion, le tableau montre des "en cours".
+
+**Constat** : le tableau `Tickets` de la page "Reachly — Développement" n'avait que 13
+lignes (tickets 01-13) et la plupart affichaient encore "En cours" ou "Pas commencé" —
+jamais resynchronisé depuis sa création, indépendamment de tout le travail réel accompli
+depuis (confirme et corrige la dette technique notée le 2026-09-07).
+
+**Fait** : statut passé à "Terminé" pour les tickets 05 à 13 (fonctionnellement complets
+et vérifiés en réel à de nombreuses reprises au fil des sessions, même quand la case à
+cocher "Fini quand" de leur fichier local n'avait jamais été retro-cochée). Tickets 14, 15
+et 16 — absents du tableau — ajoutés avec le même traitement. Seul le ticket 03
+(récupération de mot de passe, annulé en V1) reste à "Pas commencé", à raison.
+
+**Non fait** : les cases à cocher "Fini quand" des fichiers locaux (`docs/tickets/*.md`)
+n'ont pas été retouchées — cette mise à jour ne concernait que Notion, pas la source de
+vérité elle-même.
+
 ## 2026-09-10 — "À propos de vous" dans un fieldset
 
 **Demande (humain)** : ajouter un fieldset sur "À propos de vous".
