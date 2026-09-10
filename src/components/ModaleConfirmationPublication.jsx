@@ -1,5 +1,15 @@
 import { useEffect, useRef } from 'react'
 
+// Sur mobile, `target="_blank"` empêche souvent iOS Safari de proposer
+// l'ouverture de l'appli LinkedIn (Universal Links) — seule une navigation
+// directe dans le même onglet le permet de façon fiable. Sur desktop on
+// garde le nouvel onglet (évite de perdre la page Reachly). Pas de garantie
+// absolue : LinkedIn décide lui-même quels liens déclenchent son appli, ce
+// comportement est documenté comme changeant selon les versions de l'appli.
+function estMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+}
+
 // Confirmation après "Publier" : ouvre la fenêtre de composition LinkedIn
 // pré-attachée à l'article source si on l'a, sinon le profil LinkedIn de la
 // personne, sinon invite à le renseigner. Jamais d'appel à l'API LinkedIn —
@@ -18,6 +28,13 @@ export default function ModaleConfirmationPublication({
 }) {
   const dialogRef = useRef(null)
   const boutonPrincipalRef = useRef(null)
+  // Calculé une fois (le user-agent ne change pas pendant l'affichage de la
+  // modale) : pas de `target`/`rel` sur mobile, où un nouvel onglet nuit à
+  // la proposition d'ouverture de l'appli LinkedIn ; nouvel onglet conservé
+  // sur desktop (évite de perdre la page Reachly).
+  const proprietesLien = useRef(estMobile()).current
+    ? {}
+    : { target: '_blank', rel: 'noopener noreferrer' }
 
   useEffect(() => {
     // Ne pas se fier à `document.activeElement` ici : le bouton "Publier" est
@@ -76,12 +93,7 @@ export default function ModaleConfirmationPublication({
         {lienComposition ? (
           <>
             <p>
-              <a
-                ref={boutonPrincipalRef}
-                href={lienComposition}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a ref={boutonPrincipalRef} href={lienComposition} {...proprietesLien}>
                 Ouvrir LinkedIn (fenêtre de publication)
               </a>
             </p>
@@ -92,7 +104,7 @@ export default function ModaleConfirmationPublication({
           </>
         ) : lienLinkedin ? (
           <p>
-            <a ref={boutonPrincipalRef} href={lienLinkedin} target="_blank" rel="noopener noreferrer">
+            <a ref={boutonPrincipalRef} href={lienLinkedin} {...proprietesLien}>
               Ouvrir LinkedIn
             </a>
           </p>

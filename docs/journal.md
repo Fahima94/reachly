@@ -1,5 +1,29 @@
 # Journal
 
+## 2026-09-10 — Mobile : retrait de `target="_blank"` pour favoriser l'ouverture de l'appli LinkedIn
+
+**Demande (humaine)** : comment proposer l'ouverture de l'appli LinkedIn sur mobile au clic
+sur "Ouvrir LinkedIn" ?
+
+**Recherché** : ce n'est pas quelque chose que l'app peut garantir — l'ouverture de
+l'appli depuis un lien `linkedin.com` dépend d'Universal Links (iOS) / App Links (Android),
+un mécanisme géré par le système et par LinkedIn lui-même (quels chemins d'URL déclenchent
+son appli), documenté comme changeant selon les versions de l'appli LinkedIn. Un point
+technique bien documenté, lui, est à notre portée : `target="_blank"` (nouvel onglet) est
+connu pour empêcher iOS Safari de proposer l'ouverture de l'appli — seule une navigation
+directe dans le même onglet permet une interception fiable par le système.
+
+**Fait** (`src/components/ModaleConfirmationPublication.jsx`) : `target="_blank"` /
+`rel="noopener noreferrer"` retirés sur mobile (détection simple par `navigator.userAgent`)
+pour les deux liens "Ouvrir LinkedIn" (avec ou sans composition pré-attachée), conservés
+sur desktop (évite d'y perdre la page Reachly, pas concerné par le problème).
+- `npm run build` : OK (102 modules).
+
+**Non vérifiable depuis ici** : aucun accès à un téléphone avec l'appli LinkedIn installée
+pour confirmer que le correctif change effectivement le comportement — best-effort basé sur
+une limitation documentée de Safari/iOS, pas une garantie. À tester par la personne sur son
+téléphone.
+
 ## 2026-09-10 — Test réel confirmé : `share-offsite` fonctionne comme prévu (pas un bug)
 
 **Suite de l'entrée précédente**, après déploiement sur `reachly-tce` et nouveau test humain
