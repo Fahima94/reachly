@@ -15,6 +15,12 @@ en ticket quand l'un de ces points devient prioritaire.
 - **Ticket 14 (admin) — chemin de succès avec un vrai compte admin.** Vérifié uniquement
   avec un compte de test temporairement ajouté à la liste *client* (jamais à la vraie
   policy SQL). Personne n'a testé l'écran avec une des 3 vraies adresses admin.
+  **Confirmé de nouveau le 2026-09-10** en testant l'édition/activation de
+  Catégories/Tonalités/Sources : un compte de test ajouté à `EMAILS_ADMIN` (app) obtient un
+  blocage RLS silencieux (200 OK, 0 ligne modifiée) sur ces écritures — l'enregistrement
+  d'une modification et la bascule Activer/Désactiver n'ont donc pas pu être vérifiés de
+  bout en bout, seule la mécanique d'UI (ouverture/annulation, affichage d'erreur) l'a été.
+  À confirmer par la personne avec un vrai compte admin — voir `docs/journal.md`.
 - Quelques scénarios ponctuels jamais rejoués : ticket 11 (état vide « aucun sujet scoré »,
   état d'erreur réseau), ticket 13 (« post modifié conservé » et « échec de la génération »
   isolément), ticket 14 (états vide/erreur de chaque section). « Tonalité manquante »

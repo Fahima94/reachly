@@ -1,5 +1,42 @@
 # Journal
 
+## 2026-09-10 — Administration : édition en place pour Catégories/Tonalités/Sources, tableaux
+
+**Demande (humaine)** : organisation plus complète de l'administration en mode CRUD et
+activation/désactivation.
+
+**Cadrage** : proposition présentée et validée par la personne, avec deux ajustements de
+sa part — (1) pas de migration de schéma (donc pas de colonne `actif` sur Catégories et
+Tonalités, qui gardent seulement l'édition, contrairement à Sources qui a déjà cette
+colonne), (2) réorganisation en tableaux + regroupement des sections validée telle quelle.
+
+**Fait** (`src/pages/Admin.jsx`, `src/index.css`) :
+- Catégories, Tonalités et Sources passent de listes à puces à des tableaux (même
+  gabarit que la section Utilisateurs, jusque-là seule à en avoir un) — colonnes Nom/Type
+  ou Nom/Descriptif, Statut pour Sources, Actions.
+- Édition sur place (« Modifier » → champs éditables dans la ligne → « Enregistrer »/
+  « Annuler ») ajoutée aux trois sections — jusque-là aucune ne permettait de corriger un
+  nom après coup.
+- Sections regroupées comme sur l'écran Préférences (même vocabulaire) : « Filtrage de la
+  veille » (Catégories, Sources), « Personnalisation des posts » (Tonalités). Veille et
+  Utilisateurs inchangées.
+- Ajout du style CSS manquant pour les tableaux (`tableau-admin-conteneur`, jamais stylés
+  avant — dette technique connue) et d'un badge actif/inactif générique.
+- `npm run build` : OK (102 modules).
+
+**Vérifié réellement (Playwright, compte de test temporairement ajouté à `EMAILS_ADMIN`,
+retiré aussitôt le test terminé)** : ouverture/annulation de l'édition fonctionne sur les
+trois sections ; en cas d'échec d'écriture, le message d'erreur s'affiche et la ligne reste
+en édition sans perte silencieuse (comportement déjà attendu par le code existant).
+**Découverte en testant, pas une régression** : les policies RLS réelles (Catégories,
+Sources) ne reconnaissent que les 3 vraies adresses admin — un compte ajouté seulement à
+`EMAILS_ADMIN` (contrôle d'affichage côté app) obtient un blocage silencieux (200 OK, 0
+ligne modifiée), confirmé identique sur la bascule Activer/Désactiver de Sources qui
+existait déjà avant ce chantier. Donc : **l'écriture effective (enregistrer une
+modification, activer/désactiver) n'a pas pu être vérifiée de bout en bout** — seule
+l'ouverture/fermeture de l'édition et l'affichage d'erreur l'ont été. À confirmer par la
+personne avec un vrai compte admin. Voir `docs/dette-technique.md`.
+
 ## 2026-09-10 — Annulé : retrait de `target="_blank"` sans effet, retour au comportement précédent
 
 **Constat (humain, test réel sur téléphone)** : le navigateur ne propose toujours pas

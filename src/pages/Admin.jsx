@@ -14,6 +14,15 @@ function SectionCategories() {
   const [ajoutEnCours, setAjoutEnCours] = useState(false)
   const [erreurAjout, setErreurAjout] = useState('')
 
+  // Édition sur place (une seule ligne à la fois) — mêmes noms de variables
+  // et même geste "Modifier" → champs éditables → "Enregistrer"/"Annuler"
+  // que pour Tonalités et Sources plus bas.
+  const [ligneEnEdition, setLigneEnEdition] = useState(null)
+  const [nomEdition, setNomEdition] = useState('')
+  const [typeEdition, setTypeEdition] = useState('thème')
+  const [enregistrementEnCours, setEnregistrementEnCours] = useState(false)
+  const [erreurEdition, setErreurEdition] = useState('')
+
   async function charger() {
     setErreur('')
     setChargement(true)
@@ -54,9 +63,49 @@ function SectionCategories() {
     charger()
   }
 
+  function gererDebutEdition(categorie) {
+    setErreurEdition('')
+    setLigneEnEdition(categorie.id)
+    setNomEdition(categorie.nom)
+    setTypeEdition(categorie.type)
+  }
+
+  function gererAnnulerEdition() {
+    setLigneEnEdition(null)
+    setErreurEdition('')
+  }
+
+  async function gererEnregistrerEdition(categorie) {
+    setErreurEdition('')
+    if (!nomEdition.trim()) {
+      setErreurEdition('Renseignez un nom.')
+      return
+    }
+    setEnregistrementEnCours(true)
+    // `.select()` indispensable : sans lui, un blocage RLS silencieux (0
+    // ligne concernée) ne remonte aucune erreur.
+    const { data, error } = await supabase
+      .from('Catégories')
+      .update({ nom: nomEdition.trim(), type: typeEdition })
+      .eq('id', categorie.id)
+      .select()
+    if (error || !data || data.length === 0) {
+      setErreurEdition(MSG_ECHEC)
+      setEnregistrementEnCours(false)
+      return
+    }
+    setCategories((precedent) =>
+      precedent.map((c) =>
+        c.id === categorie.id ? { ...c, nom: nomEdition.trim(), type: typeEdition } : c,
+      ),
+    )
+    setEnregistrementEnCours(false)
+    setLigneEnEdition(null)
+  }
+
   return (
     <section>
-      <h2>Catégories</h2>
+      <h3>Catégories</h3>
       {chargement && <p role="status">Chargement…</p>}
       {!chargement && erreur && (
         <div>
@@ -68,16 +117,82 @@ function SectionCategories() {
       )}
       {!chargement && !erreur && (
         <>
+          {erreurEdition && <p role="alert">{erreurEdition}</p>}
           {categories.length === 0 ? (
             <p>Aucune catégorie enregistrée.</p>
           ) : (
-            <ul>
-              {categories.map((c) => (
-                <li key={c.id}>
-                  {c.nom} — {c.type}
-                </li>
-              ))}
-            </ul>
+            <div className="tableau-admin-conteneur">
+              <table>
+                <caption className="visually-hidden">Liste des catégories</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categories.map((c) =>
+                    ligneEnEdition === c.id ? (
+                      <tr key={c.id}>
+                        <td>
+                          <label className="visually-hidden" htmlFor={`categorie-nom-edition-${c.id}`}>
+                            Nom de la catégorie
+                          </label>
+                          <input
+                            id={`categorie-nom-edition-${c.id}`}
+                            value={nomEdition}
+                            onChange={(e) => setNomEdition(e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <label className="visually-hidden" htmlFor={`categorie-type-edition-${c.id}`}>
+                            Type de la catégorie
+                          </label>
+                          <select
+                            id={`categorie-type-edition-${c.id}`}
+                            value={typeEdition}
+                            onChange={(e) => setTypeEdition(e.target.value)}
+                          >
+                            <option value="thème">thème</option>
+                            <option value="métier">métier</option>
+                            <option value="secteur">secteur</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="bouton-primaire"
+                            onClick={() => gererEnregistrerEdition(c)}
+                            disabled={enregistrementEnCours}
+                            aria-busy={enregistrementEnCours}
+                          >
+                            {enregistrementEnCours ? 'Enregistrement…' : 'Enregistrer'}
+                          </button>
+                          <button type="button" onClick={gererAnnulerEdition} disabled={enregistrementEnCours}>
+                            Annuler
+                          </button>
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr key={c.id}>
+                        <td>{c.nom}</td>
+                        <td>{c.type}</td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => gererDebutEdition(c)}
+                            aria-label={`Modifier la catégorie ${c.nom}`}
+                          >
+                            Modifier
+                          </button>
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
           <form onSubmit={gererAjout} noValidate>
             {erreurAjout && <p role="alert">{erreurAjout}</p>}
@@ -116,6 +231,12 @@ function SectionTonalites() {
   const [descriptif, setDescriptif] = useState('')
   const [ajoutEnCours, setAjoutEnCours] = useState(false)
   const [erreurAjout, setErreurAjout] = useState('')
+
+  const [ligneEnEdition, setLigneEnEdition] = useState(null)
+  const [nomEdition, setNomEdition] = useState('')
+  const [descriptifEdition, setDescriptifEdition] = useState('')
+  const [enregistrementEnCours, setEnregistrementEnCours] = useState(false)
+  const [erreurEdition, setErreurEdition] = useState('')
 
   async function charger() {
     setErreur('')
@@ -159,9 +280,52 @@ function SectionTonalites() {
     charger()
   }
 
+  function gererDebutEdition(tonalite) {
+    setErreurEdition('')
+    setLigneEnEdition(tonalite.id)
+    setNomEdition(tonalite['Visée de la publication'])
+    setDescriptifEdition(tonalite.descriptif ?? '')
+  }
+
+  function gererAnnulerEdition() {
+    setLigneEnEdition(null)
+    setErreurEdition('')
+  }
+
+  async function gererEnregistrerEdition(tonalite) {
+    setErreurEdition('')
+    if (!nomEdition.trim()) {
+      setErreurEdition('Renseignez un nom.')
+      return
+    }
+    setEnregistrementEnCours(true)
+    const { data, error } = await supabase
+      .from('Tonalités')
+      .update({
+        'Visée de la publication': nomEdition.trim(),
+        descriptif: descriptifEdition.trim() || null,
+      })
+      .eq('id', tonalite.id)
+      .select()
+    if (error || !data || data.length === 0) {
+      setErreurEdition(MSG_ECHEC)
+      setEnregistrementEnCours(false)
+      return
+    }
+    setTonalites((precedent) =>
+      precedent.map((t) =>
+        t.id === tonalite.id
+          ? { ...t, 'Visée de la publication': nomEdition.trim(), descriptif: descriptifEdition.trim() || null }
+          : t,
+      ),
+    )
+    setEnregistrementEnCours(false)
+    setLigneEnEdition(null)
+  }
+
   return (
     <section>
-      <h2>Tonalités</h2>
+      <h3>Tonalités</h3>
       {chargement && <p role="status">Chargement…</p>}
       {!chargement && erreur && (
         <div>
@@ -173,17 +337,78 @@ function SectionTonalites() {
       )}
       {!chargement && !erreur && (
         <>
+          {erreurEdition && <p role="alert">{erreurEdition}</p>}
           {tonalites.length === 0 ? (
             <p>Aucune tonalité enregistrée.</p>
           ) : (
-            <ul>
-              {tonalites.map((t) => (
-                <li key={t.id}>
-                  {t['Visée de la publication']}
-                  {t.descriptif && <> — {t.descriptif}</>}
-                </li>
-              ))}
-            </ul>
+            <div className="tableau-admin-conteneur">
+              <table>
+                <caption className="visually-hidden">Liste des tonalités</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Descriptif</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tonalites.map((t) =>
+                    ligneEnEdition === t.id ? (
+                      <tr key={t.id}>
+                        <td>
+                          <label className="visually-hidden" htmlFor={`tonalite-nom-edition-${t.id}`}>
+                            Nom de la tonalité
+                          </label>
+                          <input
+                            id={`tonalite-nom-edition-${t.id}`}
+                            value={nomEdition}
+                            onChange={(e) => setNomEdition(e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <label className="visually-hidden" htmlFor={`tonalite-descriptif-edition-${t.id}`}>
+                            Descriptif de la tonalité
+                          </label>
+                          <input
+                            id={`tonalite-descriptif-edition-${t.id}`}
+                            value={descriptifEdition}
+                            onChange={(e) => setDescriptifEdition(e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="bouton-primaire"
+                            onClick={() => gererEnregistrerEdition(t)}
+                            disabled={enregistrementEnCours}
+                            aria-busy={enregistrementEnCours}
+                          >
+                            {enregistrementEnCours ? 'Enregistrement…' : 'Enregistrer'}
+                          </button>
+                          <button type="button" onClick={gererAnnulerEdition} disabled={enregistrementEnCours}>
+                            Annuler
+                          </button>
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr key={t.id}>
+                        <td>{t['Visée de la publication']}</td>
+                        <td>{t.descriptif || '—'}</td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => gererDebutEdition(t)}
+                            aria-label={`Modifier la tonalité ${t['Visée de la publication']}`}
+                          >
+                            Modifier
+                          </button>
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
           <form onSubmit={gererAjout} noValidate>
             {erreurAjout && <p role="alert">{erreurAjout}</p>}
@@ -223,6 +448,11 @@ function SectionSources() {
   const [erreurAjout, setErreurAjout] = useState('')
   const [basculeEnCours, setBasculeEnCours] = useState(null)
   const [erreurBascule, setErreurBascule] = useState('')
+
+  const [ligneEnEdition, setLigneEnEdition] = useState(null)
+  const [nomEdition, setNomEdition] = useState('')
+  const [enregistrementEnCours, setEnregistrementEnCours] = useState(false)
+  const [erreurEdition, setErreurEdition] = useState('')
 
   async function charger() {
     setErreur('')
@@ -286,9 +516,44 @@ function SectionSources() {
     setBasculeEnCours(null)
   }
 
+  function gererDebutEdition(source) {
+    setErreurEdition('')
+    setLigneEnEdition(source.id)
+    setNomEdition(source.nom)
+  }
+
+  function gererAnnulerEdition() {
+    setLigneEnEdition(null)
+    setErreurEdition('')
+  }
+
+  async function gererEnregistrerEdition(source) {
+    setErreurEdition('')
+    if (!nomEdition.trim()) {
+      setErreurEdition('Renseignez un nom.')
+      return
+    }
+    setEnregistrementEnCours(true)
+    const { data, error } = await supabase
+      .from('Sources')
+      .update({ nom: nomEdition.trim() })
+      .eq('id', source.id)
+      .select()
+    if (error || !data || data.length === 0) {
+      setErreurEdition(MSG_ECHEC)
+      setEnregistrementEnCours(false)
+      return
+    }
+    setSources((precedent) =>
+      precedent.map((s) => (s.id === source.id ? { ...s, nom: nomEdition.trim() } : s)),
+    )
+    setEnregistrementEnCours(false)
+    setLigneEnEdition(null)
+  }
+
   return (
     <section>
-      <h2>Sources</h2>
+      <h3>Sources</h3>
       {chargement && <p role="status">Chargement…</p>}
       {!chargement && erreur && (
         <div>
@@ -301,24 +566,85 @@ function SectionSources() {
       {!chargement && !erreur && (
         <>
           {erreurBascule && <p role="alert">{erreurBascule}</p>}
+          {erreurEdition && <p role="alert">{erreurEdition}</p>}
           {sources.length === 0 ? (
             <p>Aucune source enregistrée.</p>
           ) : (
-            <ul>
-              {sources.map((s) => (
-                <li key={s.id}>
-                  {s.nom} — {s.actif ? 'active' : 'inactive'}{' '}
-                  <button
-                    type="button"
-                    onClick={() => gererBascule(s)}
-                    disabled={basculeEnCours === s.id}
-                    aria-label={`${s.actif ? 'Désactiver' : 'Activer'} la source ${s.nom}`}
-                  >
-                    {s.actif ? 'Désactiver' : 'Activer'}
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="tableau-admin-conteneur">
+              <table>
+                <caption className="visually-hidden">Liste des sources</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sources.map((s) =>
+                    ligneEnEdition === s.id ? (
+                      <tr key={s.id}>
+                        <td>
+                          <label className="visually-hidden" htmlFor={`source-nom-edition-${s.id}`}>
+                            Nom de la source
+                          </label>
+                          <input
+                            id={`source-nom-edition-${s.id}`}
+                            value={nomEdition}
+                            onChange={(e) => setNomEdition(e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <span className={`badge-statut-actif badge-statut-actif--${s.actif ? 'actif' : 'inactif'}`}>
+                            {s.actif ? 'active' : 'inactive'}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="bouton-primaire"
+                            onClick={() => gererEnregistrerEdition(s)}
+                            disabled={enregistrementEnCours}
+                            aria-busy={enregistrementEnCours}
+                          >
+                            {enregistrementEnCours ? 'Enregistrement…' : 'Enregistrer'}
+                          </button>
+                          <button type="button" onClick={gererAnnulerEdition} disabled={enregistrementEnCours}>
+                            Annuler
+                          </button>
+                        </td>
+                      </tr>
+                    ) : (
+                      <tr key={s.id}>
+                        <td>{s.nom}</td>
+                        <td>
+                          <span className={`badge-statut-actif badge-statut-actif--${s.actif ? 'actif' : 'inactif'}`}>
+                            {s.actif ? 'active' : 'inactive'}
+                          </span>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => gererDebutEdition(s)}
+                            aria-label={`Modifier la source ${s.nom}`}
+                          >
+                            Modifier
+                          </button>{' '}
+                          <button
+                            type="button"
+                            onClick={() => gererBascule(s)}
+                            disabled={basculeEnCours === s.id}
+                            aria-label={`${s.actif ? 'Désactiver' : 'Activer'} la source ${s.nom}`}
+                          >
+                            {s.actif ? 'Désactiver' : 'Activer'}
+                          </button>
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
           )}
           <form onSubmit={gererAjout} noValidate>
             {erreurAjout && <p role="alert">{erreurAjout}</p>}
@@ -523,33 +849,35 @@ function SectionUtilisateurs() {
           {lignes.length === 0 ? (
             <p>Aucun utilisateur.</p>
           ) : (
-            <table>
-              <caption className="visually-hidden">
-                Liste des utilisateurs, leur onboarding et leurs publications
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Email</th>
-                  <th scope="col">Nom</th>
-                  <th scope="col">Onboarding</th>
-                  <th scope="col">Brouillons</th>
-                  <th scope="col">Enregistrés</th>
-                  <th scope="col">Publiés</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lignes.map((l) => (
-                  <tr key={l.id}>
-                    <td>{l.email}</td>
-                    <td>{l.nomComplet}</td>
-                    <td>{l.onboardingComplet ? 'Complet' : 'Incomplet'}</td>
-                    <td>{l.compteurs.Brouillon}</td>
-                    <td>{l.compteurs['Enregistré']}</td>
-                    <td>{l.compteurs['Publié']}</td>
+            <div className="tableau-admin-conteneur">
+              <table>
+                <caption className="visually-hidden">
+                  Liste des utilisateurs, leur onboarding et leurs publications
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Email</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Onboarding</th>
+                    <th scope="col">Brouillons</th>
+                    <th scope="col">Enregistrés</th>
+                    <th scope="col">Publiés</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {lignes.map((l) => (
+                    <tr key={l.id}>
+                      <td>{l.email}</td>
+                      <td>{l.nomComplet}</td>
+                      <td>{l.onboardingComplet ? 'Complet' : 'Incomplet'}</td>
+                      <td>{l.compteurs.Brouillon}</td>
+                      <td>{l.compteurs['Enregistré']}</td>
+                      <td>{l.compteurs['Publié']}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </>
       )}
@@ -599,9 +927,20 @@ export default function Admin({ onAllerAccueil, onRetour }) {
         </button>
       </header>
 
-      <SectionCategories />
-      <SectionTonalites />
-      <SectionSources />
+      {/* Regroupement identique à celui de l'écran Préférences ("Filtrage de
+          vos actus" / "Personnalisation de vos posts") — même vocabulaire,
+          côté admin cette fois. */}
+      <section aria-labelledby="titre-admin-filtrage-veille">
+        <h2 id="titre-admin-filtrage-veille">Filtrage de la veille</h2>
+        <SectionCategories />
+        <SectionSources />
+      </section>
+
+      <section aria-labelledby="titre-admin-personnalisation-posts">
+        <h2 id="titre-admin-personnalisation-posts">Personnalisation des posts</h2>
+        <SectionTonalites />
+      </section>
+
       <SectionVeille />
       <SectionUtilisateurs />
     </main>

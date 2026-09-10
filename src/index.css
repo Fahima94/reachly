@@ -883,6 +883,53 @@ fieldset.chips input[type='radio'] {
   color: #166534;
 }
 
+/* Statut actif/inactif (admin : Sources — Catégories et Tonalités n'ont pas
+   cette notion en base, seulement Modifier). Mêmes couleurs que le badge de
+   statut de publication, gabarit générique réutilisable ailleurs. */
+.badge-statut-actif {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.badge-statut-actif--actif {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.badge-statut-actif--inactif {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Tableaux de l'administration (Catégories, Tonalités, Sources,
+   Utilisateurs) : aucun style avant le 2026-09-10 (dette technique connue).
+   Défilement horizontal propre plutôt que débordement de la page sur mobile. */
+.tableau-admin-conteneur {
+  overflow-x: auto;
+}
+
+.tableau-admin-conteneur table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableau-admin-conteneur th,
+.tableau-admin-conteneur td {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+}
+
+.tableau-admin-conteneur th {
+  font-weight: 600;
+  color: #475569;
+}
+
 /* Liste des publications (écran "Mes publications") : une carte par
    publication, contenu du post replié par défaut (`<details>`). */
 .liste-publications {
