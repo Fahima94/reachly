@@ -102,6 +102,26 @@ main:has(form) {
   background: var(--color-border);
 }
 
+/* Bouton "Se connecter avec LinkedIn" (Inscription, Connexion) : pleine
+   largeur comme le bouton principal du formulaire, icône + texte alignés,
+   couleur de marque LinkedIn en bordure/texte plutôt qu'en fond plein (pas
+   en compétition visuelle avec le bouton primaire du formulaire). */
+.bouton-linkedin {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-color: #0a66c2;
+  color: #0a66c2;
+}
+
+.bouton-linkedin:hover:not(:disabled) {
+  border-color: #004182;
+  color: #004182;
+  background: #f0f7ff;
+}
+
 /* Écran "Mon compte" : sections séparées par un trait, comme l'en-tête. */
 main > section + section {
   margin-top: var(--space-5);
