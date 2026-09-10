@@ -1296,10 +1296,11 @@ main > ol > li > article > p:first-child {
   font-size: 0.95rem;
 }
 
-/* RAPPEL FINAL : bloc centré, légèrement teinté pour se détacher. */
+/* RAPPEL FINAL : bloc centré, légèrement teinté pour se détacher. Marge
+   verticale généreuse pour que l'aplat teinté englobe bien le titre. */
 .landing-cta {
   text-align: center;
-  padding: var(--space-6) var(--space-4);
+  padding: calc(var(--space-6) + var(--space-4)) var(--space-4);
   background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface));
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);

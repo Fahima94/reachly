@@ -13,12 +13,12 @@ const PROMESSES = [
   {
     titre: 'Post généré dans votre voix',
     texte:
-      'Un premier jet d’environ 100 mots est rédigé selon la tonalité que vous choisissez — jamais le style générique d’une IA classique.',
+      'Un premier jet personnalisé d’environ 100 mots est rédigé — jamais le style générique d’une IA classique.',
   },
   {
     titre: 'Validation humaine garantie',
     texte:
-      'Rien n’est publié sans votre accord. Vous corrigez, vous ajustez la tonalité, vous gardez la main sur vos posts.',
+      'Rien n’est publié sans votre accord. Vous corrigez, vous ajustez la tonalité, vous gardez la main sur vos posts et votre réputation professionnelle.',
   },
 ]
 
@@ -95,8 +95,8 @@ export default function Accueil({ onAllerAccueil, onAllerConnexion, onAllerInscr
           <h1>Être le premier à parler, sans y passer ses nuits.</h1>
           <p className="landing-accroche">
             Reachly agrège votre veille Tech &amp; IA, la note par pertinence et vous
-            livre chaque matin 5 sujets pré-rédigés, dans votre voix, prêts à valider
-            avant publication sur LinkedIn.
+            propose instantanément les 5 sujets les plus chauds, et génère des posts
+            dans votre voix, prêts à valider avant publication sur LinkedIn.
           </p>
           <div className="landing-actions">
             <button type="button" className="bouton-primaire" onClick={onAllerInscription}>
@@ -162,8 +162,8 @@ export default function Accueil({ onAllerAccueil, onAllerConnexion, onAllerInscr
       <section className="landing-cta">
         <h2>Prêt à reprendre le contrôle de votre veille ?</h2>
         <p>
-          Créez votre compte en moins de deux minutes et recevez votre première
-          sélection de sujets dès demain matin.
+          Créez votre compte en quelques minutes et obtenez votre première
+          sélection de sujets instantanément.
         </p>
         <button type="button" className="bouton-primaire" onClick={onAllerInscription}>
           Créer mon compte
