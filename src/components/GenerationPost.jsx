@@ -11,25 +11,11 @@ const VOIX_NARRATIVES = [
 
 function IconeGeneration() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width="28"
-      height="28"
-      aria-hidden="true"
-      focusable="false"
-      className="icone-generation"
-    >
-      <path
-        className="icone-generation-etincelle-principale"
-        d="M12 2c.6 5.2 2 7.8 7 8.5-5 .7-6.4 3.3-7 8.5-.6-5.2-2-7.8-7-8.5 5-.7 6.4-3.3 7-8.5z"
-        fill="currentColor"
-      />
-      <path
-        className="icone-generation-etincelle-secondaire"
-        d="M18.5 2c.25 1.6.9 2.25 2.5 2.5-1.6.25-2.25.9-2.5 2.5-.25-1.6-.9-2.25-2.5-2.5 1.6-.25 2.25-.9 2.5-2.5z"
-        fill="currentColor"
-      />
-    </svg>
+    <span className="points-generation" aria-hidden="true">
+      <span />
+      <span />
+      <span />
+    </span>
   )
 }
 
