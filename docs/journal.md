@@ -1,5 +1,29 @@
 # Journal
 
+## 2026-09-10 — « À propos de vous » transmis au webhook d'analyse de style
+
+**Demande (humain)** : le champ « À propos de vous » (ajouté par Fahima) doit être
+intégré au prompt de génération du profil éditorial.
+
+**Fait** (`src/pages/onboarding/LinkedinPosts.jsx` et `src/pages/Preferences.jsx`) :
+- `analyserLeStyle(posts, aPropos)` envoie désormais `a_propos` au webhook n8n
+  (`VITE_N8N_WEBHOOK_PROFIL_EDITORIAL`) en plus de `posts`.
+- L'analyse peut désormais se déclencher avec seulement « À propos de vous » rempli,
+  sans aucun post — avant, elle exigeait au moins un post (le champ, bien
+  qu'enregistré, ne participait pas du tout à l'analyse).
+- Bouton et libellés mis à jour en conséquence.
+
+**Vérifié en réel** : `npm run build` OK ; Playwright avec interception réseau (le
+véritable webhook n8n n'est pas accessible en test) — payload confirmé :
+`{ posts: [], a_propos: "…" }` en remplissant uniquement "À propos", bouton et appel
+déclenchés correctement, aucune erreur console.
+
+**Non fait — hors de portée depuis cette session** : le workflow n8n
+`Reachly_Profil_Utilisateur` doit encore être modifié pour que son prompt utilise
+réellement `a_propos` (actuellement il ne regarde probablement que `posts` — je n'ai pas
+accès à l'éditeur n8n dans cette session pour vérifier ni corriger). Le champ arrive bien
+au workflow ; reste à l'y câbler côté prompt.
+
 ## 2026-09-09 — Intégration et ergonomie du champ « À propos de vous »
 
 **Demande (humain)** : après la fusion avec le travail parallèle de Fahima (nouveau champ

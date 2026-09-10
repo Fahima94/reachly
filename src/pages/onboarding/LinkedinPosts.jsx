@@ -5,11 +5,11 @@ import { formaterProfilEditorial } from '../../lib/formaterProfilEditorial.jsx'
 import { linkedinValide } from '../../lib/linkedin.js'
 import EnteteConnecte from '../../components/EnteteConnecte.jsx'
 
-async function analyserLeStyle(postsPourAnalyse) {
+async function analyserLeStyle(postsPourAnalyse, aProposPourAnalyse) {
   const reponse = await fetch(import.meta.env.VITE_N8N_WEBHOOK_PROFIL_EDITORIAL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ posts: postsPourAnalyse }),
+    body: JSON.stringify({ posts: postsPourAnalyse, a_propos: aProposPourAnalyse || null }),
   })
 
   if (!reponse.ok) {
@@ -165,22 +165,23 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
     }
   }
 
-  // Un seul geste pour l'utilisateur : enregistrer ses posts puis, s'il y en
-  // a, enchaîner tout de suite sur l'analyse de style — plutôt que deux
-  // boutons dans deux fieldsets séparés qu'il fallait deviner d'enchaîner
-  // (retour utilisateur : la fonctionnalité passait inaperçue).
+  // Un seul geste pour l'utilisateur : enregistrer ses posts puis, si elle a
+  // renseigné des posts et/ou "À propos de vous", enchaîner tout de suite sur
+  // l'analyse de style — plutôt que deux boutons dans deux fieldsets séparés
+  // qu'il fallait deviner d'enchaîner (retour utilisateur : la fonctionnalité
+  // passait inaperçue).
   async function sauvegarderEtAnalyser() {
     const succes = await sauvegarderPosts()
-    if (!succes || postsNonVidesActuels.length === 0) return
+    if (!succes || (postsNonVidesActuels.length === 0 && aPropos.trim() === '')) return
     await gererRegenerer()
   }
 
   async function gererRegenerer() {
-    if (postsNonVidesActuels.length === 0) return
+    if (postsNonVidesActuels.length === 0 && aPropos.trim() === '') return
     setErreurAnalyse('')
     setAnalyseEnCours(true)
     try {
-      const profil = await analyserLeStyle(postsNonVidesActuels)
+      const profil = await analyserLeStyle(postsNonVidesActuels, aPropos.trim())
       setProfilEditorial(profil)
     } catch {
       setErreurAnalyse('La régénération a échoué. Vérifiez votre connexion et réessayez.')
@@ -348,7 +349,7 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
             >
               {sauvegardePostsEnCours || analyseEnCours
                 ? 'Enregistrement…'
-                : postsNonVidesActuels.length === 0
+                : postsNonVidesActuels.length === 0 && aPropos.trim() === ''
                   ? 'Enregistrer'
                   : profilGenere
                     ? 'Enregistrer et régénérer mon profil'
