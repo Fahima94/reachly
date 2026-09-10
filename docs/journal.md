@@ -1,5 +1,28 @@
 # Journal
 
+## 2026-09-10 — Petite passe UI : cohérence des types de boutons
+
+**Demande (humain)** : passe sur les types de boutons (primaires, secondaires, etc.).
+
+**Constat** : captures d'écran réelles sur landing, inscription, tableau de bord, modale
+de génération, post généré, menu profil, "Mes publications". Le système à trois niveaux
+(`.bouton-primaire` violet plein / bouton par défaut blanc bordé / `.bouton-discret`
+texte souligné) est déjà cohérent partout — une seule vraie incohérence trouvée : sur
+"Mes publications", "Enregistrer les modifications" et "Publier" étaient empilés
+verticalement, alors que la même paire (après génération, tableau de bord) est en ligne
+côte à côte.
+
+**Décision (proposée, validée par l'humain)** : corriger uniquement cette incohérence de
+mise en page — le reste du système n'a pas besoin d'être retouché.
+
+**Fait** (`src/pages/MesPublications.jsx`) : "Publier" et "Enregistrer les
+modifications" regroupés dans un `<div className="actions-generation-post">`, primaire
+en premier — même classe, même ordre que `GenerationPost.jsx`. Confirmation "Enregistré
+!" déplacée sous la paire de boutons plutôt qu'accolée au seul bouton secondaire.
+
+**Vérifié en réel** : capture d'écran après le correctif, mise en page identique aux deux
+endroits. Aucune erreur console.
+
 ## 2026-09-10 — Fix : "Se déconnecter" restait bloqué après une connexion classique
 
 **Constat (humain)** : le bouton "Se déconnecter" ne fonctionne pas bien, ça reste

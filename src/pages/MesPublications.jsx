@@ -248,7 +248,18 @@ export default function MesPublications({
                         rows={6}
                         className="texte-publication"
                       />
-                      <p>
+                      {/* Même paire Publier/Enregistrer, même mise en page en ligne
+                          qu'après génération sur le tableau de bord
+                          (GenerationPost.jsx, .actions-generation-post). */}
+                      <div className="actions-generation-post">
+                        <button
+                          type="button"
+                          className="bouton-primaire"
+                          onClick={(e) => gererPublier(pub, e)}
+                          disabled={modificationEnCours === pub.id}
+                        >
+                          {modificationEnCours === pub.id ? 'Publication…' : 'Publier'}
+                        </button>
                         <button
                           type="button"
                           onClick={() => gererEnregistrerModifications(pub)}
@@ -256,16 +267,8 @@ export default function MesPublications({
                         >
                           {modificationEnCours === pub.id ? 'Enregistrement…' : 'Enregistrer les modifications'}
                         </button>
-                        {texteEnregistreId === pub.id && <span role="status"> Enregistré !</span>}
-                      </p>
-                      <button
-                        type="button"
-                        className="bouton-primaire"
-                        onClick={(e) => gererPublier(pub, e)}
-                        disabled={modificationEnCours === pub.id}
-                      >
-                        {modificationEnCours === pub.id ? 'Publication…' : 'Publier'}
-                      </button>
+                      </div>
+                      {texteEnregistreId === pub.id && <p role="status">Enregistré !</p>}
                     </>
                   )}
                   {erreurModification?.id === pub.id && (
