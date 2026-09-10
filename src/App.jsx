@@ -9,6 +9,7 @@ import Admin from './pages/Admin.jsx'
 import MesPublications from './pages/MesPublications.jsx'
 import MonCompte from './pages/MonCompte.jsx'
 import ConsentementLinkedin from './pages/ConsentementLinkedin.jsx'
+import PageLegale from './pages/PageLegale.jsx'
 import Identite from './pages/onboarding/Identite.jsx'
 import MetiersSecteurs from './pages/onboarding/MetiersSecteurs.jsx'
 import CategoriesSources from './pages/onboarding/CategoriesSources.jsx'
@@ -87,6 +88,17 @@ export default function App() {
       annule = true
     }
   }, [naviguerVers])
+
+  // Pages légales (ticket 15) : URL stable, publique, indépendante de la
+  // session — ne passent jamais par le routage interne ni l'attente de
+  // résolution de session ci-dessus (vérifiées avant même l'écran de
+  // chargement), pour rester lisibles même en accès direct, déconnecté.
+  if (window.location.pathname === '/conditions-utilisation') {
+    return <PageLegale document="conditions" />
+  }
+  if (window.location.pathname === '/politique-confidentialite') {
+    return <PageLegale document="confidentialite" />
+  }
 
   if (ecran === null) {
     return (

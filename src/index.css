@@ -122,6 +122,15 @@ main:has(form) {
   background: #f0f7ff;
 }
 
+/* Liens vers CGU/confidentialité en pied des écrans Connexion/Inscription
+   (ticket 15) : discrets, pas d'emphase visuelle sur une action secondaire. */
+.pied-de-page-legal {
+  margin-top: var(--space-5);
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
 /* Écran "Mon compte" : sections séparées par un trait, comme l'en-tête. */
 main > section + section {
   margin-top: var(--space-5);

@@ -246,8 +246,15 @@ export default function Inscription({ onAllerAccueil, onChangerMode, onInscripti
               aria-describedby={erreurConditions ? 'conditions-erreur' : undefined}
               aria-invalid={erreurConditions ? 'true' : 'false'}
             />
-            J'accepte les conditions d'utilisation et la politique de
-            confidentialité de Reachly.
+            J'accepte les{' '}
+            <a href="/conditions-utilisation" target="_blank" rel="noopener noreferrer">
+              conditions d'utilisation
+            </a>{' '}
+            et la{' '}
+            <a href="/politique-confidentialite" target="_blank" rel="noopener noreferrer">
+              politique de confidentialité
+            </a>{' '}
+            de Reachly.
           </label>
           {erreurConditions && (
             <p id="conditions-erreur" role="alert">
@@ -260,6 +267,16 @@ export default function Inscription({ onAllerAccueil, onChangerMode, onInscripti
           {enCours ? 'Création en cours…' : 'Créer mon compte'}
         </button>
       </form>
+
+      <p className="pied-de-page-legal">
+        <a href="/conditions-utilisation" target="_blank" rel="noopener noreferrer">
+          Conditions d'utilisation
+        </a>
+        {' · '}
+        <a href="/politique-confidentialite" target="_blank" rel="noopener noreferrer">
+          Politique de confidentialité
+        </a>
+      </p>
     </main>
   )
 }

@@ -245,6 +245,16 @@ export default function Connexion({
           {enCours ? 'Connexion en cours…' : 'Se connecter'}
         </button>
       </form>
+
+      <p className="pied-de-page-legal">
+        <a href="/conditions-utilisation" target="_blank" rel="noopener noreferrer">
+          Conditions d'utilisation
+        </a>
+        {' · '}
+        <a href="/politique-confidentialite" target="_blank" rel="noopener noreferrer">
+          Politique de confidentialité
+        </a>
+      </p>
     </main>
   )
 }

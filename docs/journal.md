@@ -1,5 +1,40 @@
 # Journal
 
+## 2026-09-10 — Ticket 15 : pages CGU / politique de confidentialité (structure, pas le contenu)
+
+**Demande (humain)** : lien en bas de page vers les CGU / politique de confidentialité,
+suite à la préparation du plan de rédaction (2026-09-09). Contact fourni : `contact@reachly.fr`.
+
+**Fait (code)**
+- `src/pages/PageLegale.jsx` (nouveau) : un seul composant paramétré (`document="conditions"`
+  ou `"confidentialite"`) plutôt que deux pages quasi identiques — titre, mention « en cours
+  de rédaction » + contact (le contenu juridique reste hors de portée, ticket 15 l'exige
+  explicite), lien croisé vers l'autre document. `version`/`dateMiseAJour` à `null` jusqu'à
+  ce qu'un texte réel soit fourni par un humain.
+- `src/App.jsx` : ces deux pages sont vérifiées par `window.location.pathname`
+  (`/conditions-utilisation`, `/politique-confidentialite`) **avant** la résolution de
+  session et le routage interne (`ecran`) — l'app n'avait jusqu'ici aucune vraie URL par
+  écran (tout en état JS interne + `history.pushState` sans changer l'URL), ce ticket
+  introduit les deux premières URL stables et publiques de l'app.
+- `public/_redirects` (nouveau) : `/* /index.html 200` — sans ça, un accès direct à ces
+  URL sur Netlify (ou tout hébergeur statique) renvoyait une 404 ; nécessaire pour toute
+  navigation directe/partagée, pas seulement ces deux pages.
+- `src/pages/Inscription.jsx` : le libellé de la case CGU (texte brut depuis le ticket 01)
+  devient deux vrais liens, ouverts en nouvel onglet — ne perd jamais la saisie en cours.
+  Lien discret de pied de page ajouté (les deux documents, aussi en nouvel onglet).
+- `src/pages/Connexion.jsx` : même lien de pied de page.
+- `npm run build` : OK (101 modules). Vérifié que le serveur de dev sert bien `index.html`
+  sur `/conditions-utilisation` (repli SPA), pas de 404.
+
+**Hors de portée (rappel du ticket)**
+- Rédaction du contenu juridique — humain ou conseil juridique, jamais l'agent.
+- Enregistrement de la version/date du consentement avec le profil (RGPD art. 7.1) — déjà
+  noté comme non fait le 2026-09-07 (ticket 01), toujours pas câblé ; sans contenu réel, il
+  n'y a de toute façon rien à versionner pour l'instant.
+
+**Non vérifié** : rendu réel en navigateur (repli SPA testé côté serveur seulement, pas le
+rendu client final) ; accessibilité non testée au clavier ni au lecteur d'écran.
+
 ## 2026-09-09 — Intégration et ergonomie du champ « À propos de vous »
 
 **Demande (humain)** : après la fusion avec le travail parallèle de Fahima (nouveau champ
