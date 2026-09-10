@@ -1,5 +1,38 @@
 # Journal
 
+## 2026-09-10 — n8n : génération de post 10x plus rapide (modèle Gemini instable)
+
+**Constat (humain)** : une génération a mis plus d'1 min 50 ; soupçon que la longueur de
+l'article scrapé en soit responsable — vérifié via l'exécution n8n que le prompt ne
+récupère que le résumé, pas l'article complet.
+
+**Investigation** (logs d'exécution n8n réels, deux exécutions lentes) : la lenteur n'a
+rien à voir avec la taille du contenu (1300-1500 tokens en entrée, modeste). Le nœud
+**Google Gemini Chat Model** tournait sur `gemini-3-flash-preview` (valeur par défaut du
+nœud, jamais fixée explicitement) — un modèle *preview*, sujet à des surcharges :
+- Exécution 352289 : Gemini a mis 112 s à répondre (mais a fini par réussir).
+- Exécution 352286 : Gemini a échoué après 89 s avec `503 — high demand`, avant bascule
+  sur le fallback Groq.
+
+Dans les deux cas, tous les autres nœuds (Supabase, etc.) prennent 3 à 356 ms — Gemini
+preview est seul responsable des 90-112 secondes observées.
+
+**Fait** : modèle explicitement fixé à `models/gemini-3.1-flash-lite` (stable, économe,
+recommandé par la documentation du nœud pour ce cas d'usage — palier preview évité).
+
+**Vérifié en réel** : deux appels réels au webhook après le changement — 11,6 s puis
+2,6 s (contre 90-112 s avant). Aucune régression de qualité observée sur les textes
+générés.
+
+**Résumé vs article complet** — confirmé que le prompt utilise `Get Info.contenu`
+(résumé traduit, ~100 mots) et jamais `Get Info.article` (texte scrappé complet, ~700
+mots ici, souvent en anglais) — déjà identifié comme chantier non fait fin août. Testé
+en réel sur le même sujet (bascule temporaire, immédiatement annulée après test, aucune
+décision prise) : la version "article complet" a produit un détail chiffré absent du
+résumé (250 000 organisations clientes vs uniquement "4 millions d'utilisateurs
+payants"/"600 M$ de revenus" dans la version résumé) — matière plus riche, confirmée,
+mais décision de bascule laissée à l'humain après comparaison.
+
 ## 2026-09-10 — Synchronisation du tableau Notion (jamais faite depuis sa création)
 
 **Demande (humain)** : mets à jour le Notion, le tableau montre des "en cours".
