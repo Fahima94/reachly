@@ -1,5 +1,18 @@
 # Journal
 
+## 2026-09-10 — "À propos de vous" dans un fieldset
+
+**Demande (humain)** : ajouter un fieldset sur "À propos de vous".
+
+**Fait** (`src/pages/onboarding/LinkedinPosts.jsx`, `src/pages/Preferences.jsx`) : le
+`<div>` devient un `<fieldset>`/`<legend>`, comme "Exemples pour définir votre style"
+juste en dessous — même carte bordée, même traitement visuel. Le `<label>` associé au
+textarea devient visuellement masqué (`.visually-hidden`) pour ne pas dupliquer le texte
+déjà porté par la légende, tout en gardant l'association programmatique explicite.
+
+**Vérifié en réel** : capture d'écran (onboarding, étape 5) — carte bordée identique aux
+deux sections, `<legend>` bien dans un `<fieldset>`. Aucune erreur console.
+
 ## 2026-09-10 — Petite passe UI : cohérence des types de boutons
 
 **Demande (humain)** : passe sur les types de boutons (primaires, secondaires, etc.).
