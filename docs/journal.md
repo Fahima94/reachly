@@ -1,5 +1,30 @@
 # Journal
 
+## 2026-09-10 — Fix : "Se déconnecter" restait bloqué après une connexion classique
+
+**Constat (humain)** : le bouton "Se déconnecter" ne fonctionne pas bien, ça reste
+bloqué sur la page.
+
+**Cause** : `src/pages/Connexion.jsx` gère son propre état post-connexion en interne
+(`statut`, `preferencesOuvertes`, `adminOuvert`, `publicationsOuvertes`, `compteOuvert`)
+pour le chemin de connexion classique (email/mot de passe) — contrairement au chemin
+LinkedIn OIDC ou à une session déjà active au chargement, qui passent par le routage de
+`App.jsx` (`ecran`). Le bouton "Se déconnecter" appelait directement
+`onDeconnexionReussie` du parent (`() => naviguerVers('connexion', { remplacer: true })`)
+sans jamais réinitialiser l'état local de `Connexion.jsx`. Comme `App.jsx` était déjà sur
+l'écran `'connexion'` durant tout ce parcours (il n'en sort jamais), cet appel ne
+changeait rien (React ne re-rend pas sur une valeur d'état identique) — la session était
+bien coupée côté Supabase, mais l'interface restait figée sur l'écran affiché.
+
+**Fait** : nouvelle fonction locale `gererDeconnexionReussie` dans `Connexion.jsx` qui
+réinitialise `statut` à `'idle'` et referme tous les `xxxOuvert`, puis appelle le
+`onDeconnexionReussie` du parent — substituée aux quatre endroits où le prop était
+transmis tel quel (Preferences, MesPublications, MonCompte, Dashboard rendus en interne).
+
+**Vérifié en réel** : compte de test, connexion via le formulaire classique (le chemin
+cassé), onboarding complété, clic sur "Se déconnecter" — retour immédiat et correct au
+formulaire de connexion, session bien absente du stockage local. Aucune erreur console.
+
 ## 2026-09-10 — Retour à `reachly-tce` comme site présenté (quota Netlify atteint sur l'autre compte)
 
 `reachlyf.netlify.app` (auto-déploiement depuis `main`, compte de Fahima) a atteint son

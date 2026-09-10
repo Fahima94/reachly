@@ -44,6 +44,21 @@ export default function Connexion({
 
   const enCours = statut === 'chargement'
 
+  // La connexion classique (email/mot de passe) ne change jamais l'écran
+  // côté App.jsx (qui reste sur 'connexion') — tout l'après-connexion vit
+  // dans l'état local de ce composant (`statut`, `preferencesOuvertes`...).
+  // Se déconnecter doit donc réinitialiser cet état local en plus de
+  // prévenir le parent, sinon rien ne change visuellement (session coupée
+  // côté Supabase, mais l'écran reste figé sur ce qui était affiché).
+  function gererDeconnexionReussie() {
+    setStatut('idle')
+    setPreferencesOuvertes(false)
+    setAdminOuvert(false)
+    setPublicationsOuvertes(false)
+    setCompteOuvert(false)
+    onDeconnexionReussie()
+  }
+
   // Même principe que sur l'écran d'inscription : redirection complète vers
   // LinkedIn puis retour sur l'app avec une session déjà établie — géré par
   // App.jsx (écran de consentement CGU si jamais vu pour ce parcours).
@@ -110,7 +125,7 @@ export default function Connexion({
     return (
       <Preferences
         onNaviguer={onChangerMode}
-        onDeconnexionReussie={onDeconnexionReussie}
+        onDeconnexionReussie={gererDeconnexionReussie}
         onRetour={() => setPreferencesOuvertes(false)}
       />
     )
@@ -124,7 +139,7 @@ export default function Connexion({
     return (
       <MesPublications
         onNaviguer={onChangerMode}
-        onDeconnexionReussie={onDeconnexionReussie}
+        onDeconnexionReussie={gererDeconnexionReussie}
         onRetour={() => setPublicationsOuvertes(false)}
         onModifierPreferences={() => {
           setPublicationsOuvertes(false)
@@ -138,7 +153,7 @@ export default function Connexion({
     return (
       <MonCompte
         onNaviguer={onChangerMode}
-        onDeconnexionReussie={onDeconnexionReussie}
+        onDeconnexionReussie={gererDeconnexionReussie}
         onRetour={() => setCompteOuvert(false)}
       />
     )
@@ -148,7 +163,7 @@ export default function Connexion({
     return (
       <Dashboard
         onAllerAccueil={onAllerAccueil}
-        onDeconnexionReussie={onDeconnexionReussie}
+        onDeconnexionReussie={gererDeconnexionReussie}
         onRelancerOnboarding={onRelancerOnboarding}
         onModifierPreferences={() => setPreferencesOuvertes(true)}
         onOuvrirAdmin={() => setAdminOuvert(true)}
