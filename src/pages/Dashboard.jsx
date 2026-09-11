@@ -169,21 +169,27 @@ export default function Dashboard({
   const [tonalites, setTonalites] = useState([])
   const [tonaliteId, setTonaliteId] = useState(null)
   const [voixCode, setVoixCode] = useState('')
+  const [categorieRenseignee, setCategorieRenseignee] = useState(false)
   const [linkedinRenseigne, setLinkedinRenseigne] = useState(false)
-  const [profilEditorialGenere, setProfilEditorialGenere] = useState(false)
+  const [bioRenseignee, setBioRenseignee] = useState(false)
+  const [postsRenseignes, setPostsRenseignes] = useState(false)
   const [categoriesFiltrables, setCategoriesFiltrables] = useState([])
 
-  // Catégories/tonalité obligatoires sont déjà garanties avant d'arriver ici
-  // (`etat === 'incomplet'` sinon) — ce badge porte sur les réglages
-  // facultatifs mais à forte valeur pour la qualité des posts générés :
-  // absents, ils passent inaperçus une fois "Mes préférences" repliée dans le
-  // menu profil.
-  const remplissagePreferencesTotal = 4
+  // Les six champs de "Mes préférences" : catégorie et tonalité sont déjà
+  // garanties avant d'arriver ici (`etat === 'incomplet'` sinon, à
+  // l'onboarding) mais comptent quand même dans le badge — c'est bien
+  // l'ensemble des six réglages de cet écran, pas seulement les facultatifs.
+  const remplissagePreferencesTotal = 6
   const remplissagePreferences =
+    (categorieRenseignee ? 1 : 0) +
     (tonaliteId ? 1 : 0) +
     (voixCode ? 1 : 0) +
     (linkedinRenseigne ? 1 : 0) +
-    (profilEditorialGenere ? 1 : 0)
+    (bioRenseignee ? 1 : 0) +
+    (postsRenseignes ? 1 : 0)
+  const pourcentagePreferences = Math.round(
+    (remplissagePreferences / remplissagePreferencesTotal) * 100,
+  )
 
   const charger = useCallback(async () => {
     setEtat('chargement')
@@ -205,7 +211,7 @@ export default function Dashboard({
           supabase
             .from('profiles')
             .select(
-              'nom, prenom, avatar_url, "Tonalité_défaut", voix_narrative, linkedin, profil_editorial',
+              'nom, prenom, avatar_url, "Tonalité_défaut", voix_narrative, linkedin, a_propos, posts_exemples',
             )
             .eq('id', user.id)
             .maybeSingle(),
@@ -229,8 +235,13 @@ export default function Dashboard({
       setAvatarUrl(profil.avatar_url || null)
       setTonaliteId(profil['Tonalité_défaut'] ?? null)
       setVoixCode(profil.voix_narrative ?? '')
+      setCategorieRenseignee(categoriesUtilisateur.length > 0)
       setLinkedinRenseigne(Boolean(profil.linkedin))
-      setProfilEditorialGenere(Boolean(profil.profil_editorial))
+      setBioRenseignee(Boolean(profil.a_propos?.trim()))
+      setPostsRenseignes(
+        Array.isArray(profil.posts_exemples) &&
+          profil.posts_exemples.some((post) => post?.trim()),
+      )
 
       // Liste complète (pas juste le libellé du profil) : sert aussi à peupler
       // les menus de la pop up de génération (override ponctuel, ticket n8n
@@ -522,12 +533,10 @@ export default function Dashboard({
             >
               <span
                 className="anneau-preferences"
-                style={{
-                  '--progression-preferences': `${(remplissagePreferences / remplissagePreferencesTotal) * 360}deg`,
-                }}
+                style={{ '--progression-preferences': `${pourcentagePreferences * 3.6}deg` }}
                 aria-hidden="true"
               />
-              Préférences · {remplissagePreferences}/{remplissagePreferencesTotal}
+              Profil rempli à {pourcentagePreferences}%
             </button>
           )}
           <div className="conteneur-avatar" ref={menuProfilRef}>

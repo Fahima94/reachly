@@ -333,10 +333,8 @@ header p {
 
 /* Badge "Préférences" (tableau de bord) : accès direct depuis l'en-tête,
    plutôt que caché dans le menu du profil — avec un anneau de progression
-   sur les réglages facultatifs à forte valeur (tonalité, voix, LinkedIn,
-   profil éditorial ; catégorie/tonalité "obligatoires" à l'onboarding sont
-   déjà garanties avant d'arriver sur ce tableau de bord, donc hors de ce
-   compte). */
+   sur les six champs de "Mes préférences" (catégorie, tonalité, voix,
+   LinkedIn, bio « à propos », posts d'exemple). */
 .badge-preferences {
   display: inline-flex;
   align-items: center;
@@ -582,6 +580,34 @@ fieldset {
   gap: var(--space-2);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
+}
+
+/* Champ vide sur "Mes préférences" — même six champs comptés par le badge
+   "Profil rempli à x%" du tableau de bord (Dashboard.jsx). Disparaît dès que
+   la personne remplit le champ, sans attendre l'enregistrement. */
+.champ-a-completer {
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-bg);
+}
+
+/* Le champ LinkedIn est un <div> nu (pas de border/padding par défaut,
+   contrairement à un <fieldset>) — il lui faut son propre gabarit. */
+div.champ-a-completer {
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+}
+
+.pastille-a-completer {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: middle;
 }
 
 legend {

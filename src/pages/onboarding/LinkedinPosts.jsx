@@ -121,6 +121,10 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
 
   const postsNonVidesActuels = posts.map((p) => p.trim()).filter(Boolean)
   const profilGenere = profilEditorial.trim() !== ''
+  // Un texte tapé qui n'est pas un lien LinkedIn valide ne sera jamais
+  // enregistré (`linkedinValide`, silencieux) — message explicite pour ne
+  // pas laisser croire que la saisie a été prise en compte.
+  const linkedinSaisieInvalide = linkedin.trim() !== '' && linkedinValide(linkedin) === null
 
   // Enregistre LinkedIn + posts + "À propos de vous" (les trois ingrédients du
   // profil éditorial), sans déclencher son analyse. Renvoie un booléen
@@ -284,7 +288,14 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
               autoComplete="url"
               value={linkedin}
               onChange={(e) => setLinkedin(e.target.value)}
+              aria-describedby={linkedinSaisieInvalide ? 'linkedin-erreur' : undefined}
+              aria-invalid={linkedinSaisieInvalide ? 'true' : 'false'}
             />
+            {linkedinSaisieInvalide && (
+              <p id="linkedin-erreur" role="alert">
+                Doit être un lien vers votre profil LinkedIn (ex. https://www.linkedin.com/in/votre-nom).
+              </p>
+            )}
           </div>
 
           <p className="description-choix">
@@ -295,8 +306,8 @@ export default function LinkedinPosts({ onNaviguer, onDeconnexionReussie, onEtap
           <fieldset aria-describedby="a-propos-description">
             <legend>À propos de vous</legend>
             <p id="a-propos-description" className="description-choix">
-              Qui vous êtes, ce que vous aimez faire, ce qui vous distingue — un court
-              texte libre.
+              Qui vous êtes, ce que vous aimez faire, ce qui vous distingue, quelle est
+              votre cible pour vos posts, tout ce qui vous anime — un court texte libre.
             </p>
             <label htmlFor="a-propos" className="visually-hidden">
               À propos de vous

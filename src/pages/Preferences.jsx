@@ -188,6 +188,10 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
 
   const postsNonVidesActuels = posts.map((p) => p.trim()).filter(Boolean)
   const profilGenere = profilEditorial.trim() !== ''
+  // Un texte tapé qui n'est pas un lien LinkedIn valide ne sera jamais
+  // enregistré (`linkedinValide`, silencieux) — message explicite pour ne
+  // pas laisser croire que la saisie a été prise en compte.
+  const linkedinSaisieInvalide = linkedin.trim() !== '' && linkedinValide(linkedin) === null
 
   // Enregistre LinkedIn + posts + "À propos de vous" (les trois ingrédients du
   // profil éditorial), sans déclencher son analyse. Renvoie un booléen
@@ -393,8 +397,16 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             Ce qui détermine les sujets retenus pour vous dans la veille quotidienne.
           </p>
 
-          <fieldset className="chips" aria-describedby={erreurCategories ? 'categories-erreur' : undefined}>
-            <legend>Catégories (au moins une)</legend>
+          <fieldset
+            className={selectionCategories.size === 0 ? 'chips champ-a-completer' : 'chips'}
+            aria-describedby={erreurCategories ? 'categories-erreur' : undefined}
+          >
+            <legend>
+              Catégories (au moins une)
+              {selectionCategories.size === 0 && (
+                <span className="pastille-a-completer">À compléter</span>
+              )}
+            </legend>
             {erreurCategories && (
               <p id="categories-erreur" role="alert">
                 {erreurCategories}
@@ -445,8 +457,14 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             Ce qui influence le ton et le style des posts générés à partir de ces sujets.
           </p>
 
-          <fieldset className="chips" aria-describedby={erreurTonalite ? 'tonalite-erreur' : undefined}>
-            <legend>Tonalité</legend>
+          <fieldset
+            className={!tonaliteChoisie ? 'chips champ-a-completer' : 'chips'}
+            aria-describedby={erreurTonalite ? 'tonalite-erreur' : undefined}
+          >
+            <legend>
+              Tonalité
+              {!tonaliteChoisie && <span className="pastille-a-completer">À compléter</span>}
+            </legend>
             {erreurTonalite && (
               <p id="tonalite-erreur" role="alert">
                 {erreurTonalite}
@@ -469,8 +487,14 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             )}
           </fieldset>
 
-          <fieldset className="chips" aria-describedby={erreurVoix ? 'voix-erreur' : undefined}>
-            <legend>Voix narrative</legend>
+          <fieldset
+            className={!voixChoisie ? 'chips champ-a-completer' : 'chips'}
+            aria-describedby={erreurVoix ? 'voix-erreur' : undefined}
+          >
+            <legend>
+              Voix narrative
+              {!voixChoisie && <span className="pastille-a-completer">À compléter</span>}
+            </legend>
             {erreurVoix && (
               <p id="voix-erreur" role="alert">
                 {erreurVoix}
@@ -490,8 +514,17 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             ))}
           </fieldset>
 
-          <div>
-            <label htmlFor="linkedin">Profil LinkedIn</label>
+          <div
+            className={
+              linkedin.trim() === '' || linkedinSaisieInvalide ? 'champ-a-completer' : undefined
+            }
+          >
+            <label htmlFor="linkedin">
+              Profil LinkedIn
+              {(linkedin.trim() === '' || linkedinSaisieInvalide) && (
+                <span className="pastille-a-completer">À compléter</span>
+              )}
+            </label>
             <input
               id="linkedin"
               name="linkedin"
@@ -499,7 +532,14 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
               autoComplete="url"
               value={linkedin}
               onChange={(e) => setLinkedin(e.target.value)}
+              aria-describedby={linkedinSaisieInvalide ? 'linkedin-erreur' : undefined}
+              aria-invalid={linkedinSaisieInvalide ? 'true' : 'false'}
             />
+            {linkedinSaisieInvalide && (
+              <p id="linkedin-erreur" role="alert">
+                Doit être un lien vers votre profil LinkedIn (ex. https://www.linkedin.com/in/votre-nom).
+              </p>
+            )}
           </div>
 
           <p className="description-choix">
@@ -507,11 +547,17 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             Reachly rédige vos posts dans votre style, pas un style générique.
           </p>
 
-          <fieldset aria-describedby="a-propos-description">
-            <legend>À propos de vous</legend>
+          <fieldset
+            className={aPropos.trim() === '' ? 'champ-a-completer' : undefined}
+            aria-describedby="a-propos-description"
+          >
+            <legend>
+              À propos de vous
+              {aPropos.trim() === '' && <span className="pastille-a-completer">À compléter</span>}
+            </legend>
             <p id="a-propos-description" className="description-choix">
-              Qui vous êtes, ce que vous aimez faire, ce qui vous distingue — un court
-              texte libre.
+              Qui vous êtes, ce que vous aimez faire, ce qui vous distingue, quelle est
+              votre cible pour vos posts, tout ce qui vous anime — un court texte libre.
             </p>
             <label htmlFor="a-propos" className="visually-hidden">
               À propos de vous
@@ -526,8 +572,16 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
             />
           </fieldset>
 
-          <fieldset aria-describedby="exemples-style-description">
-            <legend>Exemples pour définir votre style</legend>
+          <fieldset
+            className={postsNonVidesActuels.length === 0 ? 'champ-a-completer' : undefined}
+            aria-describedby="exemples-style-description"
+          >
+            <legend>
+              Exemples pour définir votre style
+              {postsNonVidesActuels.length === 0 && (
+                <span className="pastille-a-completer">À compléter</span>
+              )}
+            </legend>
             <p id="exemples-style-description" className="description-choix">
               Collez 1 à 3 posts que vous appréciez — les vôtres ou ceux d'autres
               personnes.

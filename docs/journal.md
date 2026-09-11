@@ -1,5 +1,32 @@
 # Journal
 
+## 2026-09-11 — Badge en pourcentage, champs manquants surbrillés, validation du lien LinkedIn
+
+**Suite de l'entrée précédente** (badge "Préférences · x/6") :
+- **Fait** (`src/pages/Dashboard.jsx`) : libellé changé pour "Profil rempli à x%" (calculé
+  sur les mêmes six champs), plus parlant qu'une fraction.
+- **Fait** (`src/pages/Preferences.jsx`, `src/index.css`) : chaque champ vide parmi les six
+  (catégories, tonalité, voix, LinkedIn, bio, posts d'exemple) est surligné (bordure/fond)
+  avec une pastille "À compléter", en direct — sans attendre l'enregistrement.
+
+**Constat (humain, test réel)** : le compte de test (`horizonsdatas@gmail.com`) avait
+`linkedin = "a propos de vous et exemples"` en base — un texte libre enregistré tel quel,
+le champ n'ayant jamais validé qu'il s'agissait d'un vrai lien LinkedIn. Donnée corrigée
+en base (remise à vide).
+
+**Fait** (`src/lib/linkedin.js`, `src/pages/Preferences.jsx`,
+`src/pages/onboarding/LinkedinPosts.jsx`) : `linkedinValide` rejette désormais tout ce qui
+n'est pas un lien `linkedin.com/...` (http/https, `www.`/locale optionnels) — pas seulement
+le cas déjà géré du protocole seul. Message d'erreur explicite sous le champ quand la
+saisie actuelle est invalide, pour ne pas laisser croire qu'elle a été prise en compte
+(l'ancien comportement, silencieux, la rejetait déjà à l'enregistrement sans le dire).
+
+**Fait** (`src/pages/Preferences.jsx`, `src/pages/onboarding/LinkedinPosts.jsx`) : texte
+d'aide sous "À propos de vous" complété — ajoute la cible visée pour les posts et "tout ce
+qui vous anime", en plus de qui/quoi/ce qui distingue.
+
+**Non vérifié** : rendu réel en navigateur (validation LinkedIn, texte d'aide).
+
 ## 2026-09-11 — Badge "Préférences" dans l'en-tête + reprise de génération après édition
 
 **Demande (humaine)** : "Mes préférences" n'était accessible que via le menu du profil
