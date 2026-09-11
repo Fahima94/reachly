@@ -98,7 +98,7 @@ export default function ModaleConfirmationPublication({
           </p>
         ) : (
           <p>
-            <button type="button" ref={boutonPrincipalRef} onClick={onOuvrirPreferences}>
+            <button type="button" ref={boutonPrincipalRef} onClick={() => onOuvrirPreferences()}>
               Renseigner mon LinkedIn
             </button>
           </p>

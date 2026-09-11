@@ -1,5 +1,32 @@
 # Journal
 
+## 2026-09-11 — Badge "Préférences" dans l'en-tête + reprise de génération après édition
+
+**Demande (humaine)** : "Mes préférences" n'était accessible que via le menu du profil
+(caché derrière un clic sur l'avatar), pas assez visible ; en plus, cliquer "Modifier mes
+préférences par défaut" depuis la modale de génération d'un post, éditer, puis enregistrer,
+renvoyait sur la liste des sujets — obligeant à retrouver et relancer la génération à la
+main.
+
+**Fait** (`src/pages/Dashboard.jsx`, `src/index.css`) : badge "Préférences · x/4" dans
+l'en-tête, avec un anneau de progression (conic-gradient) — compte tonalité par défaut,
+voix narrative, LinkedIn et profil éditorial renseignés (catégorie/tonalité "obligatoires"
+à l'onboarding sont déjà garanties avant d'arriver sur ce tableau de bord, donc hors de ce
+compte). Clic → `onModifierPreferences()`, comme le menu du profil.
+
+**Fait** (`src/App.jsx`, `src/pages/Dashboard.jsx`, `src/components/GenerationPost.jsx`,
+`src/pages/Preferences.jsx`, `src/pages/Connexion.jsx`) : "Modifier mes préférences par
+défaut" transmet désormais le `sujetId` en cours (`onModifierPreferences(sujetId)`) ;
+`App.jsx` le garde en attente (`sujetGenerationEnAttente`) pendant l'édition. Un
+enregistrement réussi (nouveau callback `onEnregistrementReussi`, distinct de `onRetour`
+qui reste l'abandon sans enregistrer) ramène sur le tableau de bord avec ce sujet capturé
+une seule fois au montage (`sujetAReouvrirGenerationInitial`) — `GenerationPost.jsx` rouvre
+alors automatiquement sa modale de confirmation (tonalité/voix pré-remplies avec les
+nouveaux réglages) au lieu de laisser la personne la rechercher dans la liste. Un abandon
+(bouton "Retour au tableau de bord") efface l'attente sans rien rouvrir.
+
+**Non vérifié** : rendu réel en navigateur (badge comme reprise de génération).
+
 ## 2026-09-10 — Administration : édition en place pour Catégories/Tonalités/Sources, tableaux
 
 **Demande (humaine)** : organisation plus complète de l'administration en mode CRUD et

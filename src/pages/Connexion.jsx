@@ -127,6 +127,7 @@ export default function Connexion({
         onNaviguer={onChangerMode}
         onDeconnexionReussie={gererDeconnexionReussie}
         onRetour={() => setPreferencesOuvertes(false)}
+        onEnregistrementReussi={() => setPreferencesOuvertes(false)}
       />
     )
   }

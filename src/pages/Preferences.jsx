@@ -31,7 +31,7 @@ async function analyserLeStyle(postsPourAnalyse, aProposPourAnalyse) {
   return donnees.profil_editorial
 }
 
-export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour }) {
+export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour, onEnregistrementReussi }) {
   const [metiers, setMetiers] = useState([])
   const [secteurs, setSecteurs] = useState([])
   const [categories, setCategories] = useState([])
@@ -346,7 +346,11 @@ export default function Preferences({ onNaviguer, onDeconnexionReussie, onRetour
         return
       }
 
-      onRetour()
+      // Distinct de `onRetour` (bouton d'en-tête, abandon sans enregistrer) :
+      // en venant du parcours "Générer un post" → "Modifier mes préférences",
+      // ce succès doit reprendre la génération plutôt que simplement revenir
+      // au tableau de bord (voir Dashboard.jsx / GenerationPost.jsx).
+      onEnregistrementReussi()
     } catch {
       setErreurGlobale("L'enregistrement a échoué. Vérifiez votre connexion et réessayez.")
       setStatut('idle')

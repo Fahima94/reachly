@@ -141,12 +141,19 @@ export default function Dashboard({
   onDeconnexionReussie,
   onRelancerOnboarding,
   onModifierPreferences,
+  sujetAReouvrirGeneration,
+  onGenerationRepriseConsommee,
   onOuvrirAdmin,
   onOuvrirPublications,
   onOuvrirCompte,
 }) {
   // chargement | incomplet | pret | vide | erreur
   const [etat, setEtat] = useState('chargement')
+  // Capturé une seule fois au montage (pas suivi au fil des re-rendus) : le
+  // parent efface `sujetAReouvrirGeneration` juste après l'avoir transmis
+  // (`onGenerationRepriseConsommee`), la valeur vivante retomberait donc à
+  // `null` avant même que la liste des sujets soit chargée.
+  const [sujetAReouvrirGenerationInitial] = useState(sujetAReouvrirGeneration)
   const [sujets, setSujets] = useState([])
   const [aucuneCorrespondance, setAucuneCorrespondance] = useState(false)
   const [userId, setUserId] = useState(null)
@@ -162,7 +169,21 @@ export default function Dashboard({
   const [tonalites, setTonalites] = useState([])
   const [tonaliteId, setTonaliteId] = useState(null)
   const [voixCode, setVoixCode] = useState('')
+  const [linkedinRenseigne, setLinkedinRenseigne] = useState(false)
+  const [profilEditorialGenere, setProfilEditorialGenere] = useState(false)
   const [categoriesFiltrables, setCategoriesFiltrables] = useState([])
+
+  // Catégories/tonalité obligatoires sont déjà garanties avant d'arriver ici
+  // (`etat === 'incomplet'` sinon) — ce badge porte sur les réglages
+  // facultatifs mais à forte valeur pour la qualité des posts générés :
+  // absents, ils passent inaperçus une fois "Mes préférences" repliée dans le
+  // menu profil.
+  const remplissagePreferencesTotal = 4
+  const remplissagePreferences =
+    (tonaliteId ? 1 : 0) +
+    (voixCode ? 1 : 0) +
+    (linkedinRenseigne ? 1 : 0) +
+    (profilEditorialGenere ? 1 : 0)
 
   const charger = useCallback(async () => {
     setEtat('chargement')
@@ -183,7 +204,9 @@ export default function Dashboard({
         await Promise.all([
           supabase
             .from('profiles')
-            .select('nom, prenom, avatar_url, "Tonalité_défaut", voix_narrative')
+            .select(
+              'nom, prenom, avatar_url, "Tonalité_défaut", voix_narrative, linkedin, profil_editorial',
+            )
             .eq('id', user.id)
             .maybeSingle(),
           supabase.from('profils_categories').select('category_id').eq('user_id', user.id),
@@ -206,6 +229,8 @@ export default function Dashboard({
       setAvatarUrl(profil.avatar_url || null)
       setTonaliteId(profil['Tonalité_défaut'] ?? null)
       setVoixCode(profil.voix_narrative ?? '')
+      setLinkedinRenseigne(Boolean(profil.linkedin))
+      setProfilEditorialGenere(Boolean(profil.profil_editorial))
 
       // Liste complète (pas juste le libellé du profil) : sert aussi à peupler
       // les menus de la pop up de génération (override ponctuel, ticket n8n
@@ -415,6 +440,18 @@ export default function Dashboard({
     }
   }, [etat, onRelancerOnboarding])
 
+  // Prévient le parent (App.jsx) une fois la reprise consommée par ce
+  // montage — qu'un sujet en attente existe ou non, `null` y compris (sujet
+  // sorti de la liste entre-temps) : sans ça, `sujetGenerationEnAttente`
+  // resterait posé et rouvrirait le mauvais sujet à un prochain aller-retour
+  // "Mes préférences" sans rapport.
+  useEffect(() => {
+    if (sujetAReouvrirGenerationInitial) {
+      onGenerationRepriseConsommee?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Menu du profil : se ferme au clic en dehors ou à Échap — motif déjà
   // utilisé pour la modale de publication, allégé ici (pas de piège du
   // focus complet, ce n'est pas une boîte de dialogue bloquante).
@@ -477,6 +514,22 @@ export default function Dashboard({
       <div className="barre-superieure">
         <LogoReachly onNaviguer={onAllerAccueil} />
         <div className="profil-entete">
+          {userId && (
+            <button
+              type="button"
+              className="badge-preferences"
+              onClick={() => onModifierPreferences()}
+            >
+              <span
+                className="anneau-preferences"
+                style={{
+                  '--progression-preferences': `${(remplissagePreferences / remplissagePreferencesTotal) * 360}deg`,
+                }}
+                aria-hidden="true"
+              />
+              Préférences · {remplissagePreferences}/{remplissagePreferencesTotal}
+            </button>
+          )}
           <div className="conteneur-avatar" ref={menuProfilRef}>
             <button
               type="button"
@@ -631,7 +684,7 @@ export default function Dashboard({
                 Aucun sujet ne correspond à vos préférences dans les dernières 24 heures. Voici les
                 sujets les plus marquants, toutes catégories confondues.
               </p>
-              <button type="button" onClick={onModifierPreferences}>
+              <button type="button" onClick={() => onModifierPreferences()}>
                 Ajuster mes préférences
               </button>
             </div>
@@ -705,6 +758,7 @@ export default function Dashboard({
                       tonaliteId={tonaliteId}
                       voixCode={voixCode}
                       onModifierPreferences={onModifierPreferences}
+                      ouvrirAutomatiquement={sujet.id === sujetAReouvrirGenerationInitial}
                     />
                   </article>
                 </li>

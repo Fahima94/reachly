@@ -327,9 +327,39 @@ header p {
    (`profiles.avatar_url`), sinon initiales — même gabarit dans les deux cas. */
 .profil-entete {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-1);
+  gap: var(--space-2);
+}
+
+/* Badge "Préférences" (tableau de bord) : accès direct depuis l'en-tête,
+   plutôt que caché dans le menu du profil — avec un anneau de progression
+   sur les réglages facultatifs à forte valeur (tonalité, voix, LinkedIn,
+   profil éditorial ; catégorie/tonalité "obligatoires" à l'onboarding sont
+   déjà garanties avant d'arriver sur ce tableau de bord, donc hors de ce
+   compte). */
+.badge-preferences {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px var(--space-3);
+  border-radius: 999px;
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+  min-height: 0;
+}
+
+.anneau-preferences {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: conic-gradient(
+    var(--color-primary) var(--progression-preferences, 0deg),
+    var(--color-border) var(--progression-preferences, 0deg)
+  );
 }
 
 .pastille-profil {

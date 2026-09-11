@@ -157,6 +157,7 @@ export default function GenerationPost({
   tonaliteId,
   voixCode,
   onModifierPreferences,
+  ouvrirAutomatiquement = false,
 }) {
   // idle | confirmation | chargement | pret | erreur
   const [etat, setEtat] = useState('idle')
@@ -245,6 +246,18 @@ export default function GenerationPost({
     setEtat('confirmation')
   }
 
+  // Retour de "Modifier mes préférences par défaut" (voir plus bas) : rouvre
+  // directement la modale de confirmation pour ce sujet plutôt que de
+  // laisser la personne la rechercher dans la liste — une seule fois au
+  // montage, jamais sur un remontage ultérieur (Dashboard.jsx ne pose
+  // `ouvrirAutomatiquement` qu'une fois, capturé côté parent).
+  useEffect(() => {
+    if (ouvrirAutomatiquement) {
+      gererClicGenerer()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Enregistre toujours le texte tel qu'affiché à l'écran (avec les
   // modifications éventuelles) — jamais le texte original renvoyé par le
   // webhook, qui n'est plus à jour dès que la personne a retouché le texte.
@@ -330,7 +343,7 @@ export default function GenerationPost({
             onChangerTonalite={setTonaliteSelectionnee}
             voixSelectionnee={voixSelectionnee}
             onChangerVoix={setVoixSelectionnee}
-            onModifierPreferences={onModifierPreferences}
+            onModifierPreferences={() => onModifierPreferences(sujetId)}
             onConfirmer={genererPost}
             onAnnuler={() => setEtat('idle')}
             elementDeclencheur={boutonGenererRef}

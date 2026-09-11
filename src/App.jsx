@@ -20,6 +20,12 @@ export default function App() {
   // `null` : vérification de la session en cours, rien n'est encore décidé.
   const [ecran, setEcran] = useState(null)
 
+  // Sujet dont la génération de post était en cours quand on est parti sur
+  // "Modifier mes préférences" (Dashboard → Preferences) — permet de reprendre
+  // la génération au retour plutôt que de simplement réafficher le tableau de
+  // bord (voir GenerationPost.jsx / Dashboard.jsx).
+  const [sujetGenerationEnAttente, setSujetGenerationEnAttente] = useState(null)
+
   // Navigation dans l'historique du navigateur (pas d'URL par écran, juste
   // l'entrée d'historique) : sans ça, chaque changement d'écran est un simple
   // changement d'état React, invisible pour le navigateur — le bouton
@@ -191,7 +197,11 @@ export default function App() {
       <Preferences
         onNaviguer={naviguerVers}
         onDeconnexionReussie={deconnecter}
-        onRetour={() => naviguerVers('connecte')}
+        onRetour={() => {
+          setSujetGenerationEnAttente(null)
+          naviguerVers('connecte')
+        }}
+        onEnregistrementReussi={() => naviguerVers('connecte')}
       />
     )
   }
@@ -231,7 +241,12 @@ export default function App() {
         onAllerAccueil={clicLogo}
         onDeconnexionReussie={() => naviguerVers('connexion', { remplacer: true })}
         onRelancerOnboarding={() => naviguerVers('onboarding-identite')}
-        onModifierPreferences={() => naviguerVers('preferences')}
+        onModifierPreferences={(sujetId) => {
+          setSujetGenerationEnAttente(sujetId ?? null)
+          naviguerVers('preferences')
+        }}
+        sujetAReouvrirGeneration={sujetGenerationEnAttente}
+        onGenerationRepriseConsommee={() => setSujetGenerationEnAttente(null)}
         onOuvrirAdmin={() => naviguerVers('admin')}
         onOuvrirPublications={() => naviguerVers('publications')}
         onOuvrirCompte={() => naviguerVers('compte')}
