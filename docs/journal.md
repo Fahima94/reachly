@@ -1,5 +1,34 @@
 # Journal
 
+## 2026-09-11 — Fix : le badge "Profil rempli à x %" débordait sur mobile étroit
+
+**Constat (humain)** : la jauge de complétion du profil (ajoutée par un·e collègue le
+2026-09-11, commit `adbe198`) n'est pas bien optimisée pour l'affichage mobile.
+
+**Vérifié en réel (Playwright, 3 largeurs mobiles courantes)** : confirmé — à 320px comme
+à 375px, le texte du badge cassait en 3 lignes à l'intérieur de la pastille ronde
+(illisible), et la page débordait horizontalement (`document.documentElement.scrollWidth`
+> largeur de viewport), ce qui contrevient à la règle déjà établie « aucun débordement
+horizontal » (voir `docs/dette-technique.md`, section Responsive).
+
+**Cause** : `.barre-superieure` et `.profil-entete` n'avaient pas de `flex-wrap` — logo,
+badge, avatar et « Se déconnecter » devaient tous tenir sur une seule ligne. Sans
+`white-space: nowrap`, le texte du badge cassait *à l'intérieur* de la pastille plutôt que
+l'élément entier de passer à la ligne suivante.
+
+**Fait** (`src/index.css`) : `flex-wrap` ajouté à `.barre-superieure` et `.profil-entete`
+(qui contient en fait aussi `<BoutonDeconnexion>`, pas seulement le badge et l'avatar) ;
+`white-space: nowrap` ajouté au badge et au bouton de déconnexion, pour que ce soit
+l'élément entier qui passe à la ligne suivante plutôt que son texte qui casse en plusieurs
+lignes. `justify-content: flex-end` sur `.profil-entete` pour garder l'alignement à droite
+une fois replié sur plusieurs lignes.
+
+**Vérifié en réel après correctif** : plus de débordement horizontal à 320/360/375px (page
+exactement alignée à la largeur du viewport) ; badge lisible sur une seule ligne, contenu
+qui se répartit proprement sur 1 à 3 lignes selon la largeur disponible. Desktop (1280px)
+revérifié inchangé (tout sur une ligne, alignement à droite conservé).
+- `npm run build` : OK (102 modules).
+
 ## 2026-09-11 — Schéma de la base et contenu des tables de référence dans le dépôt
 
 **Demande (humaine)** : ajouter aussi la base de données et le contenu des tables

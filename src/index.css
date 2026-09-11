@@ -313,9 +313,10 @@ header p {
    qui reste dans <header>. */
 .barre-superieure {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  gap: var(--space-2) var(--space-4);
   margin-bottom: var(--space-4);
 }
 
@@ -327,8 +328,10 @@ header p {
    (`profiles.avatar_url`), sinon initiales — même gabarit dans les deux cas. */
 .profil-entete {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: flex-end;
+  gap: var(--space-1) var(--space-2);
 }
 
 /* Badge "Préférences" (tableau de bord) : accès direct depuis l'en-tête,
@@ -347,6 +350,11 @@ header p {
   font-weight: 500;
   color: var(--color-text);
   min-height: 0;
+  /* Jamais de retour à la ligne dans le badge — un texte qui casse à
+     l'intérieur d'une pastille ronde devient illisible (constaté sur mobile,
+     320-375px). Si la place manque, c'est `.barre-superieure` qui passe à la
+     ligne (flex-wrap), pas le texte du badge. */
+  white-space: nowrap;
 }
 
 .anneau-preferences {
@@ -1130,9 +1138,13 @@ main > ol > li > article > p:first-child {
 }
 
 /* "Se déconnecter" sous la pastille de profil (barre du haut) — centré,
-   comme le reste de `.profil-entete`. */
+   comme le reste de `.profil-entete`. `white-space: nowrap` : sans ça, sur
+   mobile étroit (320px), le texte se casse en deux lignes au lieu de passer
+   à la ligne suivante avec `.profil-entete` (flex-wrap sur
+   `.barre-superieure`) — constaté en conditions réelles. */
 .bouton-deconnexion {
   margin-top: var(--space-1);
+  white-space: nowrap;
 }
 
 /* Actions du post généré (ticket 13) : Publier avant Enregistrer, en ligne
