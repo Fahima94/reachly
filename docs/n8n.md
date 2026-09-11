@@ -1,11 +1,14 @@
 # Workflows n8n
 
-Les trois workflows actifs qui font tourner Reachly. Aucun n'est versionné dans ce dépôt —
-ils vivent uniquement dans n8n (modifiables via l'interface n8n ou, côté agent, les tools
-MCP `mcp__claude_ai_n8n__*`). Ce document est une **photo prise le 2026-09-11**, pas une
-source de vérité vivante : à remettre à jour manuellement si les workflows changent. Pour
-l'historique des modifications ponctuelles, voir `docs/journal.md` ; pour la dette connue,
-`docs/dette-technique.md` (section « Robustesse des workflows n8n »).
+Les trois workflows actifs qui font tourner Reachly. Ils vivent avant tout dans n8n
+(modifiables via l'interface n8n ou, côté agent, les tools MCP `mcp__claude_ai_n8n__*`) ;
+ce document est une **photo prise le 2026-09-11**, pas une source de vérité vivante — à
+remettre à jour manuellement si les workflows changent. Pour l'historique des
+modifications ponctuelles, voir `docs/journal.md` ; pour la dette connue,
+`docs/dette-technique.md` (section « Robustesse des workflows n8n »). L'export JSON
+complet (nœuds, prompts, connexions) est versionné dans [`n8n/`](../n8n/) — lire
+[`n8n/README.md`](../n8n/README.md) avant de s'y fier, notamment l'écart brouillon/publié
+qui y est signalé.
 
 ## Reachly Veille CC
 

@@ -1,0 +1,65 @@
+{
+  "id": "22YXPZxH9pk7ZZwW",
+  "name": "Reachly_Profil_Utilisateur",
+  "active": true,
+  "nodeCount": 4,
+  "description": "Webhook qui reçoit les posts LinkedIn déjà publiés par un utilisateur et renvoie, via Groq, un profil éditorial décrivant son style pour le prompt de génération de post.",
+  "connections": {
+    "Webhook - Profil éditorial": { "main": [[{ "node": "Analyser le style", "type": "main", "index": 0 }]] },
+    "Analyser le style": { "main": [[{ "node": "Répondre au webhook", "type": "main", "index": 0 }]] },
+    "Modèle Groq": { "ai_languageModel": [[{ "node": "Analyser le style", "type": "ai_languageModel", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "availableInMCP": true, "binaryMode": "separate" },
+  "nodes": [
+    {
+      "parameters": { "httpMethod": "POST", "path": "profil-editorial", "responseMode": "responseNode", "options": {} },
+      "id": "81a73966-908e-45ca-a393-0ab20817daec",
+      "name": "Webhook - Profil éditorial",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 112],
+      "webhookId": "bfa6cab4-4e8a-46cd-8520-9a9dee05aa32"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ [ $json.body.a_propos ? \"Voici comment cette personne se décrit elle-même (« À propos de vous ») :\\n\\n\" + $json.body.a_propos : null, ($json.body.posts && $json.body.posts.length > 0) ? \"Voici les posts LinkedIn déjà publiés par cette personne, séparés par \\\"---\\\" :\\n\\n\" + $json.body.posts.map(p => \"--- \" + p).join(\"\\n\\n\") : null ].filter(Boolean).join(\"\\n\\n\") + \"\\n\\nProduis son profil éditorial selon les instructions.\" }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "SystemMessagePromptTemplate",
+              "message": "Tu es un analyste éditorial spécialisé dans l'écriture professionnelle sur LinkedIn. On te donne, selon les cas, un ou plusieurs posts déjà publiés par une personne et/ou une courte description qu'elle a écrite d'elle-même (« À propos de vous »). Ta tâche : produire un profil éditorial concis, destiné à être injecté tel quel dans un prompt de génération de texte pour qu'un système imite fidèlement sa voix — ta réponse doit donc être directement exploitable comme instruction, jamais un message adressé à un humain.\n\nCommence toujours ta réponse par \"Profil éditorial : \".\n\nSi le contenu fourni (posts et/ou description) est trop court, trop vague ou insuffisant pour dégager un style fiable, réponds exactement \"Profil éditorial : aucun\", sans rien ajouter d'autre.\n\nSinon, poursuis avec la description, structurée en puces courtes couvrant : longueur et structure typique des posts (paragraphes, sauts de ligne, listes) si des posts sont fournis, ton et registre (formel/informel, humour, vulnérabilité, assertivité...), accroche (comment la personne démarre généralement ses posts) si des posts sont fournis, chute (comment elle les termine : question ouverte, appel à commentaire, punchline...) si des posts sont fournis, vocabulaire caractéristique et tics de langage récurrents, usage de la ponctuation/des emojis/des hashtags si des posts sont fournis, et ce qu'il faut éviter pour ne pas dénaturer sa voix. Si seule la description « À propos de vous » est fournie (aucun post), appuie-toi dessus pour dégager le ton, les thèmes et la personnalité à transmettre, et signale explicitement que les éléments structurels (longueur, accroche, chute...) restent à déterminer faute de posts.\n\nSois concret : cite de courts extraits entre guillemets tirés du contenu fourni quand c'est utile. 150 à 250 mots, en français."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "f8ce2e23-bbbf-49d3-a0c4-47dd0cb1ff08",
+      "name": "Analyser le style",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [224, 112]
+    },
+    {
+      "parameters": { "model": "openai/gpt-oss-120b", "options": { "temperature": 0.4 } },
+      "id": "efc54f94-526f-4add-a768-4c297f7c44ad",
+      "name": "Modèle Groq",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [304, 336],
+      "credentials": { "groqApi": { "id": "vAQ2SNVCfLG3Vpts", "name": "Groq account 4" } }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"profil_editorial\": $json.text } }}",
+        "options": {}
+      },
+      "id": "8969adb7-abdc-4819-95c8-ee23bdba8126",
+      "name": "Répondre au webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [576, 112]
+    }
+  ]
+}

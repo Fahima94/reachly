@@ -1,0 +1,2864 @@
+{
+  "id": "wzFnFFZ3rXqiiacZ",
+  "name": "Reachly Veille CC",
+  "active": true,
+  "nodeCount": 76,
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        -2208
+      ],
+      "id": "96ede372-21c4-456f-9a5a-00b44878b304",
+      "name": "RSS Read",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d62ba564-e105-405b-8664-3ad6d44662d9",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "4a1fe8be-0bcf-4b5d-aeac-67258ab80e3f",
+              "name": "link",
+              "value": "={{ $json.link.replace(/<[^>]+>/g, \"\") }}",
+              "type": "string"
+            },
+            {
+              "id": "1fd2226b-9cec-4150-8cf9-438036d575ad",
+              "name": "pubDate",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "1a0fbf38-2ffb-410a-af2d-41f98f9a5606",
+              "name": "content",
+              "value": "={{ $json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "d2b724cb-2b96-47da-b294-a327754bb526",
+              "name": "creator",
+              "value": "={{ $json.creator }}",
+              "type": "string"
+            },
+            {
+              "id": "a4744eba-14e1-48fb-8086-df2633f480b7",
+              "name": "Source",
+              "value": "={{ $('liste des sources').item.json.nom }}",
+              "type": "string"
+            },
+            {
+              "id": "e1111111-0000-0000-0000-000000000001",
+              "name": "source_id",
+              "value": "={{ $('liste des sources').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "e1111111-0000-0000-0000-000000000002",
+              "name": "langue",
+              "value": "={{ $('liste des sources').item.json.langue }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        -2208
+      ],
+      "id": "59a8a53e-b7e8-4704-b754-fd09fe7926ed",
+      "name": "Normaliser champs RSS"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        -656
+      ],
+      "id": "d829f8ba-e283-4337-818c-7739fb474e18",
+      "name": "Limit",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        368,
+        -2016
+      ],
+      "id": "ee85a13d-9b6e-428b-b52b-5195f2f60763",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d62ba564-e105-405b-8664-3ad6d44662d9",
+              "name": "title",
+              "value": "={{ $json._highlightResult && $json._highlightResult.title ? $json._highlightResult.title.value : $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "4a1fe8be-0bcf-4b5d-aeac-67258ab80e3f",
+              "name": "link",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "1fd2226b-9cec-4150-8cf9-438036d575ad",
+              "name": "pubDate",
+              "value": "={{ $json.created_at }}",
+              "type": "string"
+            },
+            {
+              "id": "1a0fbf38-2ffb-40a5-8664-2ffb0a5606ea",
+              "name": "content",
+              "value": "={{ $json.story_text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "d2b724cb-2b96-47da-b294-a327754bb526",
+              "name": "creator",
+              "value": "={{ $json.author }}",
+              "type": "string"
+            },
+            {
+              "id": "a4744eba-14e1-48fb-8086-df2633f480b7",
+              "name": "Source",
+              "value": "={{ $('liste des sources').item.json.nom }}",
+              "type": "string"
+            },
+            {
+              "id": "e2222222-0000-0000-0000-000000000001",
+              "name": "source_id",
+              "value": "={{ $('liste des sources').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "e2222222-0000-0000-0000-000000000002",
+              "name": "langue",
+              "value": "={{ $('liste des sources').item.json.langue }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        -2016
+      ],
+      "id": "9b53d6db-9580-4c15-971b-6ca5798d0f70",
+      "name": "Normaliser champs source API"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "hits",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        592,
+        -2016
+      ],
+      "id": "7feccf6a-d556-4873-b26e-aceb71137c74",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2be4fbb0-2fa2-45ae-ae11-6360a4be994b",
+              "name": "title",
+              "value": "={{ $('Limit').item.json.title.replace(/(<([^>]+)>)/gmi, \"\").replace(\"&#39;\", \"'\") }}",
+              "type": "string"
+            },
+            {
+              "id": "94bbea01-98a0-4eac-9b56-f8211e184d69",
+              "name": "link",
+              "value": "={{ $('Limit').item.json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "93d8e413-46b7-41a8-8491-4b8a92ad6447",
+              "name": "pubDate",
+              "value": "={{ $('Limit').item.json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "e20e40aa-3be7-4f96-ba34-9975ed35b75c",
+              "name": "content",
+              "value": "={{ $('Limit').item.json.content.replace(/(<([^>]+)>)/gmi, \"\").replace(\"&#39;\", \"'\") }}",
+              "type": "string"
+            },
+            {
+              "id": "c3c16d04-8779-4c2c-8fb6-19d6e7fc0b7f",
+              "name": "creator",
+              "value": "={{ $('Limit').item.json.creator }}",
+              "type": "string"
+            },
+            {
+              "id": "514545f9-1f79-4619-9f7f-b1d6504321c6",
+              "name": "Source",
+              "value": "={{ $('Limit').item.json.Source }}",
+              "type": "string"
+            },
+            {
+              "id": "4f4edae7-30d6-439d-8640-63321d7c375d",
+              "name": "score",
+              "value": "={{ $json.score }}",
+              "type": "number"
+            },
+            {
+              "id": "e3333333-0000-0000-0000-000000000001",
+              "name": "source_id",
+              "value": "={{ $('Limit').item.json.source_id }}",
+              "type": "string"
+            },
+            {
+              "id": "e3333333-0000-0000-0000-000000000002",
+              "name": "langue",
+              "value": "={{ $('Limit').item.json.langue }}",
+              "type": "string"
+            },
+            {
+              "id": "just1",
+              "name": "justification",
+              "value": "={{ $json.justification }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2432,
+        -656
+      ],
+      "id": "598b2e7a-2276-4454-8c79-586e37cbc366",
+      "name": "Assembler résultat scoring"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1264,
+        -2112
+      ],
+      "id": "515ef5b2-1143-4b79-bf74-1006882355ce",
+      "name": "Fusionner RSS + API"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Sources",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "actif",
+              "condition": "is",
+              "keyValue": "TRUE"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -2112
+      ],
+      "id": "261c3e7f-071f-463e-ae3b-42074b0bb7a8",
+      "name": "liste des sources",
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "6PiYWYhr4dNQe0yd",
+          "name": "Reachly"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "7be15200-e080-4702-93e0-a1194ef17947",
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "RSS",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        144,
+        -2112
+      ],
+      "id": "84115136-0f49-40cd-af95-169fd90626cb",
+      "name": "RSS ou API"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json}}",
+        "needsFallback": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert content strategist specialized in AI/Tech news curation for LinkedIn audiences. Your job is to score how likely a subject is to generate engagement (reach, shares, comments) if turned into a LinkedIn article for a French/European business audience.\n\nScore the subject from 1 to 10 based on these four criteria, weighted equally:\n1. Timeliness — is this breaking news or an evergreen topic already covered everywhere?\n2. Business relevance — does this matter to decision-makers, not just developers or hobbyists?\n3. Discussion potential — does this topic invite opinions, debate, or practical takeaways (vs. pure announcement)?\n4. Clarity — can this be explained in a LinkedIn post without requiring deep technical background?\n\nScore 1-3: niche, technical, or low-impact — unlikely to generate reach.\nScore 4-6: solid but unremarkable — safe content, moderate engagement expected.\nScore 7-10: high potential — timely, relevant to decision-makers, and easy to make discussion-worthy.\n\nOnly use the information provided below. Do not use external or prior knowledge about the subject beyond what's given. A résumé may or may not be provided — use it to inform your judgment when present; if it's empty or missing, base your score on the title, source and date alone.\n\nOutput format (exactly 2 lines, nothing else — no labels, no markdown):\nLine 1: ONLY the score, a number from 1 to 10 with one decimal place (e.g. 6.5). If the title is empty or insufficient to judge, output exactly: 0\nLine 2: one sentence in French summarizing why this subject deserves (or doesn't deserve) that score — reference whichever criterion mattered most, don't list all four."
+            },
+            {
+              "type": "HumanMessagePromptTemplate",
+              "message": "=Titre : {{ $json.title }}\nSource : {{ $json.link }}\nDate de publication : {{ $json.pubDate }}\nRésumé : {{ $json.content ? $json.content.slice(0, 2000) : '' }}"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        2032,
+        -656
+      ],
+      "id": "44727d9e-4749-4109-b62f-89b6d0de2c19",
+      "name": "Scoring par LLM",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "tableId": "Sujets_veille",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "titre",
+              "fieldValue": "={{ $json.title }}"
+            },
+            {
+              "fieldId": "Résumé (Content)",
+              "fieldValue": "={{ $json.content }}"
+            },
+            {
+              "fieldId": "lien",
+              "fieldValue": "={{ $json.link }}"
+            },
+            {
+              "fieldId": "Score (AI)",
+              "fieldValue": "={{ $json.score }}"
+            },
+            {
+              "fieldId": "date_publication_source",
+              "fieldValue": "={{ $json.pubDate }}"
+            },
+            {
+              "fieldId": "source_id",
+              "fieldValue": "={{ $json.source_id }}"
+            },
+            {
+              "fieldId": "langue",
+              "fieldValue": "={{ $json.langue }}"
+            },
+            {
+              "fieldId": "justification_score",
+              "fieldValue": "={{ $json.justification }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2656,
+        -656
+      ],
+      "id": "2044554e-07f5-44d4-80ac-3056307406bd",
+      "name": "Enregistrement Sujets Veille",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "supabaseApi": {
+          "id": "6PiYWYhr4dNQe0yd",
+          "name": "Reachly"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Traduis le titre en français si nécessaire. Rédige aussi un résumé fidèle et informatif de l'article ci-dessous, en français, en 3 à 5 phrases : couvre les points clés de l'article dans son ensemble (pas seulement l'introduction), garde le ton original.\n\nTitre : {{ $json.titre }}\n\nArticle : {{ $json.article ? $json.article.slice(0, 6000) : $json[\"Résumé (Content)\"] }}\n\nFormat de sortie STRICT, exactement 2 lignes, rien d'autre (pas de JSON, pas de markdown, pas de labels) :\nLigne 1 : le titre traduit en français\nLigne 2 : le résumé en français (plusieurs phrases sur cette seule ligne)",
+        "needsFallback": true,
+        "batching": {
+          "batchSize": 1,
+          "delayBetweenBatches": 0
+        }
+      },
+      "id": "e137cadb-4ce4-43a3-b6b1-f6ddb0aea656",
+      "name": "Traduction",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        5344,
+        -912
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8116bcf2-ae83-42ea-985a-68e29592bb85",
+              "name": "titre",
+              "value": "={{ $json.titre }}",
+              "type": "string"
+            },
+            {
+              "id": "fbdaeee3-9c39-4b63-8484-a65fc34f5594",
+              "name": "Résumé (Content)",
+              "value": "={{ $json[\"Résumé (Content)\"] ? $json[\"Résumé (Content)\"] : ($json.cleanedBody ? $json.cleanedBody.slice(0, 1500) : '') }}",
+              "type": "string"
+            },
+            {
+              "id": "e3014c1d-d28a-4bdc-957b-086552663ba2",
+              "name": "lien",
+              "value": "={{ $json.lien }}",
+              "type": "string"
+            },
+            {
+              "id": "a1c976d1-4e34-44c1-8ff9-1c64e8f930fd",
+              "name": "Score (AI)",
+              "value": "={{ $json[\"Score (AI)\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "08efdaa0-fdb5-4ed4-9550-fb17de124bac",
+              "name": "source_id",
+              "value": "={{ $json.source_id }}",
+              "type": "string"
+            },
+            {
+              "id": "31ef9cef-5276-405b-8c71-b7def578201e",
+              "name": "article",
+              "value": "={{ $json.cleanedBody }}",
+              "type": "string"
+            },
+            {
+              "id": "f2222222-0000-0000-0000-000000000001",
+              "name": "langue",
+              "value": "={{ $json.langue }}",
+              "type": "string"
+            },
+            {
+              "id": "f4444444-0000-0000-0000-000000000001",
+              "name": "article_court",
+              "value": "={{ $json.cleanedBody.slice(0, 1500) }}",
+              "type": "string"
+            },
+            {
+              "id": "f5555555-0000-0000-0000-000000000001",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "f6666666-0000-0000-0000-000000000001",
+              "name": "date_publication_source",
+              "value": "={{ $json.date_publication_source }}",
+              "type": "string"
+            },
+            {
+              "id": "f7777777-0000-0000-0000-000000000001",
+              "name": "tentatives_scraping",
+              "value": "={{ $json.tentatives_scraping }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        4896,
+        -864
+      ],
+      "id": "ce49bad6-0c1c-451e-8866-7e4d03473706",
+      "name": "Préparer données enrichissement"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const rawText = $json.data || \"\";\nconst match = rawText.match(/Markdown Content:\\n([\\s\\S]*)/i);\nconst cleanedBody = match ? match[1].trim() : rawText.trim();\nconst { data, ...rest } = $json;\nreturn { json: { ...rest, cleanedBody } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4656,
+        -896
+      ],
+      "id": "6addb318-676d-4e52-be74-60139e2935e7",
+      "name": "Extraire contenu markdown"
+    },
+    {
+      "parameters": {
+        "url": "=https://r.jina.ai/{{ $json.lien }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Target-Selector",
+              "value": "article"
+            },
+            {
+              "name": "X-Remove-Selector",
+              "value": "nav, footer, .ads, a"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3904,
+        -832
+      ],
+      "id": "5534c959-1d44-4931-ab98-da4f5b527d9f",
+      "name": "HTTP Request2",
+      "alwaysOutputData": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://r.jina.ai/{{ $json.lien.replace(/<[^>]+>/g, \"\") }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Remove-Selector",
+              "value": "nav, footer, .ads, a"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        4096,
+        -736
+      ],
+      "id": "58de8427-e062-4366-8040-d024cd945177",
+      "name": "HTTP Request3",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        4336,
+        -848
+      ],
+      "id": "6b104edd-c5f5-4587-b6b8-ffcd406da5db",
+      "name": "Fusionner résultat scraping"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{ \n\"titre\": \"string\",\n\"Résumé (Content)\": \"string\" \n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        5472,
+        -608
+      ],
+      "id": "17b1f4d1-066f-48f5-b4a3-dc457b31ca48",
+      "name": "Structured Output Parser",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\"catégories\": {\"type\": \"array\", \"items\": {\"type\": \"integer\"}}, \"commentaire\": \"string\"}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        4816,
+        896
+      ],
+      "id": "516b5316-69c6-42fb-962a-2911c559e1d8",
+      "name": "Structured Output Parser1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Détermine les catégories (thème) auxquelles correspond cet article.\nUtilise uniquement les catégories fournies pour ta réponse.\nRenvoie la liste des identifiants uniquement.\n\nCet article a obtenu un excellent score de pertinence pour notre veille technologique. Par conséquent, il contient OBLIGATOIREMENT une dimension liée à nos thèmes. Trouve la ou les catégories correspondantes, même s'il s'agit d'un signal faible noyé dans un autre sujet.\n\nRÈGLES ABSOLUES :\n1. Si des catégories correspondent, liste leurs identifiants séparés par des virgules (ex: 1,4).\n2. INTERDICTION FORMELLE de renvoyer 0, aucun identifiant, ou une ligne vide — renvoie TOUJOURS au moins un identifiant.\n3. Explique OBLIGATOIREMENT ton choix en ligne 2.\n\nidentifiants et Catégories à utiliser :\n{{ $('Générer contexte catégories').first().json.contexte_themes }}\n\nTitre : {{ $json.titre }}\n\nDébut de l'article : {{ $('Préparer données enrichissement').item.json.article_court }}\n\nFormat de sortie STRICT, exactement 2 lignes, rien d'autre (pas de JSON, pas de markdown, pas de labels) :\nLigne 1 : les identifiants séparés par des virgules uniquement (ex: 1,4)\nLigne 2 : le commentaire expliquant ton choix",
+        "hasOutputParser": false,
+        "needsFallback": true,
+        "batching": {}
+      },
+      "id": "0f263e10-b9a4-47d8-a104-61137e4be7b6",
+      "name": "Categories",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        4656,
+        656
+      ],
+      "executeOnce": false,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c83ee41b-67fc-4843-90bd-254315a8b06f",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "d94ff41b-67fc-4843-90bd-254315a8b06e",
+              "leftValue": "={{ $json.link }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        -2016
+      ],
+      "id": "fe50ed6c-5f67-45ea-bcfe-7a54f42dd4a2",
+      "name": "Filtrer items API valides"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9ae64815-a8e0-41d9-8315-d3834f9aa89d",
+              "name": "output.titre",
+              "value": "={{ $json.output?.titre || $json.titre }}",
+              "type": "string"
+            },
+            {
+              "id": "2538760a-38cb-4d8c-9f01-d188b30f4b0b",
+              "name": "output[\"Résumé (Content)\"]",
+              "value": "={{ $json.output?.[\"Résumé (Content)\"] || $json[\"Résumé (Content)\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "04d56c10-8d20-4686-923d-8ff29ed86365",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "g1",
+              "name": "lien",
+              "value": "={{ $json.lien }}",
+              "type": "string"
+            },
+            {
+              "id": "g2",
+              "name": "Score (AI)",
+              "value": "={{ $json[\"Score (AI)\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "g3",
+              "name": "date_publication_source",
+              "value": "={{ $json.date_publication_source }}",
+              "type": "string"
+            },
+            {
+              "id": "g4",
+              "name": "source_id",
+              "value": "={{ $json.source_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        5968,
+        -864
+      ],
+      "id": "5359d2a8-173d-4dab-8428-3627c62cddd1",
+      "name": "Packager traduction"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "06069d05-120c-4dc8-b512-ef854ad11ed4",
+              "name": "categories",
+              "value": "={{ $json.categories }}",
+              "type": "array"
+            },
+            {
+              "id": "873cce45-7ee1-4237-ae5e-1e692324db99",
+              "name": "id",
+              "value": "={{ $('Préparer données enrichissement').item.json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        5184,
+        496
+      ],
+      "id": "3456ef53-a909-4595-af4c-16687eadb33a",
+      "name": "Packager catégories"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6064,
+        768
+      ],
+      "id": "4d7697a2-3753-48ed-a1b6-85bcf5d13da8",
+      "name": "Fusionner traduction + catégories"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35b36808-ce59-4fa6-9575-2a5bceebe62b",
+              "name": "output.titre",
+              "value": "={{ $json.output.titre }}",
+              "type": "string"
+            },
+            {
+              "id": "54e45532-e094-478a-a8a3-aacd281b7466",
+              "name": "output[\"Résumé (Content)\"]",
+              "value": "={{ $json.output[\"Résumé (Content)\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "ce9eb9a2-5e6c-4dbb-a68d-19ad566568f3",
+              "name": "categories",
+              "value": "={{ $json.categories }}",
+              "type": "array"
+            },
+            {
+              "id": "8932913c-fdcf-4c18-9f26-974ec828c394",
+              "name": "lien",
+              "value": "={{ $json.lien }}",
+              "type": "string"
+            },
+            {
+              "id": "b75cb16b-5848-47be-9802-097a30d0a2b5",
+              "name": "Score (AI)",
+              "value": "={{ $json[\"Score (AI)\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "3532ad49-5be9-4e48-8912-14a6e952a43d",
+              "name": "date_publication_source",
+              "value": "={{ $json.date_publication_source }}",
+              "type": "string"
+            },
+            {
+              "id": "2c9a9301-2396-4968-9d36-ffb63d293628",
+              "name": "source_id",
+              "value": "={{ $json.source_id }}",
+              "type": "string"
+            },
+            {
+              "id": "bfe3b142-1fc8-4f6d-a31e-194c9da45fc0",
+              "name": "sujet_veille_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        6288,
+        768
+      ],
+      "id": "8e0bc0b9-4dc3-42ea-8a40-078fb1dd71dd",
+      "name": "Assembler enregistrement Infos"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9e9ff406-c4c3-46be-825e-07d4421f6fa8",
+              "name": "infos_id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "e3ebb1e9-b035-4c28-bb6a-31f2ae66d80c",
+              "name": "categories_ids",
+              "value": "={{ $('Fusionner traduction + catégories').item.json.categories }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        6736,
+        768
+      ],
+      "id": "a9acc5cf-75e0-45b4-a971-33ec084b0de0",
+      "name": "Extraire IDs pour liaison catégories"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "categories_ids",
+        "include": "selectedOtherFields",
+        "fieldsToInclude": "infos_id",
+        "options": {
+          "destinationFieldName": "categorie_id"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        6960,
+        768
+      ],
+      "id": "03d75905-a027-4d11-80bd-bda69aa7b684",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d24006a1-49f3-4c2d-9857-1f502e77de9d",
+              "name": "nom",
+              "value": "={{ $json.nom }}",
+              "type": "string"
+            },
+            {
+              "id": "c821636a-a69c-44d0-bfc5-598398d27d2e",
+              "name": "ref",
+              "value": "={{ $json.ref }}",
+              "type": "number"
+            },
+            {
+              "id": "e296f36b-91ac-4647-801c-fa43b501436a",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "3b3de586-bffe-4606-9178-147bdee29946",
+              "name": "Description",
+              "value": "={{ $json.Description }}",
+              "type": "string"
+            },
+            {
+              "id": "aa111111-0000-0000-0000-000000000001",
+              "name": "type",
+              "value": "={{ $json.type }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -352,
+        496
+      ],
+      "id": "7428b5c2-2180-4bcb-abc5-bd7a70217a37",
+      "name": "Normaliser catégories",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(item => item.json);\n\nconst format = (arr) => arr.map(item => `${item.ref} - ${item.nom}`).join('\\n');\n\nconst themes = items.filter(item => item.type === 'thème');\nconst secteurs = items.filter(item => item.type === 'secteur');\nconst metiers = items.filter(item => item.type === 'métier');\n\nreturn [{\n  json: {\n    contexte_themes: format(themes),\n    contexte_secteurs_metiers: `SECTEURS :\\n${format(secteurs)}\\n\\nMÉTIERS :\\n${format(metiers)}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        496
+      ],
+      "id": "5924969f-f45d-48b0-bfd8-a2777826880a",
+      "name": "Générer contexte catégories"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        4448,
+        832
+      ],
+      "id": "457ac1da-f3ab-4849-b588-de780cf9c4ee",
+      "name": "Google Gemini Chat Model",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BgQeCYbFNwOdN2ek",
+          "name": "Google Gemini(PaLM) Api account 27"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. On récupère notre catalogue de référence généré au début du workflow\n// Assure-toi que le nom du nœud entre guillemets est bien exact.\nconst catalogue = $items(\"Normaliser catégories\");\nconst result = [];\n\n// 2. On boucle sur tous les éléments (tes paires infos_id / categorie_id)\nfor (const item of $input.all()) {\n  const infoId = item.json.infos_id;\n  \n  // On récupère le numéro que l'IA a donné\n  const codeIA = item.json.categorie_id; \n\n  // 3. Le filtre anti-plantage : si l'IA a répondu 0 (hors sujet) \n  // ou que c'est vide, on ignore cette ligne pour ne pas casser Supabase.\n  if (codeIA === 0 || !codeIA) {\n    console.log(`Code ignoré pour l'article ${infoId}`);\n    continue; \n  }\n\n  // 4. La recherche : On parcourt le catalogue pour trouver la ligne \n  // dont la \"ref\" correspond au numéro de l'IA.\n  const categorieCorrespondante = catalogue.find(cat => cat.json.ref === codeIA);\n\n  // 5. La création de la ligne finale\n  if (categorieCorrespondante) {\n    result.push({\n      json: {\n        infos_id: infoId,\n        // On remplace le numéro par le vrai UUID trouvé dans le catalogue\n        categorie_id: categorieCorrespondante.json.id \n      }\n    });\n  } else {\n    // Si l'IA a halluciné un chiffre qui n'existe pas (ex: 99)\n    console.log(`Attention: Le code ${codeIA} n'existe pas dans la base.`);\n  }\n}\n\n// 6. On retourne la liste propre\nreturn result;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7184,
+        768
+      ],
+      "id": "b2f3137e-4bf1-440e-a803-04e28403602f",
+      "name": "Résoudre UUID catégories"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        5200,
+        -608
+      ],
+      "id": "a2d388e3-e1f2-4fa6-a8ea-5b993eb383c6",
+      "name": "Google Gemini Chat Model1",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BgQeCYbFNwOdN2ek",
+          "name": "Google Gemini(PaLM) Api account 27"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "infos_categories",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "info_id",
+              "fieldValue": "={{ $json.infos_id }}"
+            },
+            {
+              "fieldId": "category_id",
+              "fieldValue": "={{ $json.categorie_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        7408,
+        768
+      ],
+      "id": "50e3fe4f-7548-4075-833e-58e047700bdf",
+      "name": "Create row (infos_categories)",
+      "credentials": {
+        "supabaseApi": {
+          "id": "6PiYWYhr4dNQe0yd",
+          "name": "Reachly"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Sujets_veille",
+        "returnAll": true
+      },
+      "id": "810b170e-616c-4196-9d1c-622cf894f4c8",
+      "name": "Sujets déjà connus",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        -1296
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "6PiYWYhr4dNQe0yd",
+          "name": "Reachly"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const connus = new Set(\n  $('Sujets déjà connus').all().map(item => item.json.lien)\n);\n\nreturn $input.all().filter(item => item.json.link !== undefined && !connus.has(item.json.link));"
+      },
+      "id": "f33c133f-5466-4369-899f-8097b121f3f5",
+      "name": "Filtrer nouveaux sujets",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1872,
+        -1504
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "99838240-311c-41ae-bca7-1f631fb73a01",
+      "name": "Merge dédup",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1584,
+        -1504
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "Infos",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "titre_recomposé",
+              "fieldValue": "={{ $json.output.titre }}"
+            },
+            {
+              "fieldId": "contenu",
+              "fieldValue": "={{ $json.output[\"Résumé (Content)\"] }}"
+            },
+            {
+              "fieldId": "lien",
+              "fieldValue": "={{ $json.lien }}"
+            },
+            {
+              "fieldId": "score",
+              "fieldValue": "={{ $json[\"Score (AI)\"] }}"
+            },
+            {
+              "fieldId": "date_publication",
+              "fieldValue": "={{ $json.date_publication_source }}"
+            },
+            {
+              "fieldId": "sujet_veille_id",
+              "fieldValue": "={{ $json.sujet_veille_id }}"
+            },
+            {
+              "fieldId": "article",
+              "fieldValue": "={{ $('Préparer données enrichissement').item.json.article }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        6512,
+        768
+      ],
+      "id": "84eabad2-2a49-46f0-9e2e-4060bfc6c977",
+      "name": "enregistrement infos",
+      "credentials": {
+        "supabaseApi": {
+          "id": "6PiYWYhr4dNQe0yd",
+          "name": "Reachly"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a1111111-1111-1111-1111-111111111111",
+              "leftValue": "={{ $json.langue }}",
+              "rightValue": "fr",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "922d2ce3-37e6-44e0-9d49-6c60d04e6c50",
+      "name": "Langue déjà FR ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        5168,
+        -864
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2222222-2222-2222-2222-222222222222",
+              "name": "output.titre",
+              "value": "={{ $json.titre }}",
+              "type": "string"
+            },
+            {
+              "id": "c3333333-3333-3333-3333-333333333333",
+              "name": "output[\"Résumé (Content)\"]",
+              "value": "={{ $json[\"Résumé (Content)\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "dfr1",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "dfr2",
+              "name": "lien",
+              "value": "={{ $json.lien }}",
+              "type": "string"
+            },
+            {
+              "id": "dfr3",
+              "name": "Score (AI)",
+              "value": "={{ $json[\"Score (AI)\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "dfr4",
+              "name": "date_publication_source",
+              "value": "={{ $json.date_publication_source }}",
+              "type": "string"
+            },
+            {
+              "id": "dfr5",
+              "name": "source_id",
+              "value": "={{ $json.source_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "43189f24-e0c6-4b6d-b33a-f4a839816938",
+      "name": "Déjà en français",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        5568,
+        -1088
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f1111111-0000-0000-0000-000000000001",
+              "leftValue": "={{ $json[\"Score (AI)\"] }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "635a0694-7db3-42c0-bee2-13acd17bf65b",
+      "name": "Score suffisant ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2880,
+        -656
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Infos",
+        "returnAll": true
+      },
+      "id": "4807ec4c-f666-452d-a3b9-f4a4dc43842c",
+      "name": "Infos existantes",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        -1104
+      ],
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "6PiYWYhr4dNQe0yd",
+          "name": "Reachly"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "825a80b6-bf25-4225-b1a3-4d095782f776",
+      "name": "Merge orphelins",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2048,
+        -1184
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const infosExistantes = new Set(\n  $input.all().filter(i => i.json.sujet_veille_id !== undefined).map(i => i.json.sujet_veille_id)\n);\n\nreturn $input.all().filter(item =>\n  item.json.lien !== undefined &&\n  item.json[\"Score (AI)\"] >= 5 &&\n  !infosExistantes.has(item.json.id) &&\n  (item.json.tentatives_scraping || 0) < 3\n);"
+      },
+      "id": "386f673f-8e7c-43ce-8c82-7aa007272b8b",
+      "name": "Sujets orphelins",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2384,
+        -1184
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "91c1a830-8b19-43cb-8b50-404b52c6243d",
+      "name": "Sujets à traiter",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3280,
+        -1360
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "Catégories"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        496
+      ],
+      "id": "6bcf8fb1-49c9-41b3-9e09-07dbe93be72d",
+      "name": "Get categories",
+      "executeOnce": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "6PiYWYhr4dNQe0yd",
+          "name": "Reachly"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Détermine les secteurs d'activité et métiers auxquels correspond cet article, parmi les catégories fournies ci-dessous.\n\nRÈGLES :\n1. C'est ENTIÈREMENT OPTIONNEL : si l'article ne concerne clairement aucun secteur ou métier précis, réponds \"vide\" en ligne 1. Ne force jamais une correspondance approximative.\n2. Si des secteurs ou métiers correspondent clairement, liste leurs identifiants séparés par des virgules (ex: 25,13).\n3. Explique OBLIGATOIREMENT ton choix (ou l'absence de choix) en ligne 2.\n\nidentifiants et Catégories à utiliser :\n{{ $('Générer contexte catégories').first().json.contexte_secteurs_metiers }}\n\nTitre : {{ $json.titre }}\n\nDébut de l'article : {{ $('Préparer données enrichissement').item.json.article_court }}\n\nFormat de sortie STRICT, exactement 2 lignes, rien d'autre (pas de JSON, pas de markdown, pas de labels) :\nLigne 1 : les identifiants séparés par des virgules, ou le mot vide si aucun ne correspond\nLigne 2 : le commentaire expliquant ton choix (ou l'absence de choix)",
+        "hasOutputParser": false,
+        "needsFallback": true,
+        "batching": {}
+      },
+      "id": "0227a42c-319d-44ee-a3de-8cb3d49046f5",
+      "name": "Categories Secteur Metier",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        3184,
+        624
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\"catégories\": {\"type\": \"array\", \"items\": {\"type\": \"integer\"}}, \"commentaire\": \"string\"}",
+        "autoFix": true
+      },
+      "id": "570f725d-f4fc-4cd8-be90-df987a073365",
+      "name": "Structured Output Parser2",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        3280,
+        848
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "02dc7051-1166-46a0-9a68-ec3e5a189c5e",
+      "name": "Fusionner thème + secteur-métier",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3568,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const themesResults = $('Categories').all();\nconst autresResults = $('Categories Secteur Metier').all();\n\nreturn themesResults.map((item, i) => {\n  const themesOutput = item.json.output || {};\n  const autresOutput = (autresResults[i] && autresResults[i].json.output) || {};\n\n  const themes = themesOutput['catégories'] || [];\n  const autres = autresOutput['catégories'] || [];\n\n  return {\n    json: {\n      categories: [...new Set([...themes, ...autres])],\n      commentaire_theme: themesOutput.commentaire || null,\n      commentaire_secteur_metier: autresOutput.commentaire || null\n    },\n    pairedItem: { item: i }\n  };\n});"
+      },
+      "id": "2587bf26-6a29-451a-98fb-047626e8f637",
+      "name": "Combiner categories",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3760,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "id": "749b9788-9020-4060-ab63-8258368932ec",
+      "name": "Google Gemini Secteur Metier Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        3040,
+        816
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Acpxb8ZY0cxuuGRa",
+          "name": "FBA.dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 1. Collecte\nRécupération des sources actives (RSS + API), normalisation des champs.",
+        "height": 650,
+        "width": 2640,
+        "color": 4
+      },
+      "id": "6f478288-27cc-4d67-9638-9458cac91ebd",
+      "name": "Zone 1 - Collecte",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        -2336
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Dédoublonnage\nFiltre les articles déjà connus + rejoue les sujets orphelins (scorés mais jamais enrichis).",
+        "height": 750,
+        "width": 2544,
+        "color": 5
+      },
+      "id": "9bf72d5e-648f-4fc1-9af3-dcdfc0255e10",
+      "name": "Zone 2 - Dédoublonnage",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        -1648
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. Scoring\nNotation LLM + enregistrement du sujet dans Sujets_veille + seuil de passage en aval.",
+        "height": 558,
+        "width": 1424,
+        "color": 6
+      },
+      "id": "a99b80a3-ab7f-4e77-b1e1-0172d142c8f5",
+      "name": "Zone 3 - Scoring",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        -816
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 4. Scraping & traduction\nRécupération de l'article complet, traduction (ou saut si déjà en français).",
+        "height": 1070,
+        "width": 2480,
+        "color": 3
+      },
+      "id": "d5d4a02e-fdad-4b1d-832c-3bfbe95c9c9b",
+      "name": "Zone 4 - Scraping & traduction",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3664,
+        -1088
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 5. Catégorisation\nCatalogue des catégories (à gauche) + les 2 appels LLM thème / secteur-métier (à droite) + fusion.",
+        "height": 1202,
+        "width": 6240
+      },
+      "id": "c3b6296a-9c8c-463f-ba96-9f2f5692a412",
+      "name": "Zone 5 - Catégorisation",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 6. Sauvegarde\nAssemblage final, écriture dans Infos et liaison des catégories.",
+        "height": 400,
+        "width": 1744,
+        "color": 2
+      },
+      "id": "449d39f9-14a8-4d8d-883b-7cd5665a8ee0",
+      "name": "Zone 6 - Sauvegarde",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        5872,
+        576
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b1111111-0000-0000-0000-000000000001",
+              "leftValue": "={{ new Date($json.pubDate).getTime() }}",
+              "rightValue": "={{ Date.now() - 24*60*60*1000 }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            },
+            {
+              "id": "b2222222-0000-0000-0000-000000000001",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "b3333333-0000-0000-0000-000000000001",
+              "leftValue": "={{ $json.link }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "549e6862-6245-4b7e-bfbd-1c85bb3beefa",
+      "name": "Filtrer articles récents",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1264,
+        -1968
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "id": "39d3f29a-58d7-4d6b-88a4-d003ce646f82",
+      "name": "Google Gemini Scoring Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        2032,
+        -384
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "BgQeCYbFNwOdN2ek",
+          "name": "Google Gemini(PaLM) Api account 27"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "groq/compound",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2160,
+        -416
+      ],
+      "id": "510f9754-2399-4664-adb0-4509fdf8f086",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "vAQ2SNVCfLG3Vpts",
+          "name": "Groq account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "groq/compound",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        4576,
+        976
+      ],
+      "id": "02fbd6c8-48f9-476a-9102-a80ad546f5d6",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "vAQ2SNVCfLG3Vpts",
+          "name": "Groq account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "groq/compound",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        5328,
+        -432
+      ],
+      "id": "cd36d1e6-5af3-47c8-854f-1119973e001b",
+      "name": "Groq Chat Model2",
+      "credentials": {
+        "groqApi": {
+          "id": "vAQ2SNVCfLG3Vpts",
+          "name": "Groq account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "id": "7cbd85c7-566d-455f-97f9-2d3466b55a6d",
+      "name": "Limit Enrichissement",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        3424,
+        -1360
+      ]
+    },
+    {
+      "parameters": {
+        "model": "groq/compound",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        3120,
+        992
+      ],
+      "id": "f32f6117-9a5f-4847-9ec2-13e17b32255d",
+      "name": "Groq Chat Model3",
+      "credentials": {
+        "groqApi": {
+          "id": "vAQ2SNVCfLG3Vpts",
+          "name": "Groq account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c1111111-0000-0000-0000-000000000001",
+              "leftValue": "={{ $json.article }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "47d3f888-79b1-4cbe-b4ea-a5fbf37f88f1",
+      "name": "Filtrer article vide",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        5040,
+        -1040
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -1600,
+        -1968
+      ],
+      "id": "73c9c946-9c52-4cfe-a8ab-f5691452bed5",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            },
+            {
+              "id": "r2",
+              "name": "titre",
+              "value": "={{ $('Limit Enrichissement').item.json.titre }}",
+              "type": "string"
+            },
+            {
+              "id": "r3",
+              "name": "lien",
+              "value": "={{ $('Limit Enrichissement').item.json.lien }}",
+              "type": "string"
+            },
+            {
+              "id": "r4",
+              "name": "Résumé (Content)",
+              "value": "={{ $('Limit Enrichissement').item.json[\"Résumé (Content)\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "r5",
+              "name": "Score (AI)",
+              "value": "={{ $('Limit Enrichissement').item.json[\"Score (AI)\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "r6",
+              "name": "source_id",
+              "value": "={{ $('Limit Enrichissement').item.json.source_id }}",
+              "type": "string"
+            },
+            {
+              "id": "r7",
+              "name": "langue",
+              "value": "={{ $('Limit Enrichissement').item.json.langue }}",
+              "type": "string"
+            },
+            {
+              "id": "r8",
+              "name": "id",
+              "value": "={{ $('Limit Enrichissement').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "r9",
+              "name": "date_publication_source",
+              "value": "={{ $('Limit Enrichissement').item.json.date_publication_source }}",
+              "type": "string"
+            },
+            {
+              "id": "r10",
+              "name": "tentatives_scraping",
+              "value": "={{ $('Limit Enrichissement').item.json.tentatives_scraping }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "55750b3d-a129-4c4b-8aa5-0ff052391621",
+      "name": "Recomposer champs (succès)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        3760,
+        -464
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "data",
+              "value": "={{ $json.data }}",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "titre",
+              "value": "={{ $('Limit Enrichissement').item.json.titre }}",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "lien",
+              "value": "={{ $('Limit Enrichissement').item.json.lien }}",
+              "type": "string"
+            },
+            {
+              "id": "f4",
+              "name": "Résumé (Content)",
+              "value": "={{ $('Limit Enrichissement').item.json[\"Résumé (Content)\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "f5",
+              "name": "Score (AI)",
+              "value": "={{ $('Limit Enrichissement').item.json[\"Score (AI)\"] }}",
+              "type": "number"
+            },
+            {
+              "id": "f6",
+              "name": "source_id",
+              "value": "={{ $('Limit Enrichissement').item.json.source_id }}",
+              "type": "string"
+            },
+            {
+              "id": "f7",
+              "name": "langue",
+              "value": "={{ $('Limit Enrichissement').item.json.langue }}",
+              "type": "string"
+            },
+            {
+              "id": "f8",
+              "name": "id",
+              "value": "={{ $('Limit Enrichissement').item.json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "f9",
+              "name": "date_publication_source",
+              "value": "={{ $('Limit Enrichissement').item.json.date_publication_source }}",
+              "type": "string"
+            },
+            {
+              "id": "f10",
+              "name": "tentatives_scraping",
+              "value": "={{ $('Limit Enrichissement').item.json.tentatives_scraping }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ff1eae6d-6645-4584-9328-1e9a5971fc95",
+      "name": "Recomposer champs (repli)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        3760,
+        -176
+      ]
+    },
+    {
+      "parameters": {
+        "type": "code",
+        "code": "return new Date(b.json.pubDate).getTime() - new Date(a.json.pubDate).getTime();"
+      },
+      "id": "64fe2581-7b02-427c-9fc3-9e87fbde90a1",
+      "name": "Trier par date de publication",
+      "type": "n8n-nodes-base.sort",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        -656
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "id": "b04cf281-a243-4b8c-b6a3-2aed6e8ae61d",
+      "name": "Fusionner traduction (position)",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        5680,
+        -864
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "3e5f7400-679e-4fa4-ad2d-24beb8ac0aa8",
+      "name": "Boucle Enregistrement (1 par 1)",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2544,
+        -496
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = ($json.text || \"\").trim();\nconst lines = raw.split(\"\\n\").map(l => l.trim()).filter(Boolean);\nconst score = parseFloat((lines[0] || \"0\").replace(\",\", \".\")) || 0;\nconst justification = lines.slice(1).join(\" \").trim();\nreturn { json: { ...$json, score, justification } };"
+      },
+      "id": "4ff6f062-80e5-4399-a2bd-99671be9cbbe",
+      "name": "Extraire score et justification",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2304,
+        -656
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "Sujets_veille",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "tentatives_scraping",
+              "fieldValue": "={{ ($json.tentatives_scraping || 0) + 1 }}"
+            }
+          ]
+        }
+      },
+      "id": "a6d4c29b-a01b-4749-b041-ce5b007eebbc",
+      "name": "Incrementer tentatives scraping",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5040,
+        -896
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "6PiYWYhr4dNQe0yd",
+          "name": "Reachly"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = ($json.text || \"\").trim();\nconst lines = raw.split(\"\\n\").map(l => l.trim()).filter(Boolean);\nconst titre = lines[0] || \"\";\nconst resume = lines.slice(1).join(\" \").trim();\nreturn { json: { output: { titre, \"Résumé (Content)\": resume } } };"
+      },
+      "id": "93bbd7a8-0f87-4400-aff6-7e7583052a95",
+      "name": "Extraire titre et resume traduits",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5536,
+        -880
+      ]
+    },
+    {
+      "id": "ef4dff6b-ea80-4ca1-99b7-4c0b003d19e8",
+      "name": "Extraire categories theme",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4656,
+        800
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = ($json.text || \"\").trim();\nconst lines = raw.split(\"\\n\").map(l => l.trim()).filter(Boolean);\nconst idsLine = (lines[0] || \"\").toLowerCase();\nconst commentaire = lines.slice(1).join(\" \").trim();\nconst categories = (idsLine === \"vide\" || idsLine === \"\")\n  ? []\n  : idsLine.split(\",\").map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));\nreturn { json: { output: { \"catégories\": categories, commentaire } } };"
+      }
+    },
+    {
+      "id": "4330811e-ca4b-4a5e-b6e6-d58d2c42ea31",
+      "name": "Extraire categories secteur metier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3184,
+        800
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = ($json.text || \"\").trim();\nconst lines = raw.split(\"\\n\").map(l => l.trim()).filter(Boolean);\nconst idsLine = (lines[0] || \"\").toLowerCase();\nconst commentaire = lines.slice(1).join(\" \").trim();\nconst categories = (idsLine === \"vide\" || idsLine === \"\")\n  ? []\n  : idsLine.split(\",\").map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));\nreturn { json: { output: { \"catégories\": categories, commentaire } } };"
+      }
+    }
+  ],
+  "connections": {
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Normaliser champs RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Scoring par LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Normaliser champs source API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "liste des sources": {
+      "main": [
+        [
+          {
+            "node": "RSS ou API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS ou API": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Recomposer champs (succès)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Résoudre UUID catégories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sujets déjà connus": {
+      "main": [
+        [
+          {
+            "node": "Merge dédup",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge orphelins",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge dédup": {
+      "main": [
+        [
+          {
+            "node": "Filtrer nouveaux sujets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enregistrement infos": {
+      "main": [
+        [
+          {
+            "node": "Extraire IDs pour liaison catégories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Langue déjà FR ?": {
+      "main": [
+        [
+          {
+            "node": "Déjà en français",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Traduction",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fusionner traduction (position)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Déjà en français": {
+      "main": [
+        [
+          {
+            "node": "Packager traduction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score suffisant ?": {
+      "main": [
+        [
+          {
+            "node": "Sujets à traiter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Infos existantes": {
+      "main": [
+        [
+          {
+            "node": "Merge orphelins",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge orphelins": {
+      "main": [
+        [
+          {
+            "node": "Sujets orphelins",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get categories": {
+      "main": [
+        [
+          {
+            "node": "Normaliser catégories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combiner categories": {
+      "main": [
+        [
+          {
+            "node": "Packager catégories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliser champs RSS": {
+      "main": [
+        [
+          {
+            "node": "Fusionner RSS + API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliser champs source API": {
+      "main": [
+        [
+          {
+            "node": "Filtrer items API valides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliser catégories": {
+      "main": [
+        [
+          {
+            "node": "Générer contexte catégories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Packager traduction": {
+      "main": [
+        [
+          {
+            "node": "Fusionner traduction + catégories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Packager catégories": {
+      "main": [
+        [
+          {
+            "node": "Fusionner traduction + catégories",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Assembler enregistrement Infos": {
+      "main": [
+        [
+          {
+            "node": "enregistrement infos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraire IDs pour liaison catégories": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fusionner résultat scraping": {
+      "main": [
+        [
+          {
+            "node": "Extraire contenu markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fusionner traduction + catégories": {
+      "main": [
+        [
+          {
+            "node": "Assembler enregistrement Infos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fusionner thème + secteur-métier": {
+      "main": [
+        [
+          {
+            "node": "Combiner categories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraire contenu markdown": {
+      "main": [
+        [
+          {
+            "node": "Préparer données enrichissement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Générer contexte catégories": {
+      "main": [
+        [
+          {
+            "node": "liste des sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Résoudre UUID catégories": {
+      "main": [
+        [
+          {
+            "node": "Create row (infos_categories)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrer items API valides": {
+      "main": [
+        [
+          {
+            "node": "Fusionner RSS + API",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fusionner RSS + API": {
+      "main": [
+        [
+          {
+            "node": "Filtrer articles récents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrer articles récents": {
+      "main": [
+        [
+          {
+            "node": "Merge dédup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Scoring Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Scoring par LLM",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Traduction",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Categories",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Secteur Metier Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Categories Secteur Metier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Scoring par LLM",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Categories",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Traduction",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sujets orphelins": {
+      "main": [
+        [
+          {
+            "node": "Sujets à traiter",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Sujets à traiter": {
+      "main": [
+        [
+          {
+            "node": "Limit Enrichissement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit Enrichissement": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser2",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Categories Secteur Metier",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Préparer données enrichissement": {
+      "main": [
+        [
+          {
+            "node": "Filtrer article vide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrer article vide": {
+      "main": [
+        [
+          {
+            "node": "Categories",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Langue déjà FR ?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Categories Secteur Metier",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Incrementer tentatives scraping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Sujets déjà connus",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Infos existantes",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get categories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recomposer champs (succès)": {
+      "main": [
+        [
+          {
+            "node": "Fusionner résultat scraping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Recomposer champs (repli)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recomposer champs (repli)": {
+      "main": [
+        [
+          {
+            "node": "Fusionner résultat scraping",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Filtrer nouveaux sujets": {
+      "main": [
+        [
+          {
+            "node": "Trier par date de publication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trier par date de publication": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fusionner traduction (position)": {
+      "main": [
+        [
+          {
+            "node": "Packager traduction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assembler résultat scoring": {
+      "main": [
+        [
+          {
+            "node": "Boucle Enregistrement (1 par 1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Boucle Enregistrement (1 par 1)": {
+      "main": [
+        [
+          {
+            "node": "Score suffisant ?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enregistrement Sujets Veille",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enregistrement Sujets Veille": {
+      "main": [
+        [
+          {
+            "node": "Boucle Enregistrement (1 par 1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scoring par LLM": {
+      "main": [
+        [
+          {
+            "node": "Extraire score et justification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraire score et justification": {
+      "main": [
+        [
+          {
+            "node": "Assembler résultat scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Traduction": {
+      "main": [
+        [
+          {
+            "node": "Extraire titre et resume traduits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraire titre et resume traduits": {
+      "main": [
+        [
+          {
+            "node": "Fusionner traduction (position)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Categories": {
+      "main": [
+        [
+          {
+            "node": "Extraire categories theme",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraire categories theme": {
+      "main": [
+        [
+          {
+            "node": "Fusionner thème + secteur-métier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Categories Secteur Metier": {
+      "main": [
+        [
+          {
+            "node": "Extraire categories secteur metier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraire categories secteur metier": {
+      "main": [
+        [
+          {
+            "node": "Fusionner thème + secteur-métier",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  }
+}

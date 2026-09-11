@@ -1,5 +1,27 @@
 # Journal
 
+## 2026-09-11 — Export JSON complet des 3 workflows n8n dans le dépôt (`n8n/`)
+
+**Demande (humaine)** : ajouter les workflows complets sur le Git (suite à la
+documentation résumée de la veille, `docs/n8n.md`).
+
+**Fait** : export JSON intégral (nœuds, prompts, connexions, pas de secrets — seulement
+des identifiants de connexions déjà configurées côté n8n) des 3 workflows actifs, récupéré
+via `get_workflow_details` et versionné dans `n8n/` (`reachly-veille-cc.json`,
+`reachly-publication-cc.json`, `reachly-profil-utilisateur.json`, plus un `n8n/README.md`
+expliquant le périmètre). `docs/n8n.md` pointe désormais vers ce dossier.
+
+**Découvert en exportant, pas une régression introduite ici** : `reachly-veille-cc.json`
+a une version brouillon (éditeur n8n) différente de sa version publiée (celle qui tourne
+réellement) — 2 nœuds (`Extraire categories secteur metier`, `Extraire categories theme`)
+présents dans le brouillon mais jamais republiés. Le fichier exporte le brouillon (le plus
+complet), signalé explicitement dans `n8n/README.md` pour ne pas laisser croire que c'est
+ce qui s'exécute en production tant que ce n'est pas republié côté n8n.
+
+**Explicitement signalé** : cet export est une photo manuelle du 2026-09-11, pas
+synchronisée automatiquement — aucune CI ni webhook ne le maintient à jour si les
+workflows changent dans n8n par la suite.
+
 ## 2026-09-11 — Badge en pourcentage, champs manquants surbrillés, validation du lien LinkedIn
 
 **Suite de l'entrée précédente** (badge "Préférences · x/6") :

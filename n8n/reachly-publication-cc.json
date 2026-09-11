@@ -1,0 +1,169 @@
+{
+  "id": "WnLJIyaYmy9QYmso",
+  "name": "Reachly Publication CC",
+  "active": true,
+  "nodeCount": 10,
+  "connections": {
+    "Webhook Generation": { "main": [[{ "node": "Get Info", "type": "main", "index": 0 }]] },
+    "Get Tonalite": { "main": [[{ "node": "Generation Post", "type": "main", "index": 0 }]] },
+    "Generation Post": { "main": [[{ "node": "Creer Publication", "type": "main", "index": 0 }]] },
+    "Get Info": { "main": [[{ "node": "Get Profile", "type": "main", "index": 0 }]] },
+    "Creer Publication": { "main": [[{ "node": "Reponse Post Genere", "type": "main", "index": 0 }]] },
+    "Groq Chat Model": { "ai_languageModel": [[{ "node": "Generation Post", "type": "ai_languageModel", "index": 1 }]] },
+    "Google Gemini Chat Model": { "ai_languageModel": [[{ "node": "Generation Post", "type": "ai_languageModel", "index": 0 }]] },
+    "Get Profile": { "main": [[{ "node": "Resoudre Overrides", "type": "main", "index": 0 }]] },
+    "Resoudre Overrides": { "main": [[{ "node": "Get Tonalite", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1", "binaryMode": "separate", "availableInMCP": true },
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "f385f1d3-4c44-451b-903f-c24762faf391",
+        "responseMode": "responseNode",
+        "options": { "allowedOrigins": "*" }
+      },
+      "id": "7649c288-22b5-461c-a108-01d695c71bf1",
+      "name": "Webhook Generation",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-1120, 1280],
+      "webhookId": "f385f1d3-4c44-451b-903f-c24762faf391"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "profiles",
+        "filters": {
+          "conditions": [{ "keyName": "id", "keyValue": "={{ $('Webhook Generation').item.json.body.user_id }}" }]
+        }
+      },
+      "id": "353c3f52-ebae-4200-b5b4-03ece2525400",
+      "name": "Get Profile",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [-672, 1280],
+      "credentials": { "supabaseApi": { "id": "6PiYWYhr4dNQe0yd", "name": "Reachly" } }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Tonalités",
+        "filters": {
+          "conditions": [{ "keyName": "id", "keyValue": "={{ $('Resoudre Overrides').item.json.tonalite_effective }}" }]
+        }
+      },
+      "id": "f59687ee-8e14-4fba-b34c-82faa645fac2",
+      "name": "Get Tonalite",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [-448, 1280],
+      "credentials": { "supabaseApi": { "id": "6PiYWYhr4dNQe0yd", "name": "Reachly" } }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ \"Tu es le ghostwriter LinkedIn de \" + $('Get Profile').item.json.prenom + \" \" + $('Get Profile').item.json.nom + \", freelance qui publie sur le secteur Tech & IA pour une audience de décideurs B2B francophones.\\n\\nMISSION : à partir du sujet de veille ci-dessous, rédige un premier jet de post LinkedIn — jamais publié tel quel, toujours relu et validé par \" + $('Get Profile').item.json.prenom + \" avant diffusion.\\n\\nRÈGLES À RESPECTER STRICTEMENT :\\n1. N'utilise QUE les informations fournies plus bas (titre, contenu). N'invente aucun chiffre, aucune citation, aucun fait absent de la source — mieux vaut rester général qu'inventer.\\n2. Adopte cette tonalité, propre à \" + $('Get Profile').item.json.prenom + \", et à elle seule : \" + $('Get Tonalite').item.json['Visée de la publication'] + \" — \" + $('Get Tonalite').item.json.descriptif + \". Respecte également cette voix narrative propre à \" + $('Get Profile').item.json.prenom + \" : \" + $('Resoudre Overrides').item.json.voix_effective + \". Interdiction des tournures IA génériques (\\\"dans un monde en constante évolution\\\", \\\"il est essentiel de noter\\\", \\\"en conclusion\\\", emojis en cascade).\\n3. Ne te contente pas de résumer l'actu : propose un angle, un point de vue, une implication concrète pour un professionnel du secteur. C'est ce qui distingue une prise de parole d'expert d'un simple partage de lien.\\n4. Structure le post pour LinkedIn :\\n   - 1ère ligne : une accroche forte (question, affirmation tranchée, ou chiffre clé de la source) qui donne envie de cliquer sur « ...voir plus ».\\n   - Corps : phrases courtes, aérées par des sauts de ligne.\\n   - Dernière ligne : une question ouverte qui invite les lecteurs à commenter.\\n5. Ne mets aucun lien dans le texte (l'algorithme LinkedIn pénalise les posts avec lien sortant) — le lien sera ajouté séparément en commentaire. Cite la source par son nom si utile.\\n6. Si la source est en anglais, rédige quand même le post en français.\\n7. Longueur cible : entre 90 et 110 mots.\\n8. Termine par 0 à 2 hashtags pertinents maximum, jamais plus.\\n9. Réponds UNIQUEMENT avec le texte final du post. Pas de guillemets, pas de markdown, pas d'introduction, pas de commentaire sur ta propre réponse.\" + ($('Get Profile').item.json.profil_editorial && $('Get Profile').item.json.profil_editorial.indexOf('aucun') === -1 ? \"\\n\\n\" + $('Get Profile').item.json.profil_editorial + \"\\nRespecte ce style d'écriture autant que la tonalité et la voix narrative ci-dessus.\" : \"\") + \"\\n\\nSUJET À TRAITER :\\nTitre : \" + $('Get Info').item.json.titre_recomposé + \"\\nContenu : \" + $('Get Info').item.json.article }}",
+        "needsFallback": true,
+        "batching": {}
+      },
+      "id": "0e89838d-6e26-4e9b-bcfd-a7d3fbdc79bd",
+      "name": "Generation Post",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [-224, 1280]
+    },
+    {
+      "parameters": {
+        "tableId": "Publications",
+        "fieldsUi": {
+          "fieldValues": [
+            { "fieldId": "titre", "fieldValue": "={{ $('Get Info').item.json.titre_recomposé }}" },
+            { "fieldId": "contenu", "fieldValue": "={{ $json.text }}" },
+            { "fieldId": "statut", "fieldValue": "Brouillon" },
+            { "fieldId": "date_création", "fieldValue": "={{ $now.format('yyyy-MM-dd') }}" },
+            { "fieldId": "user_id", "fieldValue": "={{ $('Webhook Generation').item.json.body.user_id }}" },
+            { "fieldId": "tonalité_id", "fieldValue": "={{ $('Resoudre Overrides').item.json.tonalite_effective }}" },
+            { "fieldId": "info_id", "fieldValue": "={{ $('Webhook Generation').item.json.body.info_id }}" }
+          ]
+        }
+      },
+      "id": "c70f84d9-5e1b-43bf-b85c-13323a25fafd",
+      "name": "Creer Publication",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [128, 1280],
+      "credentials": { "supabaseApi": { "id": "6PiYWYhr4dNQe0yd", "name": "Reachly" } }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"publication_id\": $json.id, \"post\": $json.contenu } }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "0d7a1c90-f73e-4791-8fcc-bba29b3ff6f3",
+      "name": "Reponse Post Genere",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [400, 1280]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Infos",
+        "filters": { "conditions": [{ "keyName": "id", "keyValue": "={{ $json.body.info_id }}" }] }
+      },
+      "id": "c6bbc5e7-885b-4789-be37-1ae224f1a5b7",
+      "name": "Get Info",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [-896, 1280],
+      "credentials": { "supabaseApi": { "id": "6PiYWYhr4dNQe0yd", "name": "Reachly" } }
+    },
+    {
+      "parameters": { "model": "groq/compound", "options": {} },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [-64, 1520],
+      "id": "a10210ec-0863-4d82-a5e1-5df4c1c926d6",
+      "name": "Groq Chat Model",
+      "credentials": { "groqApi": { "id": "vAQ2SNVCfLG3Vpts", "name": "Groq account 4" } }
+    },
+    {
+      "parameters": { "options": {}, "modelName": "models/gemini-3.1-flash-lite" },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [-288, 1520],
+      "id": "a41530d3-5254-4906-8689-561ff4a8acd6",
+      "name": "Google Gemini Chat Model",
+      "credentials": { "googlePalmApi": { "id": "Acpxb8ZY0cxuuGRa", "name": "FBA.dev" } }
+    },
+    {
+      "id": "1418fb0f-d118-4be7-acd9-3dd263df830e",
+      "name": "Resoudre Overrides",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [-560, 1280],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1e1a001-0001-4001-8001-000000000001",
+              "name": "tonalite_effective",
+              "value": "={{ $('Webhook Generation').item.json.body.tonalite_id || $('Get Profile').item.json['Tonalité_défaut'] }}",
+              "type": "string"
+            },
+            {
+              "id": "b1e1a001-0001-4001-8001-000000000002",
+              "name": "voix_effective",
+              "value": "={{ $('Webhook Generation').item.json.body.voix_narrative || $('Get Profile').item.json.voix_narrative }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    }
+  ]
+}
