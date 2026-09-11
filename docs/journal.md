@@ -54,6 +54,34 @@ nouveaux réglages) au lieu de laisser la personne la rechercher dans la liste. 
 
 **Non vérifié** : rendu réel en navigateur (badge comme reprise de génération).
 
+## 2026-09-11 — Documentation des workflows n8n (`docs/n8n.md`)
+
+**Demande (humaine)** : les workflows n8n n'étaient documentés nulle part dans le projet
+(seulement des mentions de haut niveau éparses dans README/AGENTS/cadrage, et un historique
+de correctifs ponctuels dans ce journal) — demande de les documenter, en simplifiant le
+workflow de veille en grandes étapes plutôt qu'en détaillant chacun de ses nœuds.
+
+**Fait** (`docs/n8n.md`, nouveau) : photo des 3 workflows actifs, consultés via les tools
+MCP n8n (`get_workflow_details`) pour ne rien inventer :
+- **Reachly Veille CC** (76 nœuds) — résumé en 6 étapes en reprenant les zones que le
+  workflow annote déjà lui-même dans n8n (Collecte, Dédoublonnage, Scoring, Scraping &
+  traduction, Catégorisation, Sauvegarde), sans détailler nœud par nœud comme demandé.
+- **Reachly Publication CC** (10 nœuds) et **Reachly_Profil_Utilisateur** (4 nœuds) —
+  décrits avec plus de détail (entrée/sortie, déroulé, prompt), leur taille le permettant
+  sans devenir illisible.
+- Modèles LLM confirmés en lisant les paramètres réels des nœuds plutôt que supposés :
+  Gemini `gemini-3.1-flash-lite` (scoring, catégorisation, génération de post) et Groq
+  (`groq/compound` pour traduction/génération, `openai/gpt-oss-120b` pour le profil
+  éditorial).
+- `AGENTS.md` : la ligne "LLM : à compléter" comblée avec cette même réponse.
+- `README.md` : lien vers `docs/n8n.md` ajouté, et `VITE_N8N_WEBHOOK_PROFIL_EDITORIAL`
+  ajouté au tableau des variables d'environnement (manquait alors que
+  `.env.example` la documente déjà).
+
+**Explicitement signalé dans le document** : c'est une photo prise le 2026-09-11, pas une
+source vivante — à remettre à jour manuellement si les workflows changent (ils ne sont pas
+versionnés dans ce dépôt).
+
 ## 2026-09-10 — Administration : édition en place pour Catégories/Tonalités/Sources, tableaux
 
 **Demande (humaine)** : organisation plus complète de l'administration en mode CRUD et
