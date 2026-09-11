@@ -1,0 +1,330 @@
+[
+  {
+    "nom": "Achats",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "c6f33aa4-1423-4eb2-b450-4887f214812b",
+    "Description": "Approvisionnement, négociation fournisseurs, sourcing — optimisation IA des achats.",
+    "ref": 19,
+    "type": "métier"
+  },
+  {
+    "nom": "Client",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "b1f51c73-2ab4-4673-9d67-b3f8a5bb9dfe",
+    "Description": "Relation client, support, SAV, satisfaction et fidélisation — chatbots et automatisation de la relation client.",
+    "ref": 15,
+    "type": "métier"
+  },
+  {
+    "nom": "Commercial",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "fe6804fe-5c2d-4447-99da-5c050048f746",
+    "Description": "Vente, prospection, négociation, pipeline commercial — outils IA d'aide à la vente et à la relation prospect.",
+    "ref": 14,
+    "type": "métier"
+  },
+  {
+    "nom": "Direction",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "d754da02-1eb4-4da0-bfe9-fe28633e9506",
+    "Description": "Pilotage stratégique, gouvernance, décisions exécutives — enjeux IA pour les dirigeants.",
+    "ref": 24,
+    "type": "métier"
+  },
+  {
+    "nom": "Finance",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "dc7da3fa-1721-4e61-87f1-a8f01a5943be",
+    "Description": "Comptabilité, contrôle de gestion, trésorerie, reporting financier — automatisation et analyse IA appliquées à la finance.",
+    "ref": 17,
+    "type": "métier"
+  },
+  {
+    "nom": "Formateur",
+    "created_at": "2026-09-09T15:06:04.120457",
+    "id": "206ff3d7-4b62-474c-8c2f-fff6c6d1637a",
+    "Description": null,
+    "ref": 42,
+    "type": "métier"
+  },
+  {
+    "nom": "Innovation",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "cc5230c9-67c2-476f-8e57-442966aa448c",
+    "Description": "R&D, prospective, exploration technologique, transformation — impact de l'IA sur l'innovation en entreprise.",
+    "ref": 22,
+    "type": "métier"
+  },
+  {
+    "nom": "IT",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "0dc52d2c-9e2d-4cb8-a403-a6e5ebe243ef",
+    "Description": "Infrastructure, développement, sécurité informatique, systèmes d'information — usages IA pour les équipes IT.",
+    "ref": 23,
+    "type": "métier"
+  },
+  {
+    "nom": "Juridique",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "5e94b41c-ad04-4254-81c1-f78596e1e232",
+    "Description": "Droit des affaires, contrats, conformité, propriété intellectuelle — usages IA pour le juridique et la conformité.",
+    "ref": 18,
+    "type": "métier"
+  },
+  {
+    "nom": "Marketing",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "a6efceea-7164-4d88-8f18-0d5cfdcbec79",
+    "Description": "Communication, image de marque, acquisition, contenu, publicité — usages IA pour cibler, personnaliser et mesurer les campagnes.",
+    "ref": 13,
+    "type": "métier"
+  },
+  {
+    "nom": "Opérations",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "fe159172-e8d7-41f2-92bc-ccf80d5438ea",
+    "Description": "Production, logistique, supply chain, qualité — automatisation et IA appliquées aux opérations.",
+    "ref": 20,
+    "type": "métier"
+  },
+  {
+    "nom": "Produit",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "068f0f08-dab7-4158-a2db-914637e80722",
+    "Description": "Conception, gestion de produit, roadmap, expérience utilisateur — usages IA pour le product management.",
+    "ref": 21,
+    "type": "métier"
+  },
+  {
+    "nom": "RH",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "90ce6717-88f4-4057-91dd-287874f1ab44",
+    "Description": "Recrutement, formation, gestion des talents, paie — usages IA en ressources humaines.",
+    "ref": 16,
+    "type": "métier"
+  },
+  {
+    "nom": "Automobile",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "c89c67ac-0391-4d03-8c61-da78a36c7fd7",
+    "Description": "Constructeurs et équipementiers automobiles, mobilité individuelle.",
+    "ref": 28,
+    "type": "secteur"
+  },
+  {
+    "nom": "Banque & Assurance",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "7443f919-339c-4993-a1d2-12809262ad35",
+    "Description": "Établissements bancaires, assurance, gestion d'actifs et services financiers.",
+    "ref": 26,
+    "type": "secteur"
+  },
+  {
+    "nom": "Commerce",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "a520b45a-9b27-4c8a-be56-b3175f97c192",
+    "Description": "Distribution, retail, e-commerce et grande consommation.",
+    "ref": 32,
+    "type": "secteur"
+  },
+  {
+    "nom": "Éducation",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "eafe7fd8-746e-4fe4-b23c-b930c115ae5f",
+    "Description": "Enseignement, formation et edtech.",
+    "ref": 39,
+    "type": "secteur"
+  },
+  {
+    "nom": "Énergie",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "cdbcc329-c5da-437b-8b7c-f1b738465e30",
+    "Description": "Production, distribution d'énergie, transition énergétique et utilities.",
+    "ref": 30,
+    "type": "secteur"
+  },
+  {
+    "nom": "Immobilier & BTP",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "37e15381-d8a6-4a71-bd0b-cf33ce3cfae2",
+    "Description": "Immobilier, construction, promotion et bâtiment/travaux publics.",
+    "ref": 36,
+    "type": "secteur"
+  },
+  {
+    "nom": "Industrie",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "7566e035-abea-4ef4-8aa0-48ad76e9b4ce",
+    "Description": "Industrie manufacturière, production industrielle et usines.",
+    "ref": 27,
+    "type": "secteur"
+  },
+  {
+    "nom": "Luxe",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "c9c27cd8-a2cc-4863-af4c-199f2debf1fa",
+    "Description": "Maisons de luxe, mode haut de gamme et savoir-faire d'exception.",
+    "ref": 33,
+    "type": "secteur"
+  },
+  {
+    "nom": "Médias & Culture",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "a06ffd01-ddfc-4117-aaa7-5d1b297b21bc",
+    "Description": "Médias, presse, audiovisuel, édition, divertissement et industries culturelles.",
+    "ref": 34,
+    "type": "secteur"
+  },
+  {
+    "nom": "Public",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "8670fd79-d6cf-4512-92e3-ff6adca9a393",
+    "Description": "Administration publique, collectivités et secteur public.",
+    "ref": 40,
+    "type": "secteur"
+  },
+  {
+    "nom": "Santé",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "fbf80249-cca3-4dfb-8d0f-0aad2a4c8e0b",
+    "Description": "Établissements de santé, pharma, biotech et dispositifs médicaux.",
+    "ref": 31,
+    "type": "secteur"
+  },
+  {
+    "nom": "Services",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "3c604702-c310-4cc8-aefe-2f9dbdcd9f7d",
+    "Description": "Conseil, services aux entreprises et prestations professionnelles.",
+    "ref": 38,
+    "type": "secteur"
+  },
+  {
+    "nom": "Tech",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "e1a5b613-9e41-4920-ae35-45b4112b553b",
+    "Description": "Éditeurs de logiciels, startups tech, SaaS et entreprises du numérique.",
+    "ref": 25,
+    "type": "secteur"
+  },
+  {
+    "nom": "Télécoms",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "908a6d90-a9b3-431f-aa3c-644c48b3d69c",
+    "Description": "Opérateurs télécoms, infrastructures réseau et connectivité.",
+    "ref": 37,
+    "type": "secteur"
+  },
+  {
+    "nom": "Tourisme",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "0e8e30e1-bd5b-4b57-890f-926dd369f9b2",
+    "Description": "Voyage, hôtellerie, restauration et loisirs touristiques.",
+    "ref": 35,
+    "type": "secteur"
+  },
+  {
+    "nom": "Transport",
+    "created_at": "2026-08-28T14:12:14.1589",
+    "id": "c34576f7-2b12-4428-892e-548803f0997f",
+    "Description": "Transport de marchandises et de personnes, logistique et mobilité.",
+    "ref": 29,
+    "type": "secteur"
+  },
+  {
+    "nom": "Agents IA",
+    "created_at": "2026-08-21T10:53:58.34251",
+    "id": "ad2b9a1c-e392-44c6-a812-4e464cabdb9a",
+    "Description": "Agents autonomes et systèmes agentiques : assistants métiers, multi-agents, orchestration, MCP, navigateurs autonomes, computer use et déploiement d'agents en entreprise. ",
+    "ref": 1,
+    "type": "thème"
+  },
+  {
+    "nom": "Automatisation",
+    "created_at": "2026-08-21T10:56:27.920402",
+    "id": "1dd843fd-0f66-4cb6-ab98-e6ce87c4a2b9",
+    "Description": "Automatisation des processus professionnels avec workflows et agents IA : nouveaux connecteurs, intégrations, exemples de scénarios et automatisation de tâches répétitives.",
+    "ref": 3,
+    "type": "thème"
+  },
+  {
+    "nom": "Cas d’usage",
+    "created_at": "2026-08-21T10:57:30.764211",
+    "id": "ee7c2d5e-3652-4e34-bfd5-316111a4e18d",
+    "Description": "Applications concrètes de l'IA dans les entreprises : marketing, relation client, ventes, RH, finance, juridique, communication, industrie, transport, santé, médias… ",
+    "ref": 4,
+    "type": "thème"
+  },
+  {
+    "nom": "Cloud",
+    "created_at": "2026-08-21T11:01:29.156647",
+    "id": "7f8e0f33-36aa-4183-9346-8b51ea629d99",
+    "Description": "Services et infrastructures nécessaires aux applications modernes et à l'IA : hébergement, GPU, Kubernetes, DevOps, MLOps/LLMOps, coûts et déploiement à grande échelle.  ",
+    "ref": 8,
+    "type": "thème"
+  },
+  {
+    "nom": "Cybersécurité",
+    "created_at": "2026-08-21T10:58:56.301938",
+    "id": "df1b0366-b939-45fe-bf45-9b2a532ad9ce",
+    "Description": "Cyberattaques, ransomwares, fraudes, deepfakes, sécurité des données et des modèles d'IA, nouvelles vulnérabilités, protection des agents IA, solutions de défense et usages offensifs/défensifs de l'IA. ",
+    "ref": 6,
+    "type": "thème"
+  },
+  {
+    "nom": "Data",
+    "created_at": "2026-08-21T10:59:39.573468",
+    "id": "658f9ceb-b409-48dd-9f08-75b67064b615",
+    "Description": "Collecte, stockage et exploitation des données : bases de données, RAG, vector databases, data engineering, analytics, BI, gouvernance, qualité des données et préparation des données pour les systèmes d'IA.",
+    "ref": 7,
+    "type": "thème"
+  },
+  {
+    "nom": "Développement",
+    "created_at": "2026-08-21T11:03:35.8802",
+    "id": "63b7c96b-bbeb-4575-9dc9-d01dd225937b",
+    "Description": "Coding assisté par IA, vibe coding et autres outils destinés aux développeurs ; création d'applications, API, no-code/low-code et évolution du métier de développeur.",
+    "ref": 10,
+    "type": "thème"
+  },
+  {
+    "nom": "Emploi Tech",
+    "created_at": "2026-08-21T11:04:21.314693",
+    "id": "e3877d0c-dbb0-4a90-b61d-af1c713b05fd",
+    "Description": "Impact de l'IA sur les métiers, compétences recherchées, nouveaux postes, métiers menacés ou transformés, recrutements, salaires et formations. ",
+    "ref": 11,
+    "type": "thème"
+  },
+  {
+    "nom": "IA générative",
+    "created_at": "2026-08-21T10:50:49.004753",
+    "id": "a8a09f19-326c-479e-9a77-af3b45856d6a",
+    "Description": "Actualités des LLM : nouveaux modèles, nouvelles fonctionnalités, performances, multimodalité, voix, image, vidéo, benchmarks et évolution des usages.",
+    "ref": 9,
+    "type": "thème"
+  },
+  {
+    "nom": "Outils IA",
+    "created_at": "2026-08-21T10:54:55.231722",
+    "id": "d7334d74-561a-428a-bf88-6c87db5b13c3",
+    "Description": "Nouveaux logiciels et services utilisant l'IA : rédaction, recherche, présentation, image, vidéo, audio, réunion, CRM, développement, marketing, vente, RH, juridique… ",
+    "ref": 2,
+    "type": "thème"
+  },
+  {
+    "nom": "Productivité",
+    "created_at": "2026-08-21T10:58:15.328067",
+    "id": "335a2d4e-0286-48fc-a724-22a97ddfe466",
+    "Description": "Méthodes et technologies permettant de travailler plus vite ou mieux : copilotes, assistants personnels, recherche documentaire, comptes rendus automatisés, création de contenus, gestion des connaissances et nouveaux modes de travail.",
+    "ref": 5,
+    "type": "thème"
+  },
+  {
+    "nom": "Régulation IA",
+    "created_at": "2026-08-21T11:05:17.359703",
+    "id": "8321a0b8-96d9-46b2-8f84-47f4d2a14810",
+    "Description": "AI Act européen, copyright, protection des données, responsabilité, souveraineté, transparence des modèles, gouvernance IA, normes et obligations imposées aux entreprises utilisant ou développant de l'IA.",
+    "ref": 12,
+    "type": "thème"
+  }
+]

@@ -1,0 +1,152 @@
+[
+  {
+    "nom": "Hacker News",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?tags=story&numericFilters=points%3E20&hitsPerPage=50",
+    "résumé": "Hacker News communauté tech et startups",
+    "type": "HTTP",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "497e21a2-d039-40c2-b2a7-61066824c4e4",
+    "langue": "en",
+    "actif": false
+  },
+  {
+    "nom": "Hacker News - AI",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=AI&tags=story&numericFilters=points%3E20&hitsPerPage=50",
+    "résumé": "Posts Hacker News (score > 20) mentionnant l'intelligence artificielle en général.",
+    "type": "HTTP",
+    "created_at": "2026-09-01T13:58:54.406193",
+    "id": "a2c817c3-83dd-4c10-83c5-5cbc4ee0813d",
+    "langue": "en",
+    "actif": true
+  },
+  {
+    "nom": "Hacker News - LLM",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=LLM&tags=story&numericFilters=points%3E20&hitsPerPage=50",
+    "résumé": "Posts Hacker News (score > 20) sur les grands modèles de langage.",
+    "type": "HTTP",
+    "created_at": "2026-09-01T13:58:54.406193",
+    "id": "a134ae14-c6d8-4a84-8a82-c2f2ce0620ac",
+    "langue": "en",
+    "actif": true
+  },
+  {
+    "nom": "Hacker News - Programming",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=programming&tags=story&numericFilters=points%3E20&hitsPerPage=50",
+    "résumé": "Posts Hacker News (score > 20) sur le développement et la programmation.",
+    "type": "HTTP",
+    "created_at": "2026-09-01T13:58:54.406193",
+    "id": "5127005f-6878-431b-a81b-cf579d9127b3",
+    "langue": "en",
+    "actif": true
+  },
+  {
+    "nom": "Hacker News - Software",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=software&tags=story&numericFilters=points%3E20&hitsPerPage=50",
+    "résumé": "Posts Hacker News (score > 20) sur le développement logiciel et les outils.",
+    "type": "HTTP",
+    "created_at": "2026-09-01T13:58:54.406193",
+    "id": "e383533f-188d-47da-8858-d4aa6224867a",
+    "langue": "en",
+    "actif": true
+  },
+  {
+    "nom": "Hacker News - Tech",
+    "url": "https://hn.algolia.com/api/v1/search_by_date?query=tech&tags=story&numericFilters=points%3E20&hitsPerPage=50",
+    "résumé": "Posts Hacker News (score > 20) sur l'actualité tech au sens large.",
+    "type": "HTTP",
+    "created_at": "2026-09-01T13:58:54.406193",
+    "id": "2ffdb9b6-4d64-476c-a289-e50b0d2a03fd",
+    "langue": "en",
+    "actif": true
+  },
+  {
+    "nom": "Hacker News RSS",
+    "url": "https://hnrss.org/frontpage",
+    "résumé": "Hacker News communauté tech et startups",
+    "type": "RSS",
+    "created_at": "2026-09-04T09:56:26.009873",
+    "id": "1728fc01-a266-4c4b-9b31-51e048cf58eb",
+    "langue": "en",
+    "actif": true
+  },
+  {
+    "nom": "Journal du Net",
+    "url": "https://www.journaldunet.com/rss/",
+    "résumé": "Angle business/entreprise, France",
+    "type": "RSS",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "6619ffb3-3640-4a78-add1-625a84dcad43",
+    "langue": "fr",
+    "actif": false
+  },
+  {
+    "nom": "Journal du Net - Cloud",
+    "url": "https://www.journaldunet.com/solutions/cloud-computing/rss/",
+    "résumé": "Actualités du Journal du Net sur le cloud computing.",
+    "type": "RSS",
+    "created_at": "2026-09-08T15:53:52.820639",
+    "id": "c218e938-fe62-40c5-b7f7-df19c7bb9084",
+    "langue": "fr",
+    "actif": true
+  },
+  {
+    "nom": "Journal du Net - Data & Analytics",
+    "url": "https://www.journaldunet.com/solutions/analytics/big-data/rss/",
+    "résumé": "Actualités du Journal du Net sur l'analytics et le big data.",
+    "type": "RSS",
+    "created_at": "2026-09-08T15:53:52.820639",
+    "id": "19828d72-726f-4a83-93c1-12d67bc4522a",
+    "langue": "fr",
+    "actif": true
+  },
+  {
+    "nom": "Journal du Net - Fintech",
+    "url": "https://www.journaldunet.com/ebusiness/le-net/fintech/rss/",
+    "résumé": "Tech généraliste FR, bonne couverture IA",
+    "type": "RSS",
+    "created_at": "2026-08-28T10:34:10.212931",
+    "id": "52e32a96-f3ce-4177-8609-862654a64652",
+    "langue": "fr",
+    "actif": true
+  },
+  {
+    "nom": "Journal du Net - IoT",
+    "url": "https://www.journaldunet.com/iot/rss/",
+    "résumé": "Actualités du Journal du Net sur l'Internet des objets (IoT).",
+    "type": "RSS",
+    "created_at": "2026-09-08T15:53:52.820639",
+    "id": "03ce950d-91e1-4c14-971a-8862910fa89a",
+    "langue": "fr",
+    "actif": true
+  },
+  {
+    "nom": "Journal du Net - RH",
+    "url": "https://www.journaldunet.com/e-rh/rss/",
+    "résumé": "Actualités du Journal du Net sur les ressources humaines et le e-RH.",
+    "type": "RSS",
+    "created_at": "2026-09-08T15:53:52.820639",
+    "id": "0ee406d0-e1c2-4705-a9af-9d083dfd7f9c",
+    "langue": "fr",
+    "actif": true
+  },
+  {
+    "nom": "Journal du Net - SEO",
+    "url": "https://www.journaldunet.com/solutions/seo-referencement/rss/",
+    "résumé": "Actualités du Journal du Net sur le SEO et le référencement.",
+    "type": "RSS",
+    "created_at": "2026-09-08T15:53:52.820639",
+    "id": "c5e82482-6b47-4926-83c0-fc39eddb930c",
+    "langue": "fr",
+    "actif": true
+  },
+  {
+    "nom": "Numerama",
+    "url": "https://www.numerama.com/feed/",
+    "résumé": "Tech généraliste FR, bonne couverture IA",
+    "type": "RSS",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "14712bc5-e6b5-4f0e-bf3d-9ba1c23b1c9a",
+    "langue": "fr",
+    "actif": false
+  }
+]

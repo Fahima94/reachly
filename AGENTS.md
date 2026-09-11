@@ -11,7 +11,7 @@
 - Front : React + Vite (SPA).
 - Auth : Supabase.
 - Génération de post : webhook n8n.
-- Données : Supabase (7 tables, `profiles` en pivot).
+- Données : Supabase (7 tables + 2 tables de jointure, `profiles` en pivot) — schéma et policies RLS dans `docs/schema.md`.
 - LLM : Gemini et Groq, appelés depuis les workflows n8n (jamais directement par le front) — détail par workflow dans `docs/n8n.md`.
 
 ## Commandes

@@ -1,0 +1,62 @@
+[
+  {
+    "Visée de la publication": "Analytique",
+    "descriptif": "Décrypter une tendance, une donnée ou une actualité",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "2460f700-d202-4725-a457-16c54ebd3eb2"
+  },
+  {
+    "Visée de la publication": "Authentique / vulnérable",
+    "descriptif": "Évoquer une difficulté, une erreur ou un doute",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "71f3639b-99a5-43f2-b1cb-45a78136e74e"
+  },
+  {
+    "Visée de la publication": "Challengeant / provocateur",
+    "descriptif": "Remettre en cause une idée reçue ou une pratique",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "31dd8983-526c-44ed-8b1b-f8f74476e6e6"
+  },
+  {
+    "Visée de la publication": "Conversationnel",
+    "descriptif": "S'adresser directement au lecteur et susciter l'échange",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "18c51b30-6109-4e46-aab4-b729a8b969c7"
+  },
+  {
+    "Visée de la publication": "Expert",
+    "descriptif": "Partager un point de vue professionnel ou une expertise métier",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "660d2353-a8de-4f5d-bf49-9a834001c0c8"
+  },
+  {
+    "Visée de la publication": "Inspirant",
+    "descriptif": "Partager une réussite, une leçon ou une vision positive",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "833bf82a-3f92-4c05-ab49-33926172b296"
+  },
+  {
+    "Visée de la publication": "Pédagogique",
+    "descriptif": "Expliquer, vulgariser, transmettre une méthode",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "6f44a395-8335-47d3-bbac-e248f1bf39a1"
+  },
+  {
+    "Visée de la publication": "Personnel",
+    "descriptif": "Raconter une expérience, un apprentissage ou un parcours",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "6219a8a3-0fc4-4554-89e4-13e2b41219bb"
+  },
+  {
+    "Visée de la publication": "Pragmatique",
+    "descriptif": "Proposer des conseils directement applicables",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "7f188a6f-389e-4377-b506-fe1e9438dae4"
+  },
+  {
+    "Visée de la publication": "Storytelling",
+    "descriptif": "Construire le post autour d'une histoire",
+    "created_at": "2026-07-27T14:15:47.17122",
+    "id": "0c37f344-5345-466a-8ae5-fa2eeed5498f"
+  }
+]

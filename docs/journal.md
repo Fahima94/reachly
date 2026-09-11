@@ -1,5 +1,28 @@
 # Journal
 
+## 2026-09-11 — Schéma de la base et contenu des tables de référence dans le dépôt
+
+**Demande (humaine)** : ajouter aussi la base de données et le contenu des tables
+« catégories » (fait suite à l'export des workflows n8n ci-dessous) — schéma complet
+(colonnes, contraintes, policies RLS) transmis directement par la personne.
+
+**Fait** : `docs/schema.md` (nouveau) reprend ce schéma, réorganisé table par table avec
+quelques annotations de contexte (ex. `Infos.article` utilisé par le prompt de génération
+depuis le 2026-09-10, `profiles.préférences` sans plus de producteur — déjà noté dans
+`docs/dette-technique.md`). Contenu réel des 3 tables « catalogue » gérées depuis
+l'administration (`Catégories`, `Tonalités`, `Sources`) exporté dans `db/` (41, 10 et 15
+lignes) via un compte authentifié jetable (leur policy `SELECT` est ouverte à tout compte
+connecté). Aucune donnée personnelle versionnée (pas de `profiles`/`Publications`).
+Pointeurs ajoutés depuis `README.md` et `AGENTS.md`.
+
+**Point relevé en documentant** : les policies RLS confirment noir sur blanc ce que
+l'admin avait déjà découvert en testant (2026-09-10) — les policies « Admins can... »
+ciblent la même liste fermée de 3 e-mails que `src/lib/admin.js`, et c'est cette liste
+côté base, pas `EMAILS_ADMIN` côté app, qui fait réellement autorité en écriture.
+
+**Explicitement signalé** : photo manuelle du 2026-09-11, ni le schéma ni le contenu des
+tables ne sont resynchronisés automatiquement.
+
 ## 2026-09-11 — Export JSON complet des 3 workflows n8n dans le dépôt (`n8n/`)
 
 **Demande (humaine)** : ajouter les workflows complets sur le Git (suite à la

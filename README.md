@@ -44,7 +44,9 @@ dans [`docs/cadrage.md`](docs/cadrage.md).
 
 React + Vite, Supabase (auth et données), n8n pour la génération de post assistée par IA.
 Hébergement : Netlify (préproduction sur la branche `preprod`). Détail des workflows n8n
-(déroulé, modèles LLM utilisés) dans [`docs/n8n.md`](docs/n8n.md).
+(déroulé, modèles LLM utilisés) dans [`docs/n8n.md`](docs/n8n.md), export JSON complet
+dans [`n8n/`](n8n/). Schéma de la base et policies RLS dans
+[`docs/schema.md`](docs/schema.md), contenu des tables de référence dans [`db/`](db/).
 
 ## Démarrer en local
 
