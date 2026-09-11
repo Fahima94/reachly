@@ -43,7 +43,8 @@ dans [`docs/cadrage.md`](docs/cadrage.md).
 ## Stack
 
 React + Vite, Supabase (auth et données), n8n pour la génération de post assistée par IA.
-Hébergement : Netlify (préproduction sur la branche `preprod`).
+Hébergement : Netlify (préproduction sur la branche `preprod`). Détail des workflows n8n
+(déroulé, modèles LLM utilisés) dans [`docs/n8n.md`](docs/n8n.md).
 
 ## Démarrer en local
 
@@ -60,6 +61,7 @@ Variables d'environnement (voir [`.env.example`](.env.example)) :
 | `VITE_SUPABASE_URL` | URL du projet Supabase |
 | `VITE_SUPABASE_ANON_KEY` | Clé anonyme Supabase (publique côté client) |
 | `VITE_N8N_WEBHOOK_GENERATION_POST` | URL du webhook n8n de génération de post |
+| `VITE_N8N_WEBHOOK_PROFIL_EDITORIAL` | URL du webhook n8n d'analyse du profil éditorial |
 
 Autres commandes :
 

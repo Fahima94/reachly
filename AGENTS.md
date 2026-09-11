@@ -12,7 +12,7 @@
 - Auth : Supabase.
 - Génération de post : webhook n8n.
 - Données : Supabase (7 tables, `profiles` en pivot).
-- LLM : à compléter (utilisé via n8n selon le cadrage, fournisseur non précisé).
+- LLM : Gemini et Groq, appelés depuis les workflows n8n (jamais directement par le front) — détail par workflow dans `docs/n8n.md`.
 
 ## Commandes
 
